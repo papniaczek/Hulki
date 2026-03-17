@@ -60,6 +60,13 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
                 .WithMany(u => u.DailyReports)
                 .HasForeignKey(d => d.AppUserId)
                 .OnDelete(DeleteBehavior.Restrict); // Zapobiega usunięciu raportów przy usuwaniu konta (zostają dla statystyk)
+            
+            // 5. Naprawa błędu kaskadowego usuwania na Forum
+            builder.Entity<ForumPost>()
+                .HasOne(fp => fp.AppUser)
+                .WithMany()
+                .HasForeignKey(fp => fp.AppUserId)
+                .OnDelete(DeleteBehavior.Restrict); // To blokuje podwójną ścieżkę usuwania!
                 
             // (Miejsce na dodawanie kolejnych tabel z Waszej listy, np. Ticket, Notification w miarę jak będziecie je tworzyć w Models)
         }
