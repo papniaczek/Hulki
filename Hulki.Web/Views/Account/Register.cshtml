@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "Rejestracja w Klinice";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <h3 class="text-center mb-4">Dołącz do terapii</h3>
+                    
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @Html.ValidationSummary(false, "", new { @class = "text-danger list-unstyled mb-0" })
+                        </div>
+                    }
+
+                    <form asp-controller="Account" asp-action="Register" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-muted small text-uppercase">Imię</label>
+                            <input type="text" name="firstName" class="form-control form-control-lg" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small text-uppercase">Nazwisko</label>
+                            <input type="text" name="lastName" class="form-control form-control-lg" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small text-uppercase">Email</label>
+                            <input type="email" name="email" class="form-control form-control-lg" required />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-muted small text-uppercase">Hasło</label>
+                            <input type="password" name="password" class="form-control form-control-lg" required />
+                            <div class="form-text">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Zarejestruj się</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
