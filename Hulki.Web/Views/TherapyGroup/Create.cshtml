@@ -1,0 +1,52 @@
+@model Hulki.Web.Models.TherapyGroup
+@{
+    ViewData["Title"] = "Nowa Grupa";
+    var therapyTypes = ViewBag.TherapyTypes as List<Hulki.Web.Models.TherapyType>;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white">
+                    <h4 class="m-0">Utwórz Nową Grupę Wsparcia</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nazwa Grupy</label>
+                            <input asp-for="Name" class="form-control" required placeholder="np. Anonimowi Hazardziści - Wtorki" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Opis Terapii</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" required placeholder="Krótki opis dla pacjentów..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Typ Terapii</label>
+                            <select asp-for="TherapyTypeId" class="form-select" required>
+                                <option value="">-- Wybierz typ --</option>
+                                @if (therapyTypes != null)
+                                {
+                                    foreach (var type in therapyTypes)
+                                    {
+                                        <option value="@type.Id">@type.Name</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="TherapyTypeId" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
+                            <button type="submit" class="btn btn-success">Zapisz grupę</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
