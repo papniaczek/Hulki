@@ -1,8 +1,47 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Strona Główna";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mt-5">
+    <h1 class="display-4 fw-bold text-primary">Klinika Hulki</h1>
+    <p class="lead">Zbuduj nowe, zdrowe nawyki. Wygrywaj życie, nie zakłady.</p>
 </div>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow border-0 bg-light">
+                <div class="card-body text-center p-5">
+                    <h2 class="mb-4">Twój Panel Terapii</h2>
+                    <div class="p-4 bg-white rounded shadow-sm d-inline-block mb-4 border border-success">
+                        <h5 class="text-muted text-uppercase mb-2">Punkty Motywacyjne</h5>
+                        <h1 class="display-3 text-success fw-bold m-0">@ViewBag.Points <i class="bi bi-star-fill text-warning fs-4"></i></h1>
+                    </div>
+                    <p class="text-muted">Dodawaj wpisy w dzienniczku, aby zdobywać punkty i wymieniać je na nagrody!</p>
+                    
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success mt-4 shadow-sm">
+                            <strong>Sukces!</strong> @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-primary btn-lg mt-3">Dodaj wpis do dzienniczka</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4 text-center">
+            <div class="card shadow-sm border-0 p-4">
+                <h4 class="mb-3">Rozpocznij terapię</h4>
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg w-100 mb-2">Załóż konto</a>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary w-100">Zaloguj się</a>
+            </div>
+        </div>
+    </div>
+}

@@ -23,16 +23,23 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark fw-bold" asp-controller="Store" asp-action="Index">
+                                    <i class="bi bi-shop text-warning"></i> Sklep z Nagrodami
+                                </a>
+                            </li>
+                        }
                     </ul>
                     
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item d-flex align-items-center me-3">
-                                <span class="text-success fw-bold">Witaj, @User.Identity.Name!</span>
+                                <a class="nav-link text-success fw-bold" asp-controller="Profile" asp-action="Index">
+                                    <i class="bi bi-person-circle"></i> Witaj, @User.Identity.Name!
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">

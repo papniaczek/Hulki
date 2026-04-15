@@ -1,0 +1,85 @@
+@{
+    ViewData["Title"] = "Mój Profil";
+    var user = ViewBag.User as AppUser;
+    var inventory = ViewBag.Inventory as List<RewardItem>;
+    var reports = ViewBag.Reports as List<DailyReport>;
+}
+
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 bg-primary text-white p-4 d-flex flex-row align-items-center justify-content-between rounded-3">
+                <div>
+                    <h2 class="mb-1">@user.FirstName @user.LastName</h2>
+                    <p class="mb-0 text-white-50"><i class="bi bi-envelope"></i> @user.Email</p>
+                </div>
+                <div class="text-end">
+                    <span class="text-white-50 small text-uppercase fw-bold">Saldo Portfela</span>
+                    <h1 class="m-0 fw-bold">@ViewBag.Points <i class="bi bi-star-fill text-warning"></i></h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7 mb-4">
+            <h4 class="mb-3 text-secondary fw-bold"><i class="bi bi-backpack"></i> Mój Ekwipunek</h4>
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    @if (inventory != null && inventory.Any())
+                    {
+                        <div class="row">
+                            @foreach (var item in inventory)
+                            {
+                                <div class="col-md-6 mb-3">
+                                    <div class="p-3 border rounded text-center" style="border-left: 5px solid @item.ItemRarity.HexColor !important; background-color: #f8f9fa;">
+                                        <i class="bi bi-shield-fill text-dark fs-1" style="color: @item.ItemRarity.HexColor !important;"></i>
+                                        <h5 class="mt-2 mb-1 fw-bold">@item.Name</h5>
+                                        <span class="badge" style="background-color: @item.ItemRarity.HexColor;">@item.ItemRarity.Name</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center p-5 text-muted">
+                            <i class="bi bi-box fs-1"></i>
+                            <p class="mt-2">Twój ekwipunek jest pusty. Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
+                            <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary mt-2">Przejdź do sklepu</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 mb-4">
+            <h4 class="mb-3 text-secondary fw-bold"><i class="bi bi-journal-text"></i> Ostatnie wpisy</h4>
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        @if (reports != null && reports.Any())
+                        {
+                            foreach (var report in reports)
+                            {
+                                <li class="list-group-item p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted"><i class="bi bi-calendar"></i> @report.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                        <span class="badge bg-secondary">@report.ReportStatus.Name</span>
+                                    </div>
+                                    <p class="mb-0 text-truncate" style="max-width: 300px;">@report.Content</p>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item p-4 text-center text-muted">
+                                Brak wpisów w dzienniczku.
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

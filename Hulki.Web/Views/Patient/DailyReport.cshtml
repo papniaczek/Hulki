@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Dzienniczek Pacjenta";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 text-primary">Dzienniczek Postępów</h2>
+                    <p class="text-center text-muted mb-4">
+                        Opisz jak minął Ci dzień. Czy miałeś pokusy? Czy udało Ci się je przezwyciężyć? 
+                        Każdy szczery wpis to <strong>+10 punktów</strong> do Twojego portfela!
+                    </p>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @Html.ValidationSummary(false, "", new { @class = "text-danger list-unstyled mb-0" })
+                        </div>
+                    }
+
+                    <form asp-controller="Patient" asp-action="DailyReport" method="post" enctype="multipart/form-data">
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Treść raportu (wymagane)</label>
+                            <textarea name="content" class="form-control" rows="5" required placeholder="Napisz tutaj swoje przemyślenia..."></textarea>
+                        </div>
+
+                        <div class="mb-4 p-3 bg-light rounded border">
+                            <label class="form-label fw-bold"><i class="bi bi-paperclip"></i> Dowód utrzymania postanowienia (opcjonalne)</label>
+                            <p class="small text-muted mb-2">Możesz wgrać zrzut ekranu usuniętej aplikacji bukmacherskiej, zdjęcie z siłowni, cokolwiek co pomogło Ci w trzeźwości.</p>
+                            <input type="file" name="attachment" class="form-control" accept="image/*,.pdf" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            Zapisz raport i odbierz punkty <i class="bi bi-star-fill text-warning"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
