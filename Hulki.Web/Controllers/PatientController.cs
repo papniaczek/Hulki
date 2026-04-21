@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
 
-// Tylko zalogowani mogą tu wejść!
+// Tylko zalogowani
     [Authorize]
     public class PatientController : Controller
     {
@@ -46,12 +46,12 @@ namespace Hulki.Web.Controllers;
 
             var user = await _userManager.GetUserAsync(User);
 
-            // --- SPRAWDZANIE SŁOWNIKÓW (Automatyczne dodanie jeśli nie istnieją) ---
+            // SPRAWDZANIE SŁOWNIKÓW
             var defaultStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Oczekujący") 
                                 ?? new ReportStatus { Name = "Oczekujący" };
             if (defaultStatus.Id == 0) _context.ReportStatuses.Add(defaultStatus);
 
-            // --- ZAPIS RAPORTU ---
+            // ZAPIS RAPORTU
             var report = new DailyReport
             {
                 Id = Guid.NewGuid(),
@@ -62,29 +62,25 @@ namespace Hulki.Web.Controllers;
             };
             _context.DailyReports.Add(report);
 
-            // --- OBSŁUGA PLIKU (UPLOAD) ---
+            // UPLOAD
             if (attachment != null && attachment.Length > 0)
             {
                 var fileType = await _context.FileTypes.FirstOrDefaultAsync(f => f.Name == "Dokument") 
                                ?? new FileType { Name = "Dokument", Extension = Path.GetExtension(attachment.FileName) };
                 if (fileType.Id == 0) _context.FileTypes.Add(fileType);
 
-                // Tworzymy unikalną nazwę pliku, żeby się nie nadpisały
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + attachment.FileName;
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
                 
-                // Jeśli folder 'uploads' nie istnieje w wwwroot, to go tworzymy
                 if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
                 string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                // Kopiowanie pliku na serwer
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await attachment.CopyToAsync(fileStream);
                 }
 
-                // Zapisujemy informację o pliku w bazie
                 var reportAttachment = new ReportAttachment
                 {
                     Id = Guid.NewGuid(),
@@ -96,10 +92,10 @@ namespace Hulki.Web.Controllers;
                 _context.ReportAttachments.Add(reportAttachment);
             }
 
-            // --- GRYWALIZACJA: DODAWANIE PUNKTÓW (Z NAPRAWĄ PORTFELA) ---
+            // DODAWANIE PUNKTÓW
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
             
-            // Failsafe: Jeśli pacjent z jakiegoś powodu nie ma portfela (np. stare konto), twórzymy go w locie!
+            // Jeśli jakimś cudem nie ma portfela
             if (wallet == null)
             {
                 wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
@@ -107,11 +103,9 @@ namespace Hulki.Web.Controllers;
                 await _context.SaveChangesAsync(); // Zapisujemy nowy portfel, żeby wygenerował się w bazie
             }
 
-            // Teraz mamy 100% pewności, że portfel istnieje. Dodajemy punkty!
             int pointsEarned = 10;
             wallet.Balance += pointsEarned; 
 
-            // Zapisujemy historię transakcji
             var transaction = new PointTransaction
             {
                 Id = Guid.NewGuid(),
@@ -122,10 +116,8 @@ namespace Hulki.Web.Controllers;
             };
             _context.PointTransactions.Add(transaction);
 
-            // Zapisujemy wszystko do bazy za jednym zamachem!
             await _context.SaveChangesAsync();
 
-            // Przekierowanie ze specjalną wiadomością o sukcesie
             TempData["SuccessMessage"] = "Świetna robota! Raport dodany, a na Twoje konto wpłynęło +10 punktów!";
             return RedirectToAction("Index", "Home");
         }

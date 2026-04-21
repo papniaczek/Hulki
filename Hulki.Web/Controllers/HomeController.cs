@@ -23,13 +23,10 @@ public class HomeController : Controller
     {
         if (User.Identity.IsAuthenticated)
         {
-            // Znajdź zalogowanego użytkownika
             var user = await _userManager.GetUserAsync(User);
                 
-            // Pobierz jego portfel z bazy
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
                 
-            // Przekaż liczbę punktów do widoku (ViewBag to taki prosty transporter danych)
             ViewBag.Points = wallet?.Balance ?? 0;
         }
 

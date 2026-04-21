@@ -26,7 +26,6 @@ public class ProfileController : Controller
         var user = await _userManager.GetUserAsync(User);
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
 
-        // 1. Pobieramy Ekwipunek (Łączymy: PatientInventory -> RewardItem -> ItemRarity)
         var inventory = await _context.PatientInventories
             .Include(pi => pi.RewardItem)
             .ThenInclude(ri => ri.ItemRarity)
@@ -34,7 +33,6 @@ public class ProfileController : Controller
             .Select(pi => pi.RewardItem)
             .ToListAsync();
 
-        // 2. Pobieramy ostatnie 5 wpisów z Dzienniczka (Łączymy z ReportStatus)
         var recentReports = await _context.DailyReports
             .Include(dr => dr.ReportStatus)
             .Where(dr => dr.AppUserId == user.Id)
@@ -42,7 +40,6 @@ public class ProfileController : Controller
             .Take(5)
             .ToListAsync();
 
-        // Przekazujemy wszystko do widoku
         ViewBag.User = user;
         ViewBag.Points = wallet?.Balance ?? 0;
         ViewBag.Inventory = inventory;

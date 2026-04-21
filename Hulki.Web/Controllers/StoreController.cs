@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
 
-[Authorize] // Tylko zalogowani mogą otwierać lootboxy
+[Authorize] // Tylko zalogowani
     public class StoreController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -25,7 +25,6 @@ namespace Hulki.Web.Controllers;
         // 1. WYŚWIETLENIE SKLEPU
         public async Task<IActionResult> Index()
         {
-            // Genialna sztuczka: Automatyczne generowanie danych startowych (Seeding)
             await SeedStoreDataIfNotExists();
 
             var user = await _userManager.GetUserAsync(User);
@@ -33,12 +32,11 @@ namespace Hulki.Web.Controllers;
             
             ViewBag.Points = wallet?.Balance ?? 0;
 
-            // Pobieramy dostępne skrzynki z bazy
             var games = await _context.Games.Include(g => g.GameType).ToListAsync();
             return View(games);
         }
 
-        // 2. OTWIERANIE SKRZYNKI (GACHA MECHANIC)
+        // 2. OTWIERANIE SKRZYNKI
         [HttpPost]
         public async Task<IActionResult> OpenLootbox(Guid gameId)
         {
@@ -46,14 +44,12 @@ namespace Hulki.Web.Controllers;
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
             var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
 
-            // Zabezpieczenie przed błędem lub brakiem punktów
             if (wallet == null || game == null || wallet.Balance < game.Cost)
             {
                 TempData["ErrorMessage"] = "Nie masz wystarczająco punktów, aby otworzyć tę skrzynkę!";
                 return RedirectToAction("Index");
             }
 
-            // Odejmujemy punkty i zapisujemy historię!
             wallet.Balance -= game.Cost;
             _context.PointTransactions.Add(new PointTransaction 
             { 
@@ -62,17 +58,17 @@ namespace Hulki.Web.Controllers;
                 TransactionDate = DateTime.Now, WalletId = wallet.Id 
             });
 
-            // Losujemy nagrodę
+            // Losowanie nagrody
             var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
             var random = new Random();
-            var wonItem = allRewards[random.Next(allRewards.Count)]; // Proste losowanie
+            var wonItem = allRewards[random.Next(allRewards.Count)];
 
             // ZABEZPIECZENIE PRZED DUPLIKATEM
             bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id);
             
             if (alreadyOwns)
             {
-                int refund = game.Cost / 2; // Zwracamy połowę punktów jako rekompensatę
+                int refund = game.Cost / 2;
                 wallet.Balance += refund;
                 _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = refund, Description = $"Duplikat: {wonItem.Name} (Zwrot pkt)", TransactionDate = DateTime.Now, WalletId = wallet.Id });
                 TempData["SuccessMessage"] = $"Wylosowano: {wonItem.Name} ({wonItem.ItemRarity.Name}), ale już to masz w ekwipunku! Otrzymujesz {refund} pkt zwrotu.";
@@ -80,17 +76,15 @@ namespace Hulki.Web.Controllers;
             else
             {
                 _context.PatientInventories.Add(new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id });
-                TempData["SuccessMessage"] = $"🎉 Niesamowite! Wygrałeś nowy przedmiot: {wonItem.Name} [{wonItem.ItemRarity.Name}]!";
+                TempData["SuccessMessage"] = $"Gratulacje! Wygrałeś nowy przedmiot: {wonItem.Name} [{wonItem.ItemRarity.Name}]!";
             }
 
-            // Zapisujemy, że pacjent zagrał
             _context.GameSessions.Add(new GameSession { Id = Guid.NewGuid(), AppUserId = user.Id, GameId = game.Id, PlayedAt = DateTime.Now });
 
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
-        // --- PRYWATNA METODA DO SEEDINGU BAZY (Wypełnia ją raz, na starcie) ---
         private async Task SeedStoreDataIfNotExists()
         {
             if (!await _context.ItemRarities.AnyAsync())

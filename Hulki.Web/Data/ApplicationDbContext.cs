@@ -11,7 +11,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         {
         }
 
-        // 📘 ENCJE SŁOWNIKOWE
+        // ENCJE SŁOWNIKOWE
         public DbSet<TherapyType> TherapyTypes { get; set; }
         public DbSet<ReportStatus> ReportStatuses { get; set; }
         public DbSet<ItemRarity> ItemRarities { get; set; }
@@ -19,7 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         public DbSet<ForumCategory> ForumCategories { get; set; }
         public DbSet<FileType> FileTypes { get; set; }
 
-        // 📙 ENCJE BIZNESOWE (Niesłownikowe)
+        // ENCJE NIESŁOWNIKOWE
         public DbSet<TherapyGroup> TherapyGroups { get; set; }
         public DbSet<PatientGroup> PatientGroups { get; set; }
         public DbSet<DailyReport> DailyReports { get; set; }
@@ -36,38 +36,34 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         // KONFIGURACJA ZAAWANSOWANYCH RELACJI
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            // To MUSI być na początku, żeby działało Identity!
             base.OnModelCreating(builder);
 
-            // 1. Konfiguracja Many-To-Many dla: Pacjent <-> Grupa Wsparcia
+            // Pacjent <-> Grupa Wsparcia
             builder.Entity<PatientGroup>()
-                .HasKey(pg => new { pg.AppUserId, pg.TherapyGroupId }); // Złożony klucz główny
+                .HasKey(pg => new { pg.AppUserId, pg.TherapyGroupId });
 
-            // 2. Konfiguracja Many-To-Many dla: Pacjent <-> Ekwipunek (Nagrody)
+            // Pacjent <-> Ekwipunek (Nagrody)
             builder.Entity<PatientInventory>()
-                .HasKey(pi => new { pi.AppUserId, pi.RewardItemId }); // Złożony klucz główny
+                .HasKey(pi => new { pi.AppUserId, pi.RewardItemId });
 
-            // 3. Konfiguracja relacji One-To-One: Użytkownik <-> Portfel
+            // Użytkownik <-> Portfel
             builder.Entity<AppUser>()
                 .HasOne(u => u.Wallet)
                 .WithOne(w => w.AppUser)
                 .HasForeignKey<Wallet>(w => w.AppUserId)
-                .OnDelete(DeleteBehavior.Cascade); // Usunięcie pacjenta usuwa jego portfel
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // 4. Konfiguracja relacji One-To-Many: Użytkownik <-> Dzienniczek
+            // 4. Użytkownik <-> Dzienniczek
             builder.Entity<DailyReport>()
                 .HasOne(d => d.AppUser)
                 .WithMany(u => u.DailyReports)
                 .HasForeignKey(d => d.AppUserId)
-                .OnDelete(DeleteBehavior.Restrict); // Zapobiega usunięciu raportów przy usuwaniu konta (zostają dla statystyk)
+                .OnDelete(DeleteBehavior.Restrict);
             
-            // 5. Naprawa błędu kaskadowego usuwania na Forum
             builder.Entity<ForumPost>()
                 .HasOne(fp => fp.AppUser)
                 .WithMany()
                 .HasForeignKey(fp => fp.AppUserId)
-                .OnDelete(DeleteBehavior.Restrict); // To blokuje podwójną ścieżkę usuwania!
-                
-            // (Miejsce na dodawanie kolejnych tabel z Waszej listy, np. Ticket, Notification w miarę jak będziecie je tworzyć w Models)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
 
-[Authorize] // Na razie blokujemy dostęp tylko dla zalogowanych (w przyszłości można to ograniczyć do roli "Terapeuta")
+[Authorize] // Na ten moment tylko dla zalogowanych
 public class TherapyGroupController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -18,28 +18,22 @@ public class TherapyGroupController : Controller
         _context = context;
     }
 
-    // 1. READ: Lista wszystkich grup
     public async Task<IActionResult> Index()
     {
-        // Pobieramy grupy i dołączamy typ terapii (relacja)
         var groups = await _context.TherapyGroups.Include(t => t.TherapyType).ToListAsync();
         return View(groups);
     }
 
-    // 2. CREATE: Wyświetlenie formularza dodawania
     [HttpGet]
     public IActionResult Create()
     {
-        // Pobieramy typy terapii, żeby wrzucić je do <select> (listy rozwijanej)
         ViewBag.TherapyTypes = _context.TherapyTypes.ToList();
         return View();
     }
 
-    // 2. CREATE: Przetworzenie danych z formularza
     [HttpPost]
     public async Task<IActionResult> Create(TherapyGroup group)
     {
-        // Usuwamy z walidacji właściwość nawigacyjną, bo EF Core by krzyczał
         ModelState.Remove("TherapyType"); 
 
         if (ModelState.IsValid)
@@ -54,7 +48,6 @@ public class TherapyGroupController : Controller
         return View(group);
     }
 
-    // 3. UPDATE: Wyświetlenie formularza edycji
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -65,7 +58,6 @@ public class TherapyGroupController : Controller
         return View(group);
     }
 
-    // 3. UPDATE: Przetworzenie edycji
     [HttpPost]
     public async Task<IActionResult> Edit(int id, TherapyGroup group)
     {
@@ -85,7 +77,6 @@ public class TherapyGroupController : Controller
         return View(group);
     }
 
-    // 4. DELETE: Usunięcie grupy
     [HttpPost]
     public async Task<IActionResult> Delete(int id)
     {

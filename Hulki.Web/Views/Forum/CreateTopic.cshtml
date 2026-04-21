@@ -1,0 +1,41 @@
+@{
+    var category = ViewBag.Category as Hulki.Web.Models.ForumCategory;
+    ViewData["Title"] = "Nowy Temat - " + category?.Name;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white p-3">
+                    <h4 class="m-0">Nowy temat w dziale: @category?.Name</h4>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                    }
+
+                    <form asp-action="CreateTopic" method="post">
+                        <input type="hidden" name="forumCategoryId" value="@category?.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tytuł tematu</label>
+                            <input type="text" name="title" class="form-control" required placeholder="Napisz krótki i zwięzły tytuł..." maxlength="200" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Treść</label>
+                            <textarea name="content" class="form-control" rows="8" required placeholder="Opisz dokładnie swój problem lub przemyślenia..."></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Category" asp-route-id="@category?.Id" class="btn btn-outline-secondary">Anuluj</a>
+                            <button type="submit" class="btn btn-success fw-bold">Utwórz temat</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

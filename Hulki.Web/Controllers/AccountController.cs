@@ -10,13 +10,13 @@ public class AccountController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly ApplicationDbContext _context; // <-- DODANE: Nasza Baza Danych
+        private readonly ApplicationDbContext _context;
 
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _context = context; // <-- DODANE
+            _context = context;
         }
 
         [HttpGet]
@@ -30,11 +30,9 @@ public class AccountController : Controller
 
             if (result.Succeeded)
             {
-                // --- NOWOŚĆ: TWORZYMY PORTFEL DLA PACJENTA ---
                 var wallet = new Wallet { AppUserId = user.Id, Balance = 0 };
                 _context.Wallets.Add(wallet);
                 await _context.SaveChangesAsync();
-                // ----------------------------------------------
 
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
@@ -46,7 +44,6 @@ public class AccountController : Controller
             return View();
         }
 
-        // Metody Login i Logout zostają DOKŁADNIE takie same jak miałeś
         [HttpGet]
         public IActionResult Login() => View();
 
