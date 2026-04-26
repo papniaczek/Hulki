@@ -13,11 +13,11 @@
         @foreach (var category in Model)
         {
             <div class="col-md-12 mb-3">
-                <div class="card shadow-sm border-0 h-100">
+                <div class="card shadow-sm border-0 h-100 bg-dark-subtle">
                     <div class="card-body d-flex justify-content-between align-items-center p-4">
                         <div>
                             <h4 class="fw-bold mb-1">
-                                <a asp-action="Category" asp-route-id="@category.Id" class="text-decoration-none text-dark">
+                                <a asp-action="Category" asp-route-id="@category.Id" class="text-decoration-none text-light">
                                     @category.Name
                                 </a>
                             </h4>

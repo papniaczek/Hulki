@@ -5,7 +5,7 @@
 
 <div class="container mt-5">
     <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
+        <ol class="breadcrumb bg-dark-subtle">
             <li class="breadcrumb-item"><a asp-action="Index">Forum</a></li>
             <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
         </ol>
@@ -28,9 +28,9 @@
         {
             foreach (var topic in Model.ForumTopics.OrderByDescending(t => t.CreatedAt))
             {
-                <a asp-action="Topic" asp-route-id="@topic.Id" class="list-group-item list-group-item-action p-4">
+                <a asp-action="Topic" asp-route-id="@topic.Id" class="list-group-item list-group-item-action p-4 bg-dark-subtle">
                     <div class="d-flex w-100 justify-content-between align-items-center">
-                        <h5 class="mb-1 fw-bold text-primary">@topic.Title</h5>
+                        <h5 class="mb-1 fw-bold text-light">@topic.Title</h5>
                         <small class="text-muted">@topic.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
                     </div>
                     <p class="mb-1 text-muted">Autor: @topic.AppUser?.FirstName @topic.AppUser?.LastName</p>

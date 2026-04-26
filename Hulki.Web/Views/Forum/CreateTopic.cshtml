@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow border-0">
+            <div class="card shadow border-0 bg-dark-subtle">
                 <div class="card-header bg-success text-white p-3">
                     <h4 class="m-0">Nowy temat w dziale: @category?.Name</h4>
                 </div>
@@ -30,7 +30,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Category" asp-route-id="@category?.Id" class="btn btn-outline-secondary">Anuluj</a>
+                            <a asp-action="Category" asp-route-id="@category?.Id" class="btn text-light btn-outline-success">Anuluj</a>
                             <button type="submit" class="btn btn-success fw-bold">Utwórz temat</button>
                         </div>
                     </form>

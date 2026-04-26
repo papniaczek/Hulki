@@ -32,9 +32,9 @@
                             @foreach (var item in inventory)
                             {
                                 <div class="col-md-6 mb-3">
-                                    <div class="p-3 border rounded text-center" style="border-left: 5px solid @item.ItemRarity.HexColor !important; background-color: #f8f9fa;">
-                                        <i class="bi bi-shield-fill text-dark fs-1" style="color: @item.ItemRarity.HexColor !important;"></i>
-                                        <h5 class="mt-2 mb-1 fw-bold">@item.Name</h5>
+                                    <div class="p-3 border rounded text-center bg-dark-subtle" style="border-left: 5px solid @item.ItemRarity.HexColor !important; background-color: #f8f9fa;">
+                                        <i class="bi bi-shield-fill text-light fs-1" style="color: @item.ItemRarity.HexColor !important;"></i>
+                                        <h5 class="mt-2 mb-1 fw-bold text-light-subtle">@item.Name</h5>
                                         <span class="badge" style="background-color: @item.ItemRarity.HexColor;">@item.ItemRarity.Name</span>
                                     </div>
                                 </div>

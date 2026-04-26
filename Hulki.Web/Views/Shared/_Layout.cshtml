@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,7 +11,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark-subtle border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HULKI</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -21,7 +21,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
+                            <a class="nav-link text-light" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door"></i> Start
                             </a>
                         </li>
@@ -29,12 +29,12 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Forum" asp-action="Index">
+                                <a class="nav-link text-light" asp-controller="Forum" asp-action="Index">
                                     <i class="bi bi-chat-dots text-primary"></i> Forum
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Store" asp-action="Index">
+                                <a class="nav-link text-light" asp-controller="Store" asp-action="Index">
                                     <i class="bi bi-shop text-warning"></i> Sklep
                                 </a>
                             </li>
@@ -73,10 +73,10 @@
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Rejestracja</a>
+                                <a class="nav-link text-light" asp-controller="Account" asp-action="Register">Rejestracja</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Logowanie</a>
+                                <a class="nav-link text-light" asp-controller="Account" asp-action="Login">Logowanie</a>
                             </li>
                         }
                     </ul>
