@@ -1,0 +1,97 @@
+@{
+ViewData["Title"] = "Wybierz Kartę!";
+var wonItem = ViewBag.WonItem as Hulki.Web.Models.RewardItem;
+var missed1 = ViewBag.Missed1 as Hulki.Web.Models.RewardItem;
+var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
+}
+
+<style>
+    .flip-card { background-color: transparent; width: 100%; height: 300px; perspective: 1000px; cursor: pointer; }
+    .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px;}
+
+    /* Zmiana na ciemne kolory pasujące do Twojego motywu */
+    .flip-card-front { background-color: #212529; color: white; border: 2px solid #ffc107; } /* bg-dark, border-warning */
+    .flip-card-back { background-color: #343a40; color: white; transform: rotateY(180deg); border: 1px solid #6c757d;}
+
+    .winner-card { background-color: #ffc107; color: #000; border: 2px solid #ffc107; } /* Żółta zwycięska karta */
+</style>
+
+<div class="container mt-5 text-center text-light">
+    <h2>Zaufaj swojemu instynktowi...</h2>
+    <p class="text-muted">Wybierz jedną z kart, aby poznać swoją nagrodę!</p>
+
+    <div class="row mt-5" id="cards-container">
+        @for(int i=0; i<3; i++)
+        {
+        <div class="col-md-4 mb-4">
+            <div class="flip-card" onclick="revealCard(this)">
+                <div class="flip-card-inner shadow">
+                    <div class="flip-card-front">
+                        <h1><i class="bi bi-question-circle" style="font-size: 4rem; color: #ffc107;"></i></h1>
+                        <p class="mt-3 text-warning">Kliknij mnie</p>
+                    </div>
+                    <div class="flip-card-back">
+                        <h5 class="item-name fw-bold mb-3"></h5>
+                        <span class="badge item-rarity text-uppercase" style="letter-spacing: 1px; color: #000; background-color: rgba(255,255,255,0.7);"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    <div id="result-message" class="mt-4 alert alert-success d-none bg-dark text-success border-success">
+        <h4 class="mb-3">@Html.Raw(ViewBag.Message)</h4>
+        <a asp-action="Index" class="btn btn-outline-success px-4 py-2">Wróć do sklepu</a>
+    </div>
+</div>
+
+<script>
+    let isRevealed = false;
+
+    // MAGIA Html.Raw rozwiązuje problem z "ł" i "ś" !
+    const wonItemName = "@Html.Raw(wonItem.Name)";
+    const wonItemRarity = "@Html.Raw(wonItem.ItemRarity.Name)";
+    const missedItems = [
+        { name: "@Html.Raw(missed1.Name)", rarity: "@Html.Raw(missed1.ItemRarity.Name)" },
+        { name: "@Html.Raw(missed2.Name)", rarity: "@Html.Raw(missed2.ItemRarity.Name)" }
+    ];
+
+    function revealCard(clickedCard) {
+        if(isRevealed) return;
+        isRevealed = true;
+
+        const allCards = document.querySelectorAll('.flip-card');
+        let missedIndex = 0;
+
+        allCards.forEach(card => {
+            const backFace = card.querySelector('.flip-card-back');
+            const nameEl = backFace.querySelector('.item-name');
+            const rarityEl = backFace.querySelector('.item-rarity');
+
+            if (card === clickedCard) {
+                // To karta gracza
+                nameEl.innerText = wonItemName;
+                rarityEl.innerText = wonItemRarity;
+                backFace.classList.add('winner-card');
+                card.classList.add('flipped');
+            } else {
+                // Odrzucone karty
+                nameEl.innerText = missedItems[missedIndex].name;
+                rarityEl.innerText = missedItems[missedIndex].rarity;
+
+                setTimeout(() => {
+                    card.classList.add('flipped');
+                    backFace.style.opacity = "0.5";
+                }, 1000 + (missedIndex * 500));
+                missedIndex++;
+            }
+        });
+
+        setTimeout(() => {
+            document.getElementById('result-message').classList.remove('d-none');
+        }, 1500);
+    }
+</script>
