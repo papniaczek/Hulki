@@ -63,8 +63,10 @@ namespace Hulki.Web.Controllers;
             _context.DailyReports.Add(report);
 
             // UPLOAD
+            bool hasAttachment = false; // Flaga, czy pacjent dodał plik
             if (attachment != null && attachment.Length > 0)
             {
+                hasAttachment = true;
                 var fileType = await _context.FileTypes.FirstOrDefaultAsync(f => f.Name == "Dokument") 
                                ?? new FileType { Name = "Dokument", Extension = Path.GetExtension(attachment.FileName) };
                 if (fileType.Id == 0) _context.FileTypes.Add(fileType);
@@ -92,7 +94,7 @@ namespace Hulki.Web.Controllers;
                 _context.ReportAttachments.Add(reportAttachment);
             }
 
-            // DODAWANIE PUNKTÓW
+            // --- DODAWANIE PUNKTÓW (ULEPSZONE POD HARMONOGRAM) ---
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
             
             // Jeśli jakimś cudem nie ma portfela
@@ -103,14 +105,23 @@ namespace Hulki.Web.Controllers;
                 await _context.SaveChangesAsync(); // Zapisujemy nowy portfel, żeby wygenerował się w bazie
             }
 
-            int pointsEarned = 10;
+            // Logika dodatkowych aktywności!
+            int pointsEarned = 10; // Baza za napisanie czegokolwiek
+            string transactionReason = "Nagroda za dzienny wpis";
+
+            if (hasAttachment)
+            {
+                pointsEarned += 5; // Dodatkowe punkty za dodanie załącznika
+                transactionReason += " (+5 pkt za dodanie załącznika)";
+            }
+
             wallet.Balance += pointsEarned; 
 
             var transaction = new PointTransaction
             {
                 Id = Guid.NewGuid(),
                 Amount = pointsEarned,
-                Description = "Nagroda za dzienny wpis w dzienniczku trzeźwości",
+                Description = transactionReason, // Używam Twojego pola Description
                 TransactionDate = DateTime.Now,
                 WalletId = wallet.Id
             };
@@ -118,7 +129,7 @@ namespace Hulki.Web.Controllers;
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Świetna robota! Raport dodany, a na Twoje konto wpłynęło +10 punktów!";
+            TempData["SuccessMessage"] = $"Świetna robota! Raport dodany, a na Twoje konto wpłynęło +{pointsEarned} punktów!";
             return RedirectToAction("Index", "Home");
         }
     }
