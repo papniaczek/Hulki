@@ -29,6 +29,58 @@
     {
         <div class="alert alert-success shadow-sm border-0">@TempData["SuccessMessage"]</div>
     }
+    
+    <!-- PRZYCISK TYLKO DLA TERAPEUTY / ADMINA -->
+    @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
+    {
+        <div class="text-end mb-4">
+            <button type="button" class="btn btn-outline-info fw-bold" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                <i class="bi bi-plus-circle"></i> Dodaj nowy przedmiot do puli
+            </button>
+        </div>
+    }
+
+    <!-- MODAL (Formularz) -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+                
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info fw-bold">Kreator Nagród</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <form asp-controller="Store" asp-action="AddRewardItem" method="post">
+                    <div class="modal-body">
+                        <p class="text-muted small">Przedmiot zostanie natychmiast dodany do ogólnej puli losowań w sklepie.</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nazwa przedmiotu</label>
+                            <input type="text" name="name" class="form-control bg-dark text-light border-secondary" required placeholder="np. Złoty Miecz Trzeźwości" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Rzadkość</label>
+                            <select name="itemRarityId" class="form-select bg-dark text-light border-secondary" required>
+                                @if(ViewBag.Rarities != null)
+                                {
+                                    foreach(var rarity in ViewBag.Rarities)
+                                    {
+                                        <option value="@rarity.Id">@rarity.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Anuluj</button>
+                        <button type="submit" class="btn btn-info fw-bold">Zapisz przedmiot</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
 
     <!-- LISTA GIER -->
     <div class="row">

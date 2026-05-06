@@ -31,6 +31,8 @@ public class StoreController : Controller
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
         
         ViewBag.Points = wallet?.Balance ?? 0;
+        
+        ViewBag.Rarities = await _context.ItemRarities.ToListAsync();
 
         var games = await _context.Games.Include(g => g.GameType).ToListAsync();
         return View(games);
@@ -180,9 +182,55 @@ public class StoreController : Controller
         return View("ScratchcardGame");
     }
 
+    // --- DODAWANIE NOWEGO PRZEDMIOTU PRZEZ TERAPEUTĘ ---
+    [HttpPost]
+    public async Task<IActionResult> AddRewardItem(string name, int itemRarityId)
+    {
+        // Opcjonalnie: upewnij się, że nazwa nie jest pusta
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            var newItem = new RewardItem
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                ItemRarityId = itemRarityId
+            };
+        
+            _context.RewardItems.Add(newItem);
+            await _context.SaveChangesAsync();
+        
+            TempData["SuccessMessage"] = $"Dodano nowy przedmiot do puli: {name}!";
+        }
+    
+        return RedirectToAction("Index");
+    }
+    
     private async Task SeedStoreDataIfNotExists()
     {
-        // ... (Tu zostaje Twój kod seedowania rzadkości i nagród) ...
+        // --- INTELIGENTNE DODAWANIE RZADKOŚCI ---
+        var expectedRarities = new Dictionary<string, string>
+        {
+            { "Pospolity", "#adb5bd" },     // Szary
+            { "Niepospolity", "#198754" },  // Zielony
+            { "Rzadki", "#0d6efd" },        // Niebieski
+            { "Epicki", "#6f42c1" },        // Fioletowy
+            { "Legendarny", "#ffc107" },    // Złoty
+            { "Mityczny", "#dc3545" }       // Czerwony
+        };
+
+        foreach (var rarity in expectedRarities)
+        {
+            // Sprawdzamy, czy rzadkość o takiej nazwie już istnieje w bazie
+            if (!await _context.ItemRarities.AnyAsync(r => r.Name == rarity.Key))
+            {
+                _context.ItemRarities.Add(new ItemRarity 
+                { 
+                    Name = rarity.Key, 
+                    HexColor = rarity.Value 
+                });
+            }
+        }
+        await _context.SaveChangesAsync();
 
         if (!await _context.GameTypes.AnyAsync(t => t.Name == "3 Karty"))
         {
@@ -198,6 +246,18 @@ public class StoreController : Controller
 
             _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ślepy Los", Description = "Wybierz 1 z 3 kart. Co kryje reszta?", Cost = 15, GameTypeId = cardsType.Id });
             _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Szczęśliwa Zdrapka", Description = "Kup i zdrap pole!", Cost = 5, GameTypeId = scratchType.Id });
+            await _context.SaveChangesAsync();
+        }
+        
+        // --- SZYBKA AKTUALIZACJA STAREJ NAZWY W BAZIE ---
+        var oldLootbox = await _context.Games.FirstOrDefaultAsync(g => g.Name == "Skrzynia Motywacji");
+        if (oldLootbox != null)
+        {
+            oldLootbox.Name = "Ruletka Nagród"; // Albo "Koło Fortuny" - jak wolisz!
+            oldLootbox.Description = "Wydaj 10 punktów i zakręć ruletką, aby zdobyć legendarne wyposażenie!";
+    
+            // Upewniamy się też, że GameType jest "Lootbox" by nasz if w Index.cshtml działał poprawnie
+            _context.Games.Update(oldLootbox);
             await _context.SaveChangesAsync();
         }
     }
