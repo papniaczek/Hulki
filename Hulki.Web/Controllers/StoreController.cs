@@ -29,9 +29,8 @@ public class StoreController : Controller
 
         var user = await _userManager.GetUserAsync(User);
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
-        
+
         ViewBag.Points = wallet?.Balance ?? 0;
-        
         ViewBag.Rarities = await _context.ItemRarities.ToListAsync();
 
         var games = await _context.Games.Include(g => g.GameType).ToListAsync();
@@ -47,19 +46,23 @@ public class StoreController : Controller
 
         if (wallet == null || game == null || wallet.Balance < game.Cost)
         {
-            TempData["ErrorMessage"] = "Nie masz wystarczająco punktów, aby otworzyć tę skrzynkę!";
+            TempData["ErrorMessage"] = "Nie masz wystarczająco punktów, aby zagrać!";
+            return RedirectToAction("Index");
+        }
+
+        var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
+        if (!allRewards.Any())
+        {
+            TempData["ErrorMessage"] = "Brak nagród w bazie!";
             return RedirectToAction("Index");
         }
 
         wallet.Balance -= game.Cost;
         _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = -game.Cost, Description = $"Gra: {game.Name}", TransactionDate = DateTime.Now, WalletId = wallet.Id });
 
-        // Losowanie nagrody
-        var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
         var random = new Random();
         var wonItem = allRewards[random.Next(allRewards.Count)];
 
-        // Zabezpieczenie przed duplikatem
         bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id);
         if (alreadyOwns)
         {
@@ -77,19 +80,12 @@ public class StoreController : Controller
         _context.GameSessions.Add(new GameSession { Id = Guid.NewGuid(), AppUserId = user.Id, GameId = game.Id, PlayedAt = DateTime.Now });
         await _context.SaveChangesAsync();
 
-        // Przekazanie danych do widoku Ruletki
         ViewBag.WonItem = wonItem;
-        
-        // Przekazujemy uproszczoną listę wszystkich nagród do wygenerowania ruletki
-        ViewBag.AllRewards = allRewards.Select(r => new { 
-            name = r.Name, 
-            rarity = r.ItemRarity.Name 
-        }).ToList();
+        ViewBag.AllRewards = allRewards.Select(r => new { name = r.Name, rarity = r.ItemRarity.Name }).ToList();
 
         return View("RouletteGame");
     }
 
-    // --- NOWA GRA: 3 KARTY ---
     [HttpPost]
     public async Task<IActionResult> PlayCards(Guid gameId)
     {
@@ -103,20 +99,20 @@ public class StoreController : Controller
             return RedirectToAction("Index");
         }
 
-        // Płatność
+        var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
+        if (allRewards.Count < 3)
+        {
+            TempData["ErrorMessage"] = "Za mało nagród w bazie do tej gry!";
+            return RedirectToAction("Index");
+        }
+
         wallet.Balance -= game.Cost;
         _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = -game.Cost, Description = $"Gra: {game.Name}", TransactionDate = DateTime.Now, WalletId = wallet.Id });
 
-        // Losowanie 3 różnych przedmiotów
-        var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
         var random = new Random();
         var shuffled = allRewards.OrderBy(x => random.Next()).Take(3).ToList();
-        
-        var wonItem = shuffled[0]; // To gracz "wygra"
-        var missed1 = shuffled[1]; // To pokaże się na innych kartach
-        var missed2 = shuffled[2];
+        var wonItem = shuffled[0];
 
-        // Zabezpieczenie przed duplikatem
         bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id);
         if (alreadyOwns)
         {
@@ -134,15 +130,13 @@ public class StoreController : Controller
         _context.GameSessions.Add(new GameSession { Id = Guid.NewGuid(), AppUserId = user.Id, GameId = game.Id, PlayedAt = DateTime.Now });
         await _context.SaveChangesAsync();
 
-        // Przekazanie danych do widoku "3 Kart"
         ViewBag.WonItem = wonItem;
-        ViewBag.Missed1 = missed1;
-        ViewBag.Missed2 = missed2;
+        ViewBag.Missed1 = shuffled[1];
+        ViewBag.Missed2 = shuffled[2];
 
-        return View("CardsGame"); 
+        return View("CardsGame");
     }
 
-    // --- NOWA GRA: ZDRAPKA ---
     [HttpPost]
     public async Task<IActionResult> PlayScratchcard(Guid gameId)
     {
@@ -156,10 +150,12 @@ public class StoreController : Controller
             return RedirectToAction("Index");
         }
 
+        var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
+        if (!allRewards.Any()) return RedirectToAction("Index");
+
         wallet.Balance -= game.Cost;
         _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = -game.Cost, Description = $"Gra: {game.Name}", TransactionDate = DateTime.Now, WalletId = wallet.Id });
 
-        var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
         var random = new Random();
         var wonItem = allRewards[random.Next(allRewards.Count)];
 
@@ -182,83 +178,106 @@ public class StoreController : Controller
         return View("ScratchcardGame");
     }
 
-    // --- DODAWANIE NOWEGO PRZEDMIOTU PRZEZ TERAPEUTĘ ---
+    [HttpPost]
+    public async Task<IActionResult> SellItem(Guid itemId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var inventoryEntry = await _context.PatientInventories
+            .Include(pi => pi.RewardItem)
+            .ThenInclude(ri => ri.ItemRarity)
+            .FirstOrDefaultAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == itemId);
+
+        if (inventoryEntry == null)
+        {
+            TempData["ErrorMessage"] = "Nie znaleziono przedmiotu w ekwipunku.";
+            return RedirectToAction("Index", "Profile");
+        }
+
+        int sellPrice = inventoryEntry.RewardItem.ItemRarity?.Name switch
+        {
+            "Mityczny" => 40,
+            "Legendarny" => 25,
+            "Epicki" => 15,
+            "Rzadki" => 10,
+            "Niepospolity" => 6,
+            _ => 3
+        };
+
+        _context.PatientInventories.Remove(inventoryEntry);
+
+        var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
+        if (wallet == null)
+        {
+            wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
+            _context.Wallets.Add(wallet);
+        }
+        wallet.Balance += sellPrice;
+
+        _context.PointTransactions.Add(new PointTransaction
+        {
+            Id = Guid.NewGuid(),
+            Amount = sellPrice,
+            Description = $"Sprzedaż: {inventoryEntry.RewardItem.Name}",
+            TransactionDate = DateTime.Now,
+            WalletId = wallet.Id
+        });
+
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = $"Sprzedano {inventoryEntry.RewardItem.Name} za {sellPrice} pkt!";
+        return RedirectToAction("Index", "Profile");
+    }
+
     [HttpPost]
     public async Task<IActionResult> AddRewardItem(string name, int itemRarityId)
     {
-        // Opcjonalnie: upewnij się, że nazwa nie jest pusta
         if (!string.IsNullOrWhiteSpace(name))
         {
-            var newItem = new RewardItem
-            {
-                Id = Guid.NewGuid(),
-                Name = name,
-                ItemRarityId = itemRarityId
-            };
-        
-            _context.RewardItems.Add(newItem);
+            _context.RewardItems.Add(new RewardItem { Id = Guid.NewGuid(), Name = name, ItemRarityId = itemRarityId });
             await _context.SaveChangesAsync();
-        
-            TempData["SuccessMessage"] = $"Dodano nowy przedmiot do puli: {name}!";
+            TempData["SuccessMessage"] = $"Dodano przedmiot: {name}!";
         }
-    
         return RedirectToAction("Index");
     }
-    
+
     private async Task SeedStoreDataIfNotExists()
     {
-        // --- INTELIGENTNE DODAWANIE RZADKOŚCI ---
-        var expectedRarities = new Dictionary<string, string>
-        {
-            { "Pospolity", "#adb5bd" },     // Szary
-            { "Niepospolity", "#198754" },  // Zielony
-            { "Rzadki", "#0d6efd" },        // Niebieski
-            { "Epicki", "#6f42c1" },        // Fioletowy
-            { "Legendarny", "#ffc107" },    // Złoty
-            { "Mityczny", "#dc3545" }       // Czerwony
+        // 1. Rzadkości
+        var expectedRarities = new Dictionary<string, string> {
+            { "Pospolity", "#adb5bd" }, { "Niepospolity", "#198754" }, { "Rzadki", "#0d6efd" },
+            { "Epicki", "#6f42c1" }, { "Legendarny", "#ffc107" }, { "Mityczny", "#dc3545" }
         };
 
         foreach (var rarity in expectedRarities)
         {
-            // Sprawdzamy, czy rzadkość o takiej nazwie już istnieje w bazie
             if (!await _context.ItemRarities.AnyAsync(r => r.Name == rarity.Key))
-            {
-                _context.ItemRarities.Add(new ItemRarity 
-                { 
-                    Name = rarity.Key, 
-                    HexColor = rarity.Value 
-                });
-            }
+                _context.ItemRarities.Add(new ItemRarity { Name = rarity.Key, HexColor = rarity.Value });
         }
         await _context.SaveChangesAsync();
 
-        if (!await _context.GameTypes.AnyAsync(t => t.Name == "3 Karty"))
+        // 2. Typy Gier
+        string[] types = { "Lootbox", "3 Karty", "Zdrapka" };
+        foreach (var t in types)
         {
-            _context.GameTypes.Add(new GameType { Name = "3 Karty", Description = "Wybierz jedną z 3 kart" });
-            _context.GameTypes.Add(new GameType { Name = "Zdrapka", Description = "Odkryj pole, aby sprawdzić nagrodę" });
-            await _context.SaveChangesAsync();
+            if (!await _context.GameTypes.AnyAsync(gt => gt.Name == t))
+                _context.GameTypes.Add(new GameType { Name = t, Description = $"Gra typu {t}" });
         }
+        await _context.SaveChangesAsync();
 
-        if (!await _context.Games.AnyAsync(g => g.Name == "Ślepy Los"))
-        {
-            var cardsType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "3 Karty");
-            var scratchType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "Zdrapka");
+        // 3. Aktualizacja/Dodawanie gier
+        var oldGame = await _context.Games.FirstOrDefaultAsync(g => g.Name == "Skrzynia Motywacji");
+        if (oldGame != null) { oldGame.Name = "Ruletka Nagród"; _context.Update(oldGame); }
 
-            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ślepy Los", Description = "Wybierz 1 z 3 kart. Co kryje reszta?", Cost = 15, GameTypeId = cardsType.Id });
-            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Szczęśliwa Zdrapka", Description = "Kup i zdrap pole!", Cost = 5, GameTypeId = scratchType.Id });
-            await _context.SaveChangesAsync();
-        }
-        
-        // --- SZYBKA AKTUALIZACJA STAREJ NAZWY W BAZIE ---
-        var oldLootbox = await _context.Games.FirstOrDefaultAsync(g => g.Name == "Skrzynia Motywacji");
-        if (oldLootbox != null)
-        {
-            oldLootbox.Name = "Ruletka Nagród"; // Albo "Koło Fortuny" - jak wolisz!
-            oldLootbox.Description = "Wydaj 10 punktów i zakręć ruletką, aby zdobyć legendarne wyposażenie!";
-    
-            // Upewniamy się też, że GameType jest "Lootbox" by nasz if w Index.cshtml działał poprawnie
-            _context.Games.Update(oldLootbox);
-            await _context.SaveChangesAsync();
-        }
+        var lootType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "Lootbox");
+        var cardsType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "3 Karty");
+        var scratchType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "Zdrapka");
+
+        if (!await _context.Games.AnyAsync(g => g.Name == "Ruletka Nagród") && lootType != null)
+            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ruletka Nagród", Cost = 10, GameTypeId = lootType.Id });
+        if (!await _context.Games.AnyAsync(g => g.Name == "Ślepy Los") && cardsType != null)
+            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ślepy Los", Cost = 15, GameTypeId = cardsType.Id });
+        if (!await _context.Games.AnyAsync(g => g.Name == "Szczęśliwa Zdrapka") && scratchType != null)
+            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Szczęśliwa Zdrapka", Cost = 5, GameTypeId = scratchType.Id });
+
+        await _context.SaveChangesAsync();
     }
 }

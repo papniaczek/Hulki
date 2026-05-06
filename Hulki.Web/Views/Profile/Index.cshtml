@@ -5,79 +5,140 @@
     var reports = ViewBag.Reports as List<DailyReport>;
 }
 
-<div class="container mt-5">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="container mt-4">
+    <!-- HEADER KARTY PROFILU -->
     <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm border-0 bg-primary text-white p-4 d-flex flex-row align-items-center justify-content-between rounded-3">
-                <div>
-                    <h2 class="mb-1">@user.FirstName @user.LastName</h2>
-                    <p class="mb-0 text-white-50"><i class="bi bi-envelope"></i> @user.Email</p>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm text-white p-4 d-flex flex-row align-items-center justify-content-between rounded-4"
+                 style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
+                         style="width:64px;height:64px;font-size:1.8rem;">
+                        👤
+                    </div>
+                    <div>
+                        <h2 class="mb-0 fw-bold">@user.FirstName @user.LastName</h2>
+                        <p class="mb-0 text-white-50 small"><i class="bi bi-envelope me-1"></i>@user.Email</p>
+                    </div>
                 </div>
                 <div class="text-end">
-                    <span class="text-white-50 small text-uppercase fw-bold">Saldo Portfela</span>
-                    <h1 class="m-0 fw-bold">@ViewBag.Points <i class="bi bi-star-fill text-warning"></i></h1>
+                    <div class="text-white-50 small text-uppercase fw-bold mb-1">Saldo portfela</div>
+                    <div class="fw-bold" style="font-size:2.2rem;">
+                        @ViewBag.Points <i class="bi bi-star-fill text-warning" style="font-size:1.5rem;"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
+        <!-- EKWIPUNEK -->
         <div class="col-md-7 mb-4">
-            <h4 class="mb-3 text-secondary fw-bold"><i class="bi bi-backpack"></i> Mój Ekwipunek</h4>
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body">
-                    @if (inventory != null && inventory.Any())
+            <h5 class="mb-3 fw-bold text-secondary">
+                <i class="bi bi-backpack4-fill me-2"></i>Mój Ekwipunek
+                @if (inventory != null && inventory.Any())
+                {
+                    <span class="badge bg-primary ms-2">@inventory.Count</span>
+                }
+            </h5>
+
+            @if (inventory != null && inventory.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var item in inventory)
                     {
-                        <div class="row">
-                            @foreach (var item in inventory)
-                            {
-                                <div class="col-md-6 mb-3">
-                                    <div class="p-3 border rounded text-center bg-dark-subtle" style="border-left: 5px solid @item.ItemRarity.HexColor !important; background-color: #f8f9fa;">
-                                        <i class="bi bi-shield-fill text-light fs-1" style="color: @item.ItemRarity.HexColor !important;"></i>
-                                        <h5 class="mt-2 mb-1 fw-bold text-light-subtle">@item.Name</h5>
-                                        <span class="badge" style="background-color: @item.ItemRarity.HexColor;">@item.ItemRarity.Name</span>
-                                    </div>
+                        var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
+                        var rarityName = item.ItemRarity?.Name ?? "Pospolity";
+
+                        string emoji = rarityName switch {
+                            "Legendarny" => "👑",
+                            "Mityczny"   => "🔥",
+                            "Epicki"     => "💎",
+                            "Rzadki"     => "🔷",
+                            "Niepospolity" => "🟢",
+                            _            => "🛡️"
+                        };
+
+                        <div class="col-6 col-md-4">
+                            <div class="card border-0 shadow-sm h-100 text-center position-relative overflow-hidden"
+                                 style="border-top: 4px solid @rarityColor !important;">
+                                <div class="card-body py-3 px-2">
+                                    <div class="mb-2" style="font-size:2.2rem;">@emoji</div>
+                                    <div class="fw-bold small text-truncate mb-1" title="@item.Name">@item.Name</div>
+                                    <span class="badge mb-2" style="background-color:@rarityColor;">@rarityName</span>
+
+                                    <!-- PRZYCISK SPRZEDAJ -->
+                                    <form asp-controller="Store" asp-action="SellItem" method="post" class="mt-1">
+                                        <input type="hidden" name="itemId" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100"
+                                                onclick="return confirm('Na pewno sprzedać @item.Name?')">
+                                            <i class="bi bi-cash-coin me-1"></i>Sprzedaj
+                                        </button>
+                                    </form>
                                 </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center p-5 text-muted">
-                            <i class="bi bi-box fs-1"></i>
-                            <p class="mt-2">Twój ekwipunek jest pusty. Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
-                            <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary mt-2">Przejdź do sklepu</a>
+                            </div>
                         </div>
                     }
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-5 text-muted">
+                        <i class="bi bi-box fs-1 d-block mb-3"></i>
+                        <p class="mb-3">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
+                        <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-shop me-1"></i>Przejdź do sklepu
+                        </a>
+                    </div>
+                </div>
+            }
         </div>
 
+        <!-- OSTATNIE WPISY -->
         <div class="col-md-5 mb-4">
-            <h4 class="mb-3 text-secondary fw-bold"><i class="bi bi-journal-text"></i> Ostatnie wpisy</h4>
-            <div class="card shadow-sm border-0 h-100">
+            <h5 class="mb-3 fw-bold text-secondary">
+                <i class="bi bi-journal-text me-2"></i>Ostatnie wpisy
+            </h5>
+            <div class="card border-0 shadow-sm">
                 <div class="card-body p-0">
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-group list-group-flush rounded-3">
                         @if (reports != null && reports.Any())
                         {
                             foreach (var report in reports)
                             {
-                                <li class="list-group-item p-3">
+                                <li class="list-group-item px-3 py-3">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small class="text-muted"><i class="bi bi-calendar"></i> @report.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>@report.CreatedAt.ToString("dd.MM.yyyy")
+                                        </small>
                                         <span class="badge bg-secondary">@report.ReportStatus.Name</span>
                                     </div>
-                                    <p class="mb-0 text-truncate" style="max-width: 300px;">@report.Content</p>
+                                    <p class="mb-0 small text-truncate text-muted" style="max-width:260px;">@report.Content</p>
                                 </li>
                             }
                         }
                         else
                         {
                             <li class="list-group-item p-4 text-center text-muted">
+                                <i class="bi bi-journal-x fs-3 d-block mb-2"></i>
                                 Brak wpisów w dzienniczku.
                             </li>
                         }
                     </ul>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center pb-3">
+                    <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>Dodaj wpis
+                    </a>
                 </div>
             </div>
         </div>

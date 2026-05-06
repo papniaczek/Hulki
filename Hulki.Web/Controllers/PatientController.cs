@@ -29,8 +29,13 @@ namespace Hulki.Web.Controllers;
 
         // 1. WYŚWIETLANIE FORMULARZA
         [HttpGet]
-        public IActionResult DailyReport()
+        public async Task<IActionResult> DailyReport()
         {
+            var user = await _userManager.GetUserAsync(User);
+            var today = DateTime.Today;
+            bool alreadyReportedToday = await _context.DailyReports
+                .AnyAsync(r => r.AppUserId == user.Id && r.CreatedAt >= today && r.CreatedAt < today.AddDays(1));
+            ViewBag.AlreadyReportedToday = alreadyReportedToday;
             return View();
         }
 
@@ -45,6 +50,17 @@ namespace Hulki.Web.Controllers;
             }
 
             var user = await _userManager.GetUserAsync(User);
+
+            // LIMIT: jeden raport dziennie
+            var today = DateTime.Today;
+            bool alreadyReportedToday = await _context.DailyReports
+                .AnyAsync(r => r.AppUserId == user.Id && r.CreatedAt >= today && r.CreatedAt < today.AddDays(1));
+
+            if (alreadyReportedToday)
+            {
+                TempData["ErrorMessage"] = "Już dodałeś dzisiaj swój wpis do dzienniczka. Wróć jutro!";
+                return RedirectToAction("DailyReport");
+            }
 
             // SPRAWDZANIE SŁOWNIKÓW
             var defaultStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Oczekujący") 
