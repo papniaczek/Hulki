@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Hulki.Web.Data;
 using Hulki.Web.Models;
+using Hulki.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,29 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+// Warstwa serwisów (użyta m.in. przez publiczne API sklepu).
+builder.Services.AddScoped<IShopService, ShopService>();
+
+// Serwis cytatów: named HttpClient + in-memory cache, żeby nie bić w zewnętrzne API przy każdym żądaniu.
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient(QuoteService.QuotesClientName, client =>
+{
+    client.BaseAddress = new Uri("https://zenquotes.io/api/");
+    client.Timeout = TimeSpan.FromSeconds(5);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.DefaultRequestHeaders.Add("User-Agent", "Hulki.Web/1.0");
+});
+// Tłumacz EN -> PL, żeby cytaty wyświetlały się po polsku. MyMemory działa bez klucza
+// (limit 5000 znaków/dzień anonimowo, 50 000 po podaniu e-maila).
+builder.Services.AddHttpClient(QuoteService.TranslationClientName, client =>
+{
+    client.BaseAddress = new Uri("https://api.mymemory.translated.net/");
+    client.Timeout = TimeSpan.FromSeconds(5);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.DefaultRequestHeaders.Add("User-Agent", "Hulki.Web/1.0");
+});
+builder.Services.AddScoped<IQuoteService, QuoteService>();
+
 var app = builder.Build();
 
 // SEEDING ADMINA
@@ -35,6 +59,10 @@ using (var scope = app.Services.CreateScope())
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var context = services.GetRequiredService<ApplicationDbContext>();
+
+        // Dociąga zaległe migracje (np. AddShopItemFields), żeby kolumny Description / IconPath / Price
+        // istniały w bazie zanim API sklepu zacznie z nich czytać.
+        await context.Database.MigrateAsync();
 
         if (!await roleManager.RoleExistsAsync("Admin"))
         {
@@ -67,11 +95,15 @@ using (var scope = app.Services.CreateScope())
                 }
             }
         }
+
+        // SEEDING SKLEPU – uruchamiany przy starcie, dzięki czemu /api/shop/items
+        // od razu zwraca kompletne dane (bez konieczności wchodzenia na /Store).
+        await StoreDataSeeder.SeedAsync(context);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Błąd podczas tworzenia konta admina.");
+        logger.LogError(ex, "Błąd podczas inicjalizacji danych startowych.");
     }
 }
 
@@ -96,6 +128,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Routing atrybutowy dla kontrolerów API (np. /api/shop/items).
+app.MapControllers();
 app.MapRazorPages();
 
 app.Run();

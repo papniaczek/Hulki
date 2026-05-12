@@ -9,6 +9,27 @@
         </div>
     </div>
 
+    @{
+        var quote = ViewBag.Quote as Hulki.Web.Models.Dto.QuoteDto;
+    }
+    @if (quote != null)
+    {
+        <div class="card border-0 shadow-sm mb-5 quote-card" id="quote-card">
+            <div class="card-body p-4 p-md-5 text-center">
+                <i class="bi bi-quote text-primary d-block mb-3" style="font-size:2.5rem;"></i>
+                <blockquote class="blockquote mb-3">
+                    <p class="fs-4 fst-italic mb-0" id="quote-content">&bdquo;@quote.Content&rdquo;</p>
+                </blockquote>
+                <footer class="blockquote-footer mb-3" id="quote-author-wrapper">
+                    <span id="quote-author">@(quote.Author ?? "Nieznany autor")</span>
+                </footer>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="quote-refresh">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Nowy cytat
+                </button>
+            </div>
+        </div>
+    }
+
     @if (User.Identity.IsAuthenticated)
     {
         <div class="row g-4">
@@ -61,4 +82,38 @@
     .bg-warning-light { background-color: rgba(255, 193, 7, 0.1); }
     .bg-info-light { background-color: rgba(13, 202, 240, 0.1); }
     .icon-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .quote-card { background: linear-gradient(135deg, rgba(13,110,253,0.08), rgba(13,202,240,0.08)); border-left: 4px solid #0d6efd !important; }
+    .quote-card.loading { opacity: 0.5; }
 </style>
+
+<script>
+    (function () {
+        const btn = document.getElementById('quote-refresh');
+        if (!btn) return;
+
+        const card = document.getElementById('quote-card');
+        const contentEl = document.getElementById('quote-content');
+        const authorEl = document.getElementById('quote-author');
+
+        btn.addEventListener('click', async () => {
+            btn.disabled = true;
+            card.classList.add('loading');
+            try {
+                const res = await fetch('/api/quotes/random', {
+                    headers: { 'Accept': 'application/json' },
+                    cache: 'no-store'
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                contentEl.textContent = '\u201E' + data.content + '\u201D';
+                authorEl.textContent = data.author || 'Nieznany autor';
+            } catch (err) {
+                console.error('Nie udało się pobrać cytatu:', err);
+                authorEl.textContent = 'Nie udało się pobrać nowego cytatu – spróbuj jeszcze raz.';
+            } finally {
+                card.classList.remove('loading');
+                btn.disabled = false;
+            }
+        });
+    })();
+</script>

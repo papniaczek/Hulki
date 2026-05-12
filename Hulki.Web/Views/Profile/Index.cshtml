@@ -71,7 +71,19 @@
                             <div class="card border-0 shadow-sm h-100 text-center position-relative overflow-hidden"
                                  style="border-top: 4px solid @rarityColor !important;">
                                 <div class="card-body py-3 px-2">
-                                    <div class="mb-2" style="font-size:2.2rem;">@emoji</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.IconPath))
+                                    {
+                                        <img src="@item.IconPath" alt="@item.Name"
+                                             class="mb-2 rounded"
+                                             style="width:3rem;height:3rem;object-fit:cover;"
+                                             onerror="this.onerror=null;this.outerHTML='<i class=\'bi bi-box-seam default-item-icon mb-2 d-block\' style=\'font-size:2.2rem;color:'+'@rarityColor'+';\'></i>';" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-box-seam default-item-icon mb-2 d-block"
+                                           style="font-size:2.2rem;color:@rarityColor;"
+                                           title="Brak przypisanej grafiki"></i>
+                                    }
                                     <div class="fw-bold small text-truncate mb-1" title="@item.Name">@item.Name</div>
                                     <span class="badge mb-2" style="background-color:@rarityColor;">@rarityName</span>
 

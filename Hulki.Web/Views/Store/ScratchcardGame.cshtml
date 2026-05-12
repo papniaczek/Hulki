@@ -23,6 +23,17 @@
     <div class="scratch-container mt-5">
         <!-- Zwycięski przedmiot (ukryty pod spodem) -->
         <div class="scratch-result">
+            @if (!string.IsNullOrWhiteSpace(wonItem.IconPath))
+            {
+                <img src="@wonItem.IconPath" alt="@wonItem.Name"
+                     class="mb-2 rounded"
+                     style="width:4rem;height:4rem;object-fit:cover;"
+                     onerror="this.onerror=null;this.outerHTML='<i class=\'bi bi-box-seam text-warning mb-2\' style=\'font-size:3rem;\'></i>';" />
+            }
+            else
+            {
+                <i class="bi bi-box-seam text-warning mb-2" style="font-size:3rem;" title="Brak przypisanej grafiki"></i>
+            }
             <h4 class="text-warning fw-bold mb-3">@Html.Raw(wonItem.Name)</h4>
             <span class="badge bg-light text-dark mb-3" style="letter-spacing: 1px;">@Html.Raw(wonItem.ItemRarity.Name)</span>
             <p class="text-success small fw-bold">@Html.Raw(ViewBag.Message)</p>

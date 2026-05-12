@@ -25,7 +25,7 @@ public class StoreController : Controller
 
     public async Task<IActionResult> Index()
     {
-        await SeedStoreDataIfNotExists();
+        await StoreDataSeeder.SeedAsync(_context);
 
         var user = await _userManager.GetUserAsync(User);
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
@@ -228,11 +228,19 @@ public class StoreController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddRewardItem(string name, int itemRarityId)
+    public async Task<IActionResult> AddRewardItem(string name, int itemRarityId, string? description, int price, string? iconPath)
     {
         if (!string.IsNullOrWhiteSpace(name))
         {
-            _context.RewardItems.Add(new RewardItem { Id = Guid.NewGuid(), Name = name, ItemRarityId = itemRarityId });
+            _context.RewardItems.Add(new RewardItem
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                Description = string.IsNullOrWhiteSpace(description) ? null : description,
+                Price = price,
+                IconPath = string.IsNullOrWhiteSpace(iconPath) ? null : iconPath,
+                ItemRarityId = itemRarityId
+            });
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"Dodano przedmiot: {name}!";
         }
@@ -240,44 +248,5 @@ public class StoreController : Controller
     }
 
     private async Task SeedStoreDataIfNotExists()
-    {
-        // 1. Rzadkości
-        var expectedRarities = new Dictionary<string, string> {
-            { "Pospolity", "#adb5bd" }, { "Niepospolity", "#198754" }, { "Rzadki", "#0d6efd" },
-            { "Epicki", "#6f42c1" }, { "Legendarny", "#ffc107" }, { "Mityczny", "#dc3545" }
-        };
-
-        foreach (var rarity in expectedRarities)
-        {
-            if (!await _context.ItemRarities.AnyAsync(r => r.Name == rarity.Key))
-                _context.ItemRarities.Add(new ItemRarity { Name = rarity.Key, HexColor = rarity.Value });
-        }
-        await _context.SaveChangesAsync();
-
-        // 2. Typy Gier
-        string[] types = { "Lootbox", "3 Karty", "Zdrapka" };
-        foreach (var t in types)
-        {
-            if (!await _context.GameTypes.AnyAsync(gt => gt.Name == t))
-                _context.GameTypes.Add(new GameType { Name = t, Description = $"Gra typu {t}" });
-        }
-        await _context.SaveChangesAsync();
-
-        // 3. Aktualizacja/Dodawanie gier
-        var oldGame = await _context.Games.FirstOrDefaultAsync(g => g.Name == "Skrzynia Motywacji");
-        if (oldGame != null) { oldGame.Name = "Ruletka Nagród"; _context.Update(oldGame); }
-
-        var lootType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "Lootbox");
-        var cardsType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "3 Karty");
-        var scratchType = await _context.GameTypes.FirstOrDefaultAsync(t => t.Name == "Zdrapka");
-
-        if (!await _context.Games.AnyAsync(g => g.Name == "Ruletka Nagród") && lootType != null)
-            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ruletka Nagród", Cost = 10, GameTypeId = lootType.Id });
-        if (!await _context.Games.AnyAsync(g => g.Name == "Ślepy Los") && cardsType != null)
-            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ślepy Los", Cost = 15, GameTypeId = cardsType.Id });
-        if (!await _context.Games.AnyAsync(g => g.Name == "Szczęśliwa Zdrapka") && scratchType != null)
-            _context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Szczęśliwa Zdrapka", Cost = 5, GameTypeId = scratchType.Id });
-
-        await _context.SaveChangesAsync();
-    }
+        => await StoreDataSeeder.SeedAsync(_context);
 }

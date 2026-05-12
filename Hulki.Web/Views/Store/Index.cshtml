@@ -71,6 +71,21 @@
                                 }
                             </select>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Opis</label>
+                            <textarea name="description" class="form-control bg-dark text-light border-secondary" rows="2" placeholder="Krótki opis przedmiotu"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Cena (pkt)</label>
+                            <input type="number" min="0" name="price" value="0" class="form-control bg-dark text-light border-secondary" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ścieżka do ikony</label>
+                            <input type="text" name="iconPath" class="form-control bg-dark text-light border-secondary" placeholder="/images/shop/icon.png" />
+                        </div>
                     </div>
                     <div class="modal-footer border-secondary">
                         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Anuluj</button>
