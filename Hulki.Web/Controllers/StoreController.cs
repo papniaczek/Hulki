@@ -95,7 +95,7 @@ public class StoreController : Controller
 
         if (wallet == null || game == null || wallet.Balance < game.Cost)
         {
-            TempData["ErrorMessage"] = "Nie masz wystarczająco punktów!";
+            TempData["ErrorMessage"] = "Nie masz wystarczająco punktów, aby zagrać!";
             return RedirectToAction("Index");
         }
 
@@ -146,7 +146,7 @@ public class StoreController : Controller
 
         if (wallet == null || game == null || wallet.Balance < game.Cost)
         {
-            TempData["ErrorMessage"] = "Nie masz wystarczająco punktów!";
+            TempData["ErrorMessage"] = "Nie masz wystarczająco punktów, aby zagrać!";
             return RedirectToAction("Index");
         }
 
