@@ -1,0 +1,81 @@
+@model Hulki.Web.Models.TherapyGroup
+
+@{
+    ViewData["Title"] = "Zarządzaj Grupą";
+    var pendingRequests = Model.PatientGroups.Where(pg => !pg.IsApproved).ToList();
+    var approvedMembers = Model.PatientGroups.Where(pg => pg.IsApproved).ToList();
+}
+
+<div class="container mt-4">
+    <h2>Zarządzanie: @Model.Name</h2>
+    <p class="text-muted">Pojemność: @approvedMembers.Count / @Model.MaxParticipants</p>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h4 class="text-warning"><i class="bi bi-clock-history"></i> Oczekujące wnioski (@pendingRequests.Count)</h4>
+            @if (pendingRequests.Any())
+            {
+                <ul class="list-group shadow-sm">
+                    @foreach (var request in pendingRequests)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@request.AppUser.UserName</strong><br />
+                                <small class="text-muted">Aplikował: @request.JoinedDate.ToShortDateString()</small>
+                            </div>
+                            <div>
+                                <form asp-action="Approve" method="post" class="d-inline">
+                                    <input type="hidden" name="groupId" value="@Model.Id" />
+                                    <input type="hidden" name="userId" value="@request.AppUserId" />
+                                    <button type="submit" class="btn btn-success btn-sm" title="Zatwierdź"><i class="bi bi-check-circle"></i></button>
+                                </form>
+                                <form asp-action="Reject" method="post" class="d-inline">
+                                    <input type="hidden" name="groupId" value="@Model.Id" />
+                                    <input type="hidden" name="userId" value="@request.AppUserId" />
+                                    <button type="submit" class="btn btn-danger btn-sm" title="Odrzuć"><i class="bi bi-x-circle"></i></button>
+                                </form>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Brak nowych wniosków.</p>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <h4 class="text-success"><i class="bi bi-people"></i> Obecni członkowie (@approvedMembers.Count)</h4>
+            @if (approvedMembers.Any())
+            {
+                <ul class="list-group shadow-sm">
+                    @foreach (var member in approvedMembers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-person-check text-success"></i> @member.AppUser.UserName</span>
+                            <form asp-action="Reject" method="post" class="d-inline" onsubmit="return confirm('Czy na pewno chcesz usunąć tego pacjenta z grupy?');">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <input type="hidden" name="userId" value="@member.AppUserId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Usuń</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Grupa jest pusta.</p>
+            }
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">Wróć do listy grup</a>
+    </div>
+</div>

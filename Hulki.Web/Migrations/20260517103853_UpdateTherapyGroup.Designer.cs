@@ -4,6 +4,7 @@ using Hulki.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hulki.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260517103853_UpdateTherapyGroup")]
+    partial class UpdateTherapyGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -304,37 +307,6 @@ namespace Hulki.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GameTypes");
-                });
-
-            modelBuilder.Entity("Hulki.Web.Models.GroupMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TherapyGroupId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("TherapyGroupId");
-
-                    b.ToTable("GroupMessages");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.ItemRarity", b =>
@@ -791,25 +763,6 @@ namespace Hulki.Web.Migrations
                     b.Navigation("AppUser");
 
                     b.Navigation("Game");
-                });
-
-            modelBuilder.Entity("Hulki.Web.Models.GroupMessage", b =>
-                {
-                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hulki.Web.Models.TherapyGroup", "TherapyGroup")
-                        .WithMany()
-                        .HasForeignKey("TherapyGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("TherapyGroup");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.PatientGroup", b =>

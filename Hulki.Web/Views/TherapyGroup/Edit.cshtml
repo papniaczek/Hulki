@@ -1,54 +1,52 @@
 @model Hulki.Web.Models.TherapyGroup
+
 @{
-    ViewData["Title"] = "Edycja Grupy";
-    var therapyTypes = ViewBag.TherapyTypes as List<Hulki.Web.Models.TherapyType>;
+    ViewData["Title"] = "Edytuj Grupę Wspierającą";
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="m-0">Edytuj Grupę: @Model.Name</h4>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="Edit" method="post">
-                        <input type="hidden" asp-for="Id" />
+<div class="container mt-4 text-light">
+    <div class="card bg-dark border-secondary p-4 shadow">
+        <h2 class="text-warning fw-bold mb-4">Edycja Grupy: @Model.Name</h2>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nazwa Grupy</label>
-                            <input asp-for="Name" class="form-control" required />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Opis Terapii</label>
-                            <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Typ Terapii</label>
-                            <select asp-for="TherapyTypeId" class="form-select" required>
-                                <option value="">-- Wybierz typ --</option>
-                                @if (therapyTypes != null)
-                                {
-                                    foreach (var type in therapyTypes)
-                                    {
-                                        <option value="@type.Id">@type.Name</option>
-                                    }
-                                }
-                            </select>
-                            <span asp-validation-for="TherapyTypeId" class="text-danger"></span>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
-                            <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-bold text-info">Nazwa Grupy</label>
+                <input asp-for="Name" class="form-control bg-dark text-light border-secondary" required />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-        </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold text-info">Opis</label>
+                <textarea asp-for="Description" class="form-control bg-dark text-light border-secondary" rows="3" required></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MaxParticipants" class="form-label fw-bold text-info">Limit uczestników</label>
+                <input asp-for="MaxParticipants" type="number" class="form-control bg-dark text-light border-secondary" min="1" max="100" required />
+                <span asp-validation-for="MaxParticipants" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="TherapyTypeId" class="form-label fw-bold text-info">Typ Terapii</label>
+                <select asp-for="TherapyTypeId" class="form-select bg-dark text-light border-secondary" required>
+                    @if (ViewBag.TherapyTypes != null)
+                    {
+                        foreach (var type in ViewBag.TherapyTypes)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="TherapyTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-warning fw-bold px-4 text-dark">Zapisz zmiany</button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Anuluj</a>
+            </div>
+        </form>
     </div>
 </div>

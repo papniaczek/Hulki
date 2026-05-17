@@ -32,6 +32,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         public DbSet<GameSession> GameSessions { get; set; }
         public DbSet<ForumTopic> ForumTopics { get; set; }
         public DbSet<ForumPost> ForumPosts { get; set; }
+        public DbSet<GroupMessage> GroupMessages { get; set; }
 
         // KONFIGURACJA ZAAWANSOWANYCH RELACJI
         protected override void OnModelCreating(ModelBuilder builder)

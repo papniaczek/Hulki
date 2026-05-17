@@ -1,0 +1,118 @@
+@model Hulki.Web.Models.TherapyGroup
+
+@{
+    ViewData["Title"] = Model.Name;
+    var messages = ViewBag.Messages as IEnumerable<Hulki.Web.Models.GroupMessage>;
+    string currentUserId = ViewBag.CurrentUserId;
+    bool isStaff = ViewBag.IsStaff;
+}
+
+<div class="container mt-4 text-light">
+    
+    <div class="card bg-dark text-light border-secondary mb-4 shadow-lg">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-primary mb-2">@Model.TherapyType.Name</span>
+                <h1 class="fw-bold mb-1 text-info">@Model.Name</h1>
+                <p class="text-muted mb-0">@Model.Description</p>
+            </div>
+            @if(isStaff)
+            {
+                <a asp-action="Manage" asp-route-id="@Model.Id" class="btn btn-outline-warning fw-bold">
+                    <i class="bi bi-gear-fill me-1"></i> Zarządzaj grupą
+                </a>
+            }
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs border-secondary mb-4" id="groupTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active bg-dark text-info fw-bold border-secondary border-bottom-0" id="wall-tab" data-bs-toggle="tab" data-bs-target="#wall" type="button" role="tab">
+                <i class="bi bi-chat-square-text"></i> Tablica Grupy
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link bg-dark text-light fw-bold border-secondary" id="quests-tab" data-bs-toggle="tab" data-bs-target="#quests" type="button" role="tab">
+                <i class="bi bi-trophy"></i> Grupowe Wyzwania
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link bg-dark text-light fw-bold border-secondary" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources" type="button" role="tab">
+                <i class="bi bi-folder2-open"></i> Materiały od Terapeuty
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="groupTabsContent">
+        
+        <div class="tab-pane fade show active" id="wall" role="tabpanel">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    
+                    <div class="card bg-dark border-secondary shadow-sm mb-4">
+                        <div class="card-body">
+                            <form asp-action="AddMessage" method="post">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <div class="input-group">
+                                    <input type="text" name="content" class="form-control bg-dark text-light border-secondary" placeholder="Napisz coś do grupy... Podziel się swoim dniem!" required autocomplete="off">
+                                    <button class="btn btn-primary fw-bold" type="submit"><i class="bi bi-send-fill"></i> Wyślij</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column gap-3">
+                        @if (messages != null && messages.Any())
+                        {
+                            foreach (var msg in messages)
+                            {
+                                bool isMine = msg.AppUserId == currentUserId;
+                                <div class="card bg-dark border-secondary shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong class="@(isMine ? "text-success" : "text-info")">
+                                                <i class="bi bi-person-circle me-1"></i> @msg.AppUser.UserName
+                                            </strong>
+                                            <small class="text-muted">@msg.CreatedAt.ToString("g")</small>
+                                        </div>
+                                        <p class="mb-0 text-light">@msg.Content</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-chat-dots fs-1 mb-3 d-block text-secondary"></i>
+                                <h5>Brak wiadomości</h5>
+                                <p>Bądź pierwszą osobą, która przywita się z grupą!</p>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="quests" role="tabpanel">
+            <div class="card bg-dark border-secondary shadow-sm text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-controller fs-1 text-warning mb-3 d-block"></i>
+                    <h3 class="text-warning fw-bold">Grupowe Wyzwania (Wkrótce)</h3>
+                    <p class="text-muted">W tym miejscu pojawią się specjalne zadania (np. 5 dni bez nałogu z rzędu dla całej grupy). <br/> Za ich wykonanie wszyscy członkowie otrzymają nagrody do Sklepu!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="resources" role="tabpanel">
+            <div class="card bg-dark border-secondary shadow-sm text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-file-earmark-pdf fs-1 text-info mb-3 d-block"></i>
+                    <h3 class="text-info fw-bold">Kącik Materiałów (Wkrótce)</h3>
+                    <p class="text-muted">Tutaj terapeuta będzie mógł wrzucać pliki, ćwiczenia i arkusze do pobrania dla członków grupy.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
