@@ -3,8 +3,9 @@
 @{
     ViewData["Title"] = Model.Name;
     var messages = ViewBag.Messages as IEnumerable<Hulki.Web.Models.GroupMessage>;
-    string currentUserId = ViewBag.CurrentUserId;
-    bool isStaff = ViewBag.IsStaff;
+    var quests = ViewBag.Quests as IEnumerable<Hulki.Web.Models.GroupQuest>;
+    string currentUserId = ViewBag.CurrentUserId as string;
+    bool isStaff = ViewBag.IsStaff ?? false;
 }
 
 <div class="container mt-4 text-light">
@@ -33,7 +34,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link bg-dark text-light fw-bold border-secondary" id="quests-tab" data-bs-toggle="tab" data-bs-target="#quests" type="button" role="tab">
-                <i class="bi bi-trophy"></i> Grupowe Wyzwania
+                <i class="bi bi-trophy"></i> Wyzwania i Quizy
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -48,7 +49,6 @@
         <div class="tab-pane fade show active" id="wall" role="tabpanel">
             <div class="row">
                 <div class="col-md-8 mx-auto">
-                    
                     <div class="card bg-dark border-secondary shadow-sm mb-4">
                         <div class="card-body">
                             <form asp-action="AddMessage" method="post">
@@ -66,12 +66,16 @@
                         {
                             foreach (var msg in messages)
                             {
-                                bool isMine = msg.AppUserId == currentUserId;
-                                <div class="card bg-dark border-secondary shadow-sm">
+                                bool isMine = (msg.AppUserId == currentUserId);
+                                string displayName = msg.AppUser != null 
+                                    ? (!string.IsNullOrWhiteSpace(msg.AppUser.UserName) ? msg.AppUser.UserName : msg.AppUser.Email) 
+                                    : "Nieznany pacjent";
+
+                                <div class="card bg-dark border-secondary shadow-sm mb-3">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <strong class="@(isMine ? "text-success" : "text-info")">
-                                                <i class="bi bi-person-circle me-1"></i> @msg.AppUser.UserName
+                                                <i class="bi bi-person-circle me-1"></i> @displayName
                                             </strong>
                                             <small class="text-muted">@msg.CreatedAt.ToString("g")</small>
                                         </div>
@@ -89,18 +93,256 @@
                             </div>
                         }
                     </div>
-
                 </div>
             </div>
         </div>
 
         <div class="tab-pane fade" id="quests" role="tabpanel">
-            <div class="card bg-dark border-secondary shadow-sm text-center py-5">
-                <div class="card-body">
-                    <i class="bi bi-controller fs-1 text-warning mb-3 d-block"></i>
-                    <h3 class="text-warning fw-bold">Grupowe Wyzwania (Wkrótce)</h3>
-                    <p class="text-muted">W tym miejscu pojawią się specjalne zadania (np. 5 dni bez nałogu z rzędu dla całej grupy). <br/> Za ich wykonanie wszyscy członkowie otrzymają nagrody do Sklepu!</p>
+            
+            @if(isStaff)
+            {
+                <div class="text-end mb-4">
+                    <button class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#createQuestModal">
+                        <i class="bi bi-plus-circle"></i> Stwórz wyzwanie
+                    </button>
                 </div>
+
+                <div class="modal fade" id="createQuestModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content bg-dark text-light border-secondary">
+                            <form asp-action="CreateQuest" method="post">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                <div class="modal-header border-secondary">
+                                    <h5 class="modal-title text-warning fw-bold">Nowe Wyzwanie</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label text-info">Tytuł</label>
+                                        <input type="text" name="title" class="form-control bg-dark text-light border-secondary" required placeholder="np. Quiz o nałogach" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-info">Typ zadania</label>
+                                        <select name="questType" id="questTypeSelect" class="form-select bg-dark text-light border-secondary" onchange="toggleQuizFields()">
+                                            <option value="Otwarte">Otwarte Pytanie (Odpowiedź tekstowa)</option>
+                                            <option value="QuizABCD">Quiz ABCD (Automatyczne sprawdzanie)</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-info">Treść zadania / Pytanie</label>
+                                        <textarea name="description" class="form-control bg-dark text-light border-secondary" rows="3" required></textarea>
+                                    </div>
+                                    
+                                    <div id="abcdFields" class="d-none bg-secondary bg-opacity-25 p-3 rounded mb-3 border border-secondary">
+                                        <h6 class="text-warning mb-3">Odpowiedzi (wypełnij wybrane)</h6>
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-light border-secondary">A</span>
+                                                    <input type="text" name="optionA" class="form-control bg-dark text-light border-secondary" placeholder="Opcja A" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-light border-secondary">B</span>
+                                                    <input type="text" name="optionB" class="form-control bg-dark text-light border-secondary" placeholder="Opcja B" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-light border-secondary">C</span>
+                                                    <input type="text" name="optionC" class="form-control bg-dark text-light border-secondary" placeholder="Opcja C" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-light border-secondary">D</span>
+                                                    <input type="text" name="optionD" class="form-control bg-dark text-light border-secondary" placeholder="Opcja D" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <label class="form-label fw-bold text-success">Prawidłowa odpowiedź</label>
+                                            <select name="correctOption" class="form-select bg-dark text-light border-success">
+                                                <option value="A">Opcja A</option>
+                                                <option value="B">Opcja B</option>
+                                                <option value="C">Opcja C</option>
+                                                <option value="D">Opcja D</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label text-warning">Nagroda (Punkty)</label>
+                                        <input type="number" name="rewardPoints" class="form-control bg-dark text-light border-secondary" min="5" value="50" required />
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-secondary">
+                                    <button type="submit" class="btn btn-warning text-dark fw-bold">Zapisz i Opublikuj</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="row">
+                @if (quests != null && quests.Any())
+                {
+                    foreach (var quest in quests)
+                    {
+                        var mySubmission = quest.Submissions?.FirstOrDefault(s => s.AppUserId == currentUserId);
+
+                        <div class="col-12 mb-4">
+                            <div class="card bg-dark border-warning shadow-sm">
+                                <div class="card-header border-warning d-flex justify-content-between align-items-center bg-transparent">
+                                    <div>
+                                        <span class="badge bg-secondary me-2">@(quest.QuestType == "QuizABCD" ? "Quiz" : "Otwarte")</span>
+                                        <h5 class="mb-0 d-inline text-warning fw-bold">@quest.Title</h5>
+                                    </div>
+                                    <span class="badge bg-warning text-dark fs-6"><i class="bi bi-coin"></i> +@quest.RewardPoints pkt</span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-light mb-4 fs-5">@quest.Description</p>
+
+                                    @if(isStaff)
+                                    {
+                                        <hr class="border-secondary" />
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="text-info mb-0"><i class="bi bi-inboxes"></i> Odpowiedzi pacjentów:</h6>
+                                            @if(quest.QuestType == "QuizABCD")
+                                            {
+                                                <span class="badge bg-success text-dark">Prawidłowa odpowiedź: @quest.CorrectOption</span>
+                                            }
+                                        </div>
+                                        
+                                        @if(quest.Submissions == null || !quest.Submissions.Any())
+                                        {
+                                            <p class="text-muted small mt-2">Brak odpowiedzi.</p>
+                                        }
+                                        else
+                                        {
+                                            <div class="list-group list-group-flush mt-3">
+                                                @foreach(var sub in quest.Submissions)
+                                                {
+                                                    <div class="list-group-item bg-dark border-secondary text-light">
+                                                        <div class="d-flex justify-content-between">
+                                                            <strong>@sub.AppUser.UserName</strong>
+                                                            <small class="text-muted">@sub.SubmittedAt.ToShortDateString()</small>
+                                                        </div>
+                                                        <p class="mb-2 mt-1">
+                                                            @if(quest.QuestType == "QuizABCD") { <span>Zaznaczył opcję: </span> }
+                                                            <strong>@sub.AnswerText</strong>
+                                                        </p>
+                                                        
+                                                        @if(!sub.IsEvaluated)
+                                                        {
+                                                            <div class="d-flex gap-2">
+                                                                <form asp-action="EvaluateQuest" method="post">
+                                                                    <input type="hidden" name="submissionId" value="@sub.Id" />
+                                                                    <input type="hidden" name="groupId" value="@Model.Id" />
+                                                                    <input type="hidden" name="accept" value="true" />
+                                                                    <button class="btn btn-sm btn-success">Zalicz (+@quest.RewardPoints pkt)</button>
+                                                                </form>
+                                                                <form asp-action="EvaluateQuest" method="post">
+                                                                    <input type="hidden" name="submissionId" value="@sub.Id" />
+                                                                    <input type="hidden" name="groupId" value="@Model.Id" />
+                                                                    <input type="hidden" name="accept" value="false" />
+                                                                    <button class="btn btn-sm btn-danger">Odrzuć</button>
+                                                                </form>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge @(sub.IsAccepted ? "bg-success" : "bg-danger")">
+                                                                @(sub.IsAccepted ? "Zaliczone (Automatycznie)" : "Odrzucone")
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if(mySubmission == null)
+                                        {
+                                            <form asp-action="SubmitQuest" method="post" class="bg-secondary bg-opacity-10 p-3 rounded border border-secondary">
+                                                <input type="hidden" name="questId" value="@quest.Id" />
+                                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                                
+                                                @if(quest.QuestType == "QuizABCD")
+                                                {
+                                                    <div class="d-flex flex-column gap-2 mb-3">
+                                                        @if(!string.IsNullOrEmpty(quest.OptionA)) { 
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="radio" name="answerText" value="A" id="q@(quest.Id)A" required>
+                                                                <label class="form-check-label text-light" for="q@(quest.Id)A"><strong>A:</strong> @quest.OptionA</label>
+                                                            </div> 
+                                                        }
+                                                        @if(!string.IsNullOrEmpty(quest.OptionB)) { 
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="radio" name="answerText" value="B" id="q@(quest.Id)B" required>
+                                                                <label class="form-check-label text-light" for="q@(quest.Id)B"><strong>B:</strong> @quest.OptionB</label>
+                                                            </div> 
+                                                        }
+                                                        @if(!string.IsNullOrEmpty(quest.OptionC)) { 
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="radio" name="answerText" value="C" id="q@(quest.Id)C" required>
+                                                                <label class="form-check-label text-light" for="q@(quest.Id)C"><strong>C:</strong> @quest.OptionC</label>
+                                                            </div> 
+                                                        }
+                                                        @if(!string.IsNullOrEmpty(quest.OptionD)) { 
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="radio" name="answerText" value="D" id="q@(quest.Id)D" required>
+                                                                <label class="form-check-label text-light" for="q@(quest.Id)D"><strong>D:</strong> @quest.OptionD</label>
+                                                            </div> 
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="mb-3">
+                                                        <textarea name="answerText" class="form-control bg-dark text-light border-secondary" placeholder="Wpisz swoją odpowiedź..." rows="2" required></textarea>
+                                                    </div>
+                                                }
+                                                <button class="btn btn-warning fw-bold text-dark w-100" type="submit">Prześlij odpowiedź</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <div class="alert bg-dark border-secondary mt-3 mb-0">
+                                                <strong>Twoja odpowiedź:</strong> @mySubmission.AnswerText
+                                                <div class="mt-2">
+                                                    @if(!mySubmission.IsEvaluated)
+                                                    {
+                                                        <span class="badge bg-secondary"><i class="bi bi-clock"></i> Oczekuje na ocenę terapeuty</span>
+                                                    }
+                                                    else if(mySubmission.IsAccepted)
+                                                    {
+                                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Zaliczone (+@quest.RewardPoints pkt)</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Niezaliczone / Błędna odpowiedź</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted w-100">
+                        <i class="bi bi-trophy fs-1 mb-3 d-block text-secondary"></i>
+                        <h5>Brak aktywnych wyzwań</h5>
+                        <p>Terapeuta jeszcze niczego tutaj nie dodał.</p>
+                    </div>
+                }
             </div>
         </div>
 
@@ -116,3 +358,15 @@
 
     </div>
 </div>
+
+<script>
+    function toggleQuizFields() {
+        var type = document.getElementById("questTypeSelect").value;
+        var abcdFields = document.getElementById("abcdFields");
+        if(type === "QuizABCD") {
+            abcdFields.classList.remove("d-none");
+        } else {
+            abcdFields.classList.add("d-none");
+        }
+    }
+</script>

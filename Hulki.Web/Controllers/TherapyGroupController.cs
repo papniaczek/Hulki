@@ -125,7 +125,16 @@ public class TherapyGroupController : Controller
             .Where(m => m.TherapyGroupId == id)
             .OrderByDescending(m => m.CreatedAt) // Najnowsze na górze
             .ToListAsync();
+        
+        // Pobieramy Wyzwania wraz z odpowiedziami pacjentów
+        var quests = await _context.GroupQuests
+            .Include(q => q.Submissions)
+            .ThenInclude(s => s.AppUser)
+            .Where(q => q.TherapyGroupId == id)
+            .OrderByDescending(q => q.CreatedAt)
+            .ToListAsync();
 
+        ViewBag.Quests = quests;
         ViewBag.Messages = messages;
         ViewBag.CurrentUserId = user.Id;
         ViewBag.IsStaff = isStaff;
@@ -270,6 +279,123 @@ public class TherapyGroupController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // --- 1. TWORZENIE WYZWANIA (TERAPEUTA) ---
+    [HttpPost]
+    [Authorize(Roles = "Terapeuta, Admin")]
+    public async Task<IActionResult> CreateQuest(int groupId, string title, string description, string questType, int rewardPoints, string? optionA, string? optionB, string? optionC, string? optionD, string? correctOption)
+    {
+        if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(description))
+        {
+            var quest = new GroupQuest
+            {
+                TherapyGroupId = groupId,
+                Title = title,
+                Description = description,
+                QuestType = questType,
+                RewardPoints = rewardPoints,
+                // Zapisujemy opcje tylko, jeśli to Quiz
+                OptionA = questType == "QuizABCD" ? optionA : null,
+                OptionB = questType == "QuizABCD" ? optionB : null,
+                OptionC = questType == "QuizABCD" ? optionC : null,
+                OptionD = questType == "QuizABCD" ? optionD : null,
+                CorrectOption = questType == "QuizABCD" ? correctOption : null
+            };
+            _context.GroupQuests.Add(quest);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Nowe wyzwanie zostało dodane!";
+        }
+        return RedirectToAction(nameof(Details), new { id = groupId });
+    }
+
+    // --- 2. WYSYŁANIE ODPOWIEDZI (PACJENT) ---
+    [HttpPost]
+    public async Task<IActionResult> SubmitQuest(int questId, int groupId, string answerText)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrWhiteSpace(answerText)) return RedirectToAction(nameof(Details), new { id = groupId });
+
+        var quest = await _context.GroupQuests.FindAsync(questId);
+        if (quest == null) return NotFound();
+
+        var submission = new QuestSubmission
+        {
+            GroupQuestId = questId,
+            AppUserId = user.Id,
+            AnswerText = answerText
+        };
+
+        // AUTO-OCENIANIE DLA QUIZU ABCD!
+        if (quest.QuestType == "QuizABCD")
+        {
+            submission.IsEvaluated = true;
+            submission.IsAccepted = (answerText == quest.CorrectOption);
+
+            if (submission.IsAccepted)
+            {
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
+                if (wallet != null)
+                {
+                    wallet.Balance += quest.RewardPoints;
+                    _context.PointTransactions.Add(new PointTransaction
+                    {
+                        Id = Guid.NewGuid(),
+                        WalletId = wallet.Id,
+                        Amount = quest.RewardPoints,
+                        Description = $"Prawidłowa odpowiedź w quizie: {quest.Title}",
+                        TransactionDate = DateTime.Now
+                    });
+                }
+            }
+        }
+
+        _context.QuestSubmissions.Add(submission);
+        await _context.SaveChangesAsync();
+        
+        TempData["SuccessMessage"] = quest.QuestType == "QuizABCD" ? "Quiz został sprawdzony automatycznie!" : "Odpowiedź wysłana! Oczekuje na weryfikację terapeuty.";
+        
+        return RedirectToAction(nameof(Details), new { id = groupId });
+    }
+
+    // --- 3. OCENIANIE I PRZYZNAWANIE PUNKTÓW (TERAPEUTA) ---
+    [HttpPost]
+    [Authorize(Roles = "Terapeuta, Admin")]
+    public async Task<IActionResult> EvaluateQuest(int submissionId, int groupId, bool accept)
+    {
+        var submission = await _context.QuestSubmissions
+            .Include(s => s.GroupQuest)
+            .FirstOrDefaultAsync(s => s.Id == submissionId);
+
+        if (submission != null && !submission.IsEvaluated)
+        {
+            submission.IsEvaluated = true;
+            submission.IsAccepted = accept;
+
+            if (accept)
+            {
+                // Dodajemy punkty do portfela pacjenta!
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == submission.AppUserId);
+                if (wallet != null)
+                {
+                    wallet.Balance += submission.GroupQuest.RewardPoints;
+                    
+                    _context.PointTransactions.Add(new PointTransaction
+                    {
+                        Id = Guid.NewGuid(),
+                        WalletId = wallet.Id,
+                        Amount = submission.GroupQuest.RewardPoints,
+                        Description = $"Nagroda za grupowe wyzwanie: {submission.GroupQuest.Title}",
+                        TransactionDate = DateTime.Now
+                    });
+                }
+            }
+
+            _context.QuestSubmissions.Update(submission);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction(nameof(Details), new { id = groupId });
+    }
+    
     // --- AUTOMATYCZNY SIEWNIK DANYCH SŁOWNIKOWYCH ---
     private async Task SeedTherapyTypesIfNotExists()
     {

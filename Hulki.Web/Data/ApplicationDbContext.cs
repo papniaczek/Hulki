@@ -33,6 +33,8 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         public DbSet<ForumTopic> ForumTopics { get; set; }
         public DbSet<ForumPost> ForumPosts { get; set; }
         public DbSet<GroupMessage> GroupMessages { get; set; }
+        public DbSet<GroupQuest> GroupQuests { get; set; }
+        public DbSet<QuestSubmission> QuestSubmissions { get; set; }
 
         // KONFIGURACJA ZAAWANSOWANYCH RELACJI
         protected override void OnModelCreating(ModelBuilder builder)
