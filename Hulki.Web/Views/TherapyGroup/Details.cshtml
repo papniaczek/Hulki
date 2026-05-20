@@ -4,6 +4,7 @@
     ViewData["Title"] = Model.Name;
     var messages = ViewBag.Messages as IEnumerable<Hulki.Web.Models.GroupMessage>;
     var quests = ViewBag.Quests as IEnumerable<Hulki.Web.Models.GroupQuest>;
+    var resources = ViewBag.Resources as IEnumerable<Hulki.Web.Models.GroupResource>; // Nowa paczka danych
     string currentUserId = ViewBag.CurrentUserId as string;
     bool isStaff = ViewBag.IsStaff ?? false;
 }
@@ -200,7 +201,18 @@
                                         <span class="badge bg-secondary me-2">@(quest.QuestType == "QuizABCD" ? "Quiz" : "Otwarte")</span>
                                         <h5 class="mb-0 d-inline text-warning fw-bold">@quest.Title</h5>
                                     </div>
-                                    <span class="badge bg-warning text-dark fs-6"><i class="bi bi-coin"></i> +@quest.RewardPoints pkt</span>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="badge bg-warning text-dark fs-6"><i class="bi bi-coin"></i> +@quest.RewardPoints pkt</span>
+                                        
+                                        @if(isStaff)
+                                        {
+                                            <form asp-action="DeleteQuest" method="post" onsubmit="return confirm('Czy na pewno chcesz bezpowrotnie usunąć to wyzwanie wraz ze wszystkimi odpowiedziami pacjentów?');" class="d-inline">
+                                                <input type="hidden" name="questId" value="@quest.Id" />
+                                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Usuń wyzwanie"><i class="bi bi-trash3"></i></button>
+                                            </form>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <p class="text-light mb-4 fs-5">@quest.Description</p>
@@ -347,12 +359,74 @@
         </div>
 
         <div class="tab-pane fade" id="resources" role="tabpanel">
-            <div class="card bg-dark border-secondary shadow-sm text-center py-5">
-                <div class="card-body">
-                    <i class="bi bi-file-earmark-pdf fs-1 text-info mb-3 d-block"></i>
-                    <h3 class="text-info fw-bold">Kącik Materiałów (Wkrótce)</h3>
-                    <p class="text-muted">Tutaj terapeuta będzie mógł wrzucać pliki, ćwiczenia i arkusze do pobrania dla członków grupy.</p>
+            <div class="row">
+                
+                @if (isStaff)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-dark border-secondary p-3 shadow-sm">
+                            <h5 class="text-info fw-bold mb-3"><i class="bi bi-cloud-upload"></i> Udostępnij materiał</h5>
+                            <form asp-action="UploadResource" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="groupId" value="@Model.Id" />
+                                
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted">Tytuł materiału</label>
+                                    <input type="text" name="title" class="form-control bg-dark text-light border-secondary" required placeholder="np. Karta radzenia sobie ze stresem" />
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label small text-muted">Wybierz plik (PDF, JPG, PNG)</label>
+                                    <input type="file" name="uploadedFile" class="form-control bg-dark text-light border-secondary" accept=".pdf,.png,.jpg,.jpeg" required />
+                                </div>
+                                
+                                <button type="submit" class="btn btn-info fw-bold w-100 mt-2">Wyślij do grupy</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+                <div class="@(isStaff ? "col-md-8" : "col-12")">
+                    <div class="card bg-dark border-secondary p-4 shadow-sm">
+                        <h4 class="text-light fw-bold mb-4"><i class="bi bi-file-earmark-text text-primary"></i> Pliki i arkusze edukacyjne</h4>
+                        
+                        <div class="row">
+                            @if (resources != null && resources.Any())
+                            {
+                                foreach (var res in resources)
+                                {
+                                    // Sprawdzamy rozszerzenie pliku, by dobrać odpowiednią ikonkę
+                                    string iconClass = "bi-file-earmark-text text-muted";
+                                    if (res.FilePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)) iconClass = "bi-file-earmark-pdf text-danger";
+                                    else if (res.FilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || res.FilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || res.FilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)) iconClass = "bi-file-earmark-image text-success";
+
+                                    <div class="col-sm-6 mb-3">
+                                        <div class="p-3 rounded border border-secondary bg-secondary bg-opacity-10 d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                                <i class="bi @iconClass fs-2 flex-shrink-0"></i>
+                                                <div class="overflow-hidden">
+                                                    <h6 class="text-light mb-1 text-truncate fw-bold" title="@res.Title">@res.Title</h6>
+                                                    <small class="text-muted d-block" style="font-size: 0.75rem;">Dodano: @res.CreatedAt.ToShortDateString()</small>
+                                                </div>
+                                            </div>
+                                            <a href="@res.FilePath" download class="btn btn-sm btn-outline-light ms-2 flex-shrink-0" title="Pobierz plik">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-center py-5 text-muted w-100">
+                                    <i class="bi bi-folder-x fs-1 mb-3 d-block text-secondary"></i>
+                                    <h5>Brak dostępnych materiałów</h5>
+                                    <p class="mb-0">Terapeuta nie udostępnił jeszcze żadnych plików pomocniczych dla tej grupy.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
 

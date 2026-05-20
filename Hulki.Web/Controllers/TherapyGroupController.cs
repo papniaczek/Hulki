@@ -101,7 +101,6 @@ public class TherapyGroupController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Challenge();
 
-        // Sprawdzamy, czy użytkownik ma prawo tu być
         bool isStaff = User.IsInRole("Admin") || User.IsInRole("Terapeuta");
         
         var group = await _context.TherapyGroups
@@ -119,14 +118,12 @@ public class TherapyGroupController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // Pobieramy wiadomości z tablicy
         var messages = await _context.GroupMessages
             .Include(m => m.AppUser)
             .Where(m => m.TherapyGroupId == id)
-            .OrderByDescending(m => m.CreatedAt) // Najnowsze na górze
+            .OrderByDescending(m => m.CreatedAt)
             .ToListAsync();
-        
-        // Pobieramy Wyzwania wraz z odpowiedziami pacjentów
+
         var quests = await _context.GroupQuests
             .Include(q => q.Submissions)
             .ThenInclude(s => s.AppUser)
@@ -134,8 +131,15 @@ public class TherapyGroupController : Controller
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync();
 
-        ViewBag.Quests = quests;
+        // NOWE: Pobieranie materiałów dla grupy
+        var resources = await _context.GroupResources
+            .Where(r => r.TherapyGroupId == id)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+
         ViewBag.Messages = messages;
+        ViewBag.Quests = quests;
+        ViewBag.Resources = resources; // Przekazujemy do widoku
         ViewBag.CurrentUserId = user.Id;
         ViewBag.IsStaff = isStaff;
 
@@ -393,6 +397,70 @@ public class TherapyGroupController : Controller
             await _context.SaveChangesAsync();
         }
 
+        return RedirectToAction(nameof(Details), new { id = groupId });
+    }
+    
+    // --- USUWANIE WYZWANIA (TERAPEUTA) ---
+    [HttpPost]
+    [Authorize(Roles = "Terapeuta, Admin")]
+    public async Task<IActionResult> DeleteQuest(int questId, int groupId)
+    {
+        var quest = await _context.GroupQuests
+            .Include(q => q.Submissions)
+            .FirstOrDefaultAsync(q => q.Id == questId);
+
+        if (quest != null)
+        {
+            // Cascade delete powiązanych odpowiedzi z bazy, aby nie było błędów klucza obcego
+            _context.QuestSubmissions.RemoveRange(quest.Submissions);
+            _context.GroupQuests.Remove(quest);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Wyzwanie zostało bezpowrotnie usunięte.";
+        }
+
+        return RedirectToAction(nameof(Details), new { id = groupId });
+    }
+
+    // --- WRZUCANIE PLIKU DO MATERIAŁÓW (TERAPEUTA) ---
+    [HttpPost]
+    [Authorize(Roles = "Terapeuta, Admin")]
+    public async Task<IActionResult> UploadResource(int groupId, string title, IFormFile uploadedFile)
+    {
+        if (string.IsNullOrWhiteSpace(title) || uploadedFile == null || uploadedFile.Length == 0)
+        {
+            TempData["ErrorMessage"] = "Podaj prawidłowy tytuł i wybierz plik.";
+            return RedirectToAction(nameof(Details), new { id = groupId });
+        }
+
+        // Definiujemy katalog zapisu (np. wwwroot/uploads/resources)
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resources");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        // Zabezpieczenie nazwy pliku przed nadpisaniem (unikalny Guid)
+        var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(uploadedFile.FileName);
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        // Zapis fizyczny pliku na dysku serwera
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await uploadedFile.CopyToAsync(fileStream);
+        }
+
+        // Zapis relacji w bazie danych
+        var resource = new GroupResource
+        {
+            TherapyGroupId = groupId,
+            Title = title,
+            FilePath = "/uploads/resources/" + uniqueFileName // Ścieżka relatywna do wyświetlenia/pobrania
+        };
+
+        _context.GroupResources.Add(resource);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = $"Pomyślnie udostępniono materiał: {title}!";
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
     

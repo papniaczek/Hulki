@@ -35,6 +35,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
         public DbSet<GroupMessage> GroupMessages { get; set; }
         public DbSet<GroupQuest> GroupQuests { get; set; }
         public DbSet<QuestSubmission> QuestSubmissions { get; set; }
+        public DbSet<GroupResource> GroupResources { get; set; }
 
         // KONFIGURACJA ZAAWANSOWANYCH RELACJI
         protected override void OnModelCreating(ModelBuilder builder)
