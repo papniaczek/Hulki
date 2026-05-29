@@ -11,10 +11,10 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <a asp-action="Patients" class="btn btn-outline-secondary btn-sm">
+        <a asp-action="Patients" class="btn btn-sm btn-custom-back">
             <i class="bi bi-arrow-left"></i> Wróć do listy
         </a>
-        <h4 class="mb-0 text-muted"><i class="bi bi-person-vcard"></i> Profil pacjenta</h4>
+        <h4 class="mb-0 text-muted">Profil pacjenta</h4>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -28,7 +28,7 @@
 
     <!-- HEADER -->
     <div class="card border-0 shadow-sm text-white p-4 mb-4 rounded-4"
-         style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+         style="background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
                 <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
@@ -60,20 +60,20 @@
         <div class="col-md-4">
             <!-- KOREKTA PUNKTÓW -->
             <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-dark-subtle border-bottom" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-cash-stack text-success"></i> Korekta punktów</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <form asp-action="AdjustPoints" method="post">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="userId" value="@patient?.Id" />
+                        <input type="hidden" name="userId" value="@patient?.Id"/>
                         <div class="mb-2">
                             <label class="form-label small text-muted">Wartość (+ lub -)</label>
-                            <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20" required />
+                            <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20" required/>
                         </div>
                         <div class="mb-2">
                             <label class="form-label small text-muted">Powód (opcjonalnie)</label>
-                            <input type="text" name="reason" class="form-control" placeholder="np. Premia za aktywność" />
+                            <input type="text" name="reason" class="form-control" placeholder="np. Premia za aktywność"/>
                         </div>
                         <button type="submit" class="btn btn-success w-100">
                             <i class="bi bi-pencil-square"></i> Zastosuj korektę
@@ -84,10 +84,10 @@
 
             <!-- BLOKADA / ODBLOKOWANIE -->
             <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-black bg-opacity-25 border-bottom" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock text-warning"></i> Status konta</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <p class="small text-muted mb-3">
                         @if (isLocked)
                         {
@@ -101,7 +101,7 @@
                     <form asp-action="ToggleLock" method="post"
                           onsubmit="return confirm('@(isLocked ? "Odblokować konto pacjenta?" : "Zablokować konto pacjenta?")');">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="userId" value="@patient?.Id" />
+                        <input type="hidden" name="userId" value="@patient?.Id"/>
                         <button type="submit" class="btn @(isLocked ? "btn-success" : "btn-danger") w-100">
                             <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
                             @(isLocked ? "Odblokuj konto" : "Zablokuj konto")
@@ -112,10 +112,10 @@
 
             <!-- GRUPY TERAPEUTYCZNE -->
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-black bg-opacity-25 border-bottom" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-people-fill text-info"></i> Grupy terapeutyczne</h6>
                 </div>
-                <ul class="list-group list-group-flush">
+                <ul class="list-group list-group-flush" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     @if (groups != null && groups.Any())
                     {
                         foreach (var g in groups)
@@ -148,10 +148,10 @@
         <div class="col-md-8">
             <!-- OSTATNIE WPISY -->
             <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-black bg-opacity-25 border-bottom" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);"">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-journal-text text-primary"></i> Ostatnie wpisy w dzienniczku</h6>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);"">
                     @if (reports != null && reports.Any())
                     {
                         <ul class="list-group list-group-flush">
@@ -178,24 +178,24 @@
 
             <!-- HISTORIA TRANSAKCJI -->
             <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-bottom">
+                <div class="card-header bg-black bg-opacity-25 border-bottom" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history text-warning"></i> Ostatnie transakcje punktów</h6>
                 </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     @if (transactions != null && transactions.Any())
                     {
                         <table class="table table-sm mb-0">
                             <tbody>
-                                @foreach (var t in transactions)
-                                {
-                                    <tr>
-                                        <td class="ps-3 small text-muted" style="width:130px;">@t.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
-                                        <td class="small">@t.Description</td>
-                                        <td class="text-end pe-3 fw-bold @(t.Amount >= 0 ? "text-success" : "text-danger")">
-                                            @(t.Amount >= 0 ? "+" : "")@t.Amount
-                                        </td>
-                                    </tr>
-                                }
+                            @foreach (var t in transactions)
+                            {
+                                <tr>
+                                    <td class="ps-3 small text-muted" style="width:130px;">@t.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                    <td class="small">@t.Description</td>
+                                    <td class="text-end pe-3 fw-bold @(t.Amount >= 0 ? "text-success" : "text-danger")">
+                                        @(t.Amount >= 0 ? "+" : "")@t.Amount
+                                    </td>
+                                </tr>
+                            }
                             </tbody>
                         </table>
                     }
@@ -208,11 +208,11 @@
 
             <!-- EKWIPUNEK -->
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <div class="card-header bg-black bg-opacity-25 border-bottom d-flex justify-content-between align-items-center" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     <h6 class="mb-0 fw-bold"><i class="bi bi-backpack4 text-secondary"></i> Ekwipunek pacjenta</h6>
                     <span class="badge bg-primary">@(inventory?.Count ?? 0)</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
                     @if (inventory != null && inventory.Any())
                     {
                         <div class="row g-2">

@@ -13,7 +13,7 @@
 
             <div class="mb-3">
                 <label asp-for="Name" class="form-label fw-bold text-info">Nazwa Grupy</label>
-                <input asp-for="Name" class="form-control bg-dark text-light border-secondary" required placeholder="np. Grupa Poranna - Motywacja" />
+                <input asp-for="Name" class="form-control bg-dark text-light border-secondary" required placeholder="np. Grupa Poranna - Motywacja"/>
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
@@ -25,7 +25,7 @@
 
             <div class="mb-3">
                 <label asp-for="MaxParticipants" class="form-label fw-bold text-info">Limit uczestników</label>
-                <input asp-for="MaxParticipants" type="number" class="form-control bg-dark text-light border-secondary" min="1" max="100" required />
+                <input asp-for="MaxParticipants" type="number" class="form-control bg-dark text-light border-secondary" min="1" max="100" required/>
                 <span asp-validation-for="MaxParticipants" class="text-danger"></span>
             </div>
 
@@ -44,8 +44,20 @@
             </div>
 
             <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary fw-bold px-4">Stwórz grupę</button>
-                <a asp-action="Index" class="btn btn-outline-secondary px-4">Anuluj</a>
+                <button type="submit"
+                        class="btn fw-bold px-4"
+                        style="color: #0d6efd; border: 1px solid #0d6efd; background-color: transparent; transition: all 0.2s ease-in-out;"
+                        onmouseover="this.style.backgroundColor='#0d6efd'; this.style.color='#ffffff';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0d6efd';">
+                    Stwórz grupę
+                </button>
+                <a asp-action="Index"
+                   class="btn px-4"
+                   style="color: #DA292E; border: 1px solid #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
+                   onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
+                   onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">
+                    Anuluj
+                </a>
             </div>
         </form>
     </div>

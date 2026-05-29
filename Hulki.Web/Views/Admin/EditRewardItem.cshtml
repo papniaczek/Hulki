@@ -29,11 +29,11 @@
         <div class="card-body p-4">
             <form asp-action="EditRewardItem" method="post">
                 @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="id" value="@Model.Id"/>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Nazwa</label>
-                    <input type="text" name="name" value="@Model.Name" class="form-control" maxlength="150" required />
+                    <input type="text" name="name" value="@Model.Name" class="form-control" maxlength="150" required/>
                 </div>
 
                 <div class="mb-3">
@@ -61,11 +61,11 @@
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Cena (pkt)</label>
-                        <input type="number" min="0" name="price" value="@Model.Price" class="form-control" />
+                        <input type="number" min="0" name="price" value="@Model.Price" class="form-control"/>
                     </div>
                     <div class="col-md-8">
                         <label class="form-label fw-bold">Ścieżka do ikony</label>
-                        <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300" class="form-control" placeholder="/images/shop/icon.png" />
+                        <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300" class="form-control" placeholder="/images/shop/icon.png"/>
                     </div>
                 </div>
 

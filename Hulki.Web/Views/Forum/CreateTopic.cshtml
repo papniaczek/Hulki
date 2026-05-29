@@ -17,11 +17,11 @@
                     }
 
                     <form asp-action="CreateTopic" method="post">
-                        <input type="hidden" name="forumCategoryId" value="@category?.Id" />
+                        <input type="hidden" name="forumCategoryId" value="@category?.Id"/>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tytuł tematu</label>
-                            <input type="text" name="title" class="form-control" required placeholder="Napisz krótki i zwięzły tytuł..." maxlength="200" />
+                            <input type="text" name="title" class="form-control" required placeholder="Napisz krótki i zwięzły tytuł..." maxlength="200"/>
                         </div>
 
                         <div class="mb-4">

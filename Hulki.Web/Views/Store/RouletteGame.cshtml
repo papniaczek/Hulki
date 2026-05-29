@@ -63,7 +63,7 @@
     <!-- Kontener Ruletki -->
     <div class="roulette-container shadow-lg">
         <div class="roulette-pointer"></div>
-        <div class="roulette-track" id="roulette-track">
+        <div class="roulette-track" id="roulette-track">    
             <!-- Tutaj JS dynamicznie wygeneruje elementy -->
         </div>
     </div>
@@ -74,9 +74,9 @@
     </button>
 
     <!-- Komunikat z wynikiem, ukryty domyślnie -->
-    <div id="result-message" class="mt-5 alert alert-dark border-secondary shadow-sm d-none">
-        <h4 class="mb-3 text-warning">@Html.Raw(ViewBag.Message)</h4>
-        <a asp-action="Index" class="btn btn-outline-light px-4 py-2">Wróć do sklepu</a>
+    <div id="result-message" class="mt-4 alert alert-success d-none bg-dark text-success border-success">
+        <h4 class="mb-3">@Html.Raw(ViewBag.Message)</h4>
+        <a asp-action="Index" class="btn btn-outline-success px-4 py-2">Wróć do sklepu</a>
     </div>
 </div>
 
