@@ -1,0 +1,109 @@
+@model IEnumerable<Hulki.Web.Models.AppUser>
+
+@{
+    ViewData["Title"] = "Lista Pacjentów";
+    var wallets = ViewBag.Wallets as Dictionary<string, int> ?? new();
+    var reportCounts = ViewBag.ReportCounts as Dictionary<string, int> ?? new();
+    var search = ViewBag.Search as string;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person-lines-fill text-primary"></i> Lista Pacjentów</h2>
+        <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Wróć do panelu
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm">@TempData["ErrorMessage"]</div>
+    }
+
+    <!-- WYSZUKIWARKA -->
+    <form method="get" asp-action="Patients" class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-light"><i class="bi bi-search"></i></span>
+            <input type="text" name="search" value="@search" class="form-control bg-dark border-secondary text-light"
+                   placeholder="Szukaj po imieniu, nazwisku lub adresie e-mail..." />
+            <button type="submit" class="btn btn-primary">Szukaj</button>
+            @if (!string.IsNullOrWhiteSpace(search))
+            {
+                <a class="btn btn-outline-secondary" asp-action="Patients">Wyczyść</a>
+            }
+        </div>
+    </form>
+
+    <!-- LICZNIK -->
+    <p class="text-muted small">Łącznie: <strong>@Model.Count()</strong> pacjentów.</p>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3">Pacjent</th>
+                        <th class="py-3">E-mail</th>
+                        <th class="py-3 text-center">Saldo</th>
+                        <th class="py-3 text-center">Wpisy</th>
+                        <th class="py-3 text-center">Status konta</th>
+                        <th class="py-3 text-end pe-4">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var p in Model)
+                        {
+                            var balance = wallets.TryGetValue(p.Id, out var b) ? b : 0;
+                            var reportCount = reportCounts.TryGetValue(p.Id, out var c) ? c : 0;
+                            var isLocked = p.LockoutEnd.HasValue && p.LockoutEnd.Value > DateTimeOffset.Now;
+
+                            <tr>
+                                <td class="ps-4 fw-bold">
+                                    <i class="bi bi-person-circle text-primary me-2"></i>
+                                    @p.FirstName @p.LastName
+                                </td>
+                                <td class="text-muted small">@p.Email</td>
+                                <td class="text-center">
+                                    <span class="badge bg-success rounded-pill px-3">@balance pkt</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-info rounded-pill px-3">@reportCount</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (isLocked)
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-lock-fill"></i> Zablokowane</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Aktywne</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="PatientDetails" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Szczegóły
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center p-5 text-muted">
+                                <i class="bi bi-emoji-frown fs-3 d-block mb-2"></i>
+                                Nie znaleziono pacjentów spełniających kryteria.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

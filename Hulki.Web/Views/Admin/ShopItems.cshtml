@@ -1,0 +1,145 @@
+@model IEnumerable<Hulki.Web.Models.RewardItem>
+
+@{
+    ViewData["Title"] = "Zarządzanie Sklepem";
+    var rarities = ViewBag.Rarities as List<Hulki.Web.Models.ItemRarity> ?? new();
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-bag-fill text-info"></i> Zarządzanie przedmiotami w sklepie</h2>
+        <div class="d-flex gap-2">
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Panel
+            </a>
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#createItemModal">
+                <i class="bi bi-plus-circle"></i> Dodaj przedmiot
+            </button>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm">@TempData["ErrorMessage"]</div>
+    }
+
+    <p class="text-muted small">Przedmioty wpadają do ogólnej puli losowań sklepu. Łącznie: <strong>@Model.Count()</strong>.</p>
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="width:60px;">Ikona</th>
+                        <th class="py-3">Nazwa</th>
+                        <th class="py-3">Rzadkość</th>
+                        <th class="py-3 text-center">Cena</th>
+                        <th class="py-3">Opis</th>
+                        <th class="py-3 text-end pe-4">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
+                            <tr>
+                                <td class="ps-4">
+                                    @if (!string.IsNullOrWhiteSpace(item.IconPath))
+                                    {
+                                        <img src="@item.IconPath" alt="@item.Name"
+                                             style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:2px solid @rarityColor;"
+                                             onerror="this.outerHTML='<i class=\'bi bi-box-seam\' style=\'font-size:1.6rem;color:@rarityColor;\'></i>';" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-box-seam" style="font-size:1.6rem;color:@rarityColor;"></i>
+                                    }
+                                </td>
+                                <td class="fw-bold">@item.Name</td>
+                                <td>
+                                    <span class="badge" style="background-color:@rarityColor;">@(item.ItemRarity?.Name ?? "-")</span>
+                                </td>
+                                <td class="text-center">@item.Price pkt</td>
+                                <td class="text-muted small text-truncate" style="max-width:280px;">@(item.Description ?? "-")</td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="EditRewardItem" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="DeleteRewardItem" method="post" class="d-inline"
+                                          onsubmit="return confirm('Usunąć przedmiot @item.Name? Spowoduje to też usunięcie go z ekwipunków pacjentów.');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center p-5 text-muted">
+                                <i class="bi bi-box fs-3 d-block mb-2"></i>
+                                Brak przedmiotów. Dodaj pierwszy, klikając „Dodaj przedmiot".
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: DODAJ PRZEDMIOT -->
+<div class="modal fade" id="createItemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light border-secondary shadow-lg">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-info fw-bold">Nowy przedmiot</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CreateRewardItem" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nazwa</label>
+                        <input type="text" name="name" class="form-control bg-dark text-light border-secondary" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rzadkość</label>
+                        <select name="itemRarityId" class="form-select bg-dark text-light border-secondary" required>
+                            @foreach (var r in rarities)
+                            {
+                                <option value="@r.Id">@r.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Opis</label>
+                        <textarea name="description" rows="2" class="form-control bg-dark text-light border-secondary"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cena (pkt)</label>
+                        <input type="number" min="0" name="price" value="0" class="form-control bg-dark text-light border-secondary" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ścieżka do ikony</label>
+                        <input type="text" name="iconPath" placeholder="/images/shop/icon.png" class="form-control bg-dark text-light border-secondary" />
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="submit" class="btn btn-info fw-bold">Zapisz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

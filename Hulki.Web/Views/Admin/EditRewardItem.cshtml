@@ -1,0 +1,79 @@
+@model Hulki.Web.Models.RewardItem
+
+@{
+    ViewData["Title"] = "Edycja przedmiotu";
+    var rarities = ViewBag.Rarities as List<Hulki.Web.Models.ItemRarity> ?? new();
+}
+
+<div class="container mt-4" style="max-width: 720px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-pencil-square text-primary"></i> Edycja przedmiotu</h2>
+        <a asp-action="ShopItems" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Wróć do listy
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger border-0 shadow-sm">
+            <ul class="mb-0">
+                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@err.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-4">
+            <form asp-action="EditRewardItem" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nazwa</label>
+                    <input type="text" name="name" value="@Model.Name" class="form-control" maxlength="150" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Rzadkość</label>
+                    <select name="itemRarityId" class="form-select" required>
+                        @foreach (var r in rarities)
+                        {
+                            if (r.Id == Model.ItemRarityId)
+                            {
+                                <option value="@r.Id" selected>@r.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@r.Id">@r.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Opis</label>
+                    <textarea name="description" rows="3" maxlength="1000" class="form-control">@Model.Description</textarea>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Cena (pkt)</label>
+                        <input type="number" min="0" name="price" value="@Model.Price" class="form-control" />
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Ścieżka do ikony</label>
+                        <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300" class="form-control" placeholder="/images/shop/icon.png" />
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a asp-action="ShopItems" class="btn btn-outline-secondary">Anuluj</a>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Zapisz zmiany</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

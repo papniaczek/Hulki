@@ -1,0 +1,243 @@
+@{
+    ViewData["Title"] = "Szczegóły Pacjenta";
+    var patient = ViewBag.Patient as Hulki.Web.Models.AppUser;
+    var wallet = ViewBag.Wallet as Hulki.Web.Models.Wallet;
+    var reports = ViewBag.Reports as List<Hulki.Web.Models.DailyReport>;
+    var inventory = ViewBag.Inventory as List<Hulki.Web.Models.PatientInventory>;
+    var groups = ViewBag.Groups as List<Hulki.Web.Models.PatientGroup>;
+    var transactions = ViewBag.Transactions as List<Hulki.Web.Models.PointTransaction>;
+    bool isLocked = ViewBag.IsLocked == true;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Patients" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Wróć do listy
+        </a>
+        <h4 class="mb-0 text-muted"><i class="bi bi-person-vcard"></i> Profil pacjenta</h4>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm">@TempData["ErrorMessage"]</div>
+    }
+
+    <!-- HEADER -->
+    <div class="card border-0 shadow-sm text-white p-4 mb-4 rounded-4"
+         style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
+                     style="width:64px;height:64px;font-size:1.8rem;">
+                    👤
+                </div>
+                <div>
+                    <h2 class="mb-0 fw-bold">@patient?.FirstName @patient?.LastName</h2>
+                    <p class="mb-0 text-white-50 small">
+                        <i class="bi bi-envelope me-1"></i>@patient?.Email
+                        @if (isLocked)
+                        {
+                            <span class="badge bg-danger ms-2"><i class="bi bi-lock-fill"></i> Konto zablokowane</span>
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="text-white-50 small text-uppercase fw-bold mb-1">Saldo portfela</div>
+                <div class="fw-bold" style="font-size:2.2rem;">
+                    @(wallet?.Balance ?? 0) <i class="bi bi-star-fill text-warning" style="font-size:1.5rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEWA KOLUMNA: AKCJE TERAPEUTY -->
+        <div class="col-md-4">
+            <!-- KOREKTA PUNKTÓW -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-cash-stack text-success"></i> Korekta punktów</h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AdjustPoints" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@patient?.Id" />
+                        <div class="mb-2">
+                            <label class="form-label small text-muted">Wartość (+ lub -)</label>
+                            <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20" required />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small text-muted">Powód (opcjonalnie)</label>
+                            <input type="text" name="reason" class="form-control" placeholder="np. Premia za aktywność" />
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-pencil-square"></i> Zastosuj korektę
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- BLOKADA / ODBLOKOWANIE -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock text-warning"></i> Status konta</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">
+                        @if (isLocked)
+                        {
+                            <text>Konto jest aktualnie zablokowane – pacjent nie może się zalogować.</text>
+                        }
+                        else
+                        {
+                            <text>Konto jest aktywne. Możesz je tymczasowo zablokować.</text>
+                        }
+                    </p>
+                    <form asp-action="ToggleLock" method="post"
+                          onsubmit="return confirm('@(isLocked ? "Odblokować konto pacjenta?" : "Zablokować konto pacjenta?")');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@patient?.Id" />
+                        <button type="submit" class="btn @(isLocked ? "btn-success" : "btn-danger") w-100">
+                            <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
+                            @(isLocked ? "Odblokuj konto" : "Zablokuj konto")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- GRUPY TERAPEUTYCZNE -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-people-fill text-info"></i> Grupy terapeutyczne</h6>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (groups != null && groups.Any())
+                    {
+                        foreach (var g in groups)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">@g.TherapyGroup?.Name</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">@g.TherapyGroup?.TherapyType?.Name</div>
+                                </div>
+                                @if (g.IsApproved)
+                                {
+                                    <span class="badge bg-success">Członek</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Oczekuje</span>
+                                }
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="list-group-item text-muted small">Pacjent nie należy do żadnej grupy.</li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- PRAWA KOLUMNA: HISTORIA -->
+        <div class="col-md-8">
+            <!-- OSTATNIE WPISY -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-journal-text text-primary"></i> Ostatnie wpisy w dzienniczku</h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (reports != null && reports.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var r in reports)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                        </small>
+                                        <span class="badge bg-secondary">@r.ReportStatus?.Name</span>
+                                    </div>
+                                    <p class="mb-0 small">@r.Content</p>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted small">Brak wpisów w dzienniczku.</div>
+                    }
+                </div>
+            </div>
+
+            <!-- HISTORIA TRANSAKCJI -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history text-warning"></i> Ostatnie transakcje punktów</h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (transactions != null && transactions.Any())
+                    {
+                        <table class="table table-sm mb-0">
+                            <tbody>
+                                @foreach (var t in transactions)
+                                {
+                                    <tr>
+                                        <td class="ps-3 small text-muted" style="width:130px;">@t.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td class="small">@t.Description</td>
+                                        <td class="text-end pe-3 fw-bold @(t.Amount >= 0 ? "text-success" : "text-danger")">
+                                            @(t.Amount >= 0 ? "+" : "")@t.Amount
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted small">Brak operacji na punktach.</div>
+                    }
+                </div>
+            </div>
+
+            <!-- EKWIPUNEK -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-backpack4 text-secondary"></i> Ekwipunek pacjenta</h6>
+                    <span class="badge bg-primary">@(inventory?.Count ?? 0)</span>
+                </div>
+                <div class="card-body">
+                    @if (inventory != null && inventory.Any())
+                    {
+                        <div class="row g-2">
+                            @foreach (var inv in inventory)
+                            {
+                                var rarityColor = inv.RewardItem?.ItemRarity?.HexColor ?? "#adb5bd";
+                                <div class="col-6 col-md-4">
+                                    <div class="border rounded p-2 d-flex align-items-center gap-2"
+                                         style="border-left: 4px solid @rarityColor !important;">
+                                        <i class="bi bi-box-seam" style="color:@rarityColor; font-size:1.5rem;"></i>
+                                        <div class="text-truncate small">
+                                            <div class="fw-bold text-truncate">@inv.RewardItem?.Name</div>
+                                            <div class="text-muted" style="font-size:0.7rem;">@inv.RewardItem?.ItemRarity?.Name</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0 text-center">Pacjent nie posiada żadnych przedmiotów.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
