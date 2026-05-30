@@ -33,7 +33,7 @@
                 </div>
                 <div class="text-end">
                     <div class="text-white-50 small text-uppercase fw-bold mb-1">Saldo portfela</div>
-                    <div class="fw-bold" style="font-size:2.2rem;">
+                    <div id="points" class="fw-bold" style="font-size:2.2rem;">
                         @ViewBag.Points <i class="bi bi-star-fill text-warning" style="font-size:1.5rem;"></i>
                     </div>
                 </div>
@@ -55,27 +55,6 @@
 
             @if (inventory != null && inventory.Any())
             {
-                <!-- PASEK MULTI-SELL -->
-                <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap" id="multiSellBar">
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-select-all" id="btnSelectAll">
-                            Zaznacz wszystko
-                        </button>
-                        <button type="button" class="btn btn-sm btn-select-all" id="btnDeselectAll" style="display:none;">
-                            Odznacz wszystko
-                        </button>
-                        <span class="text-muted small" id="selectedCount" style="display:none;">
-                            Zaznaczono: <strong id="selectedNum">0</strong>
-                        </span>
-                    </div>
-                    <form asp-controller="Store" asp-action="SellMultiple" method="post" id="multiSellForm">
-                        <button type="submit" class="btn btn-sm btn-sell-selected" id="btnSellSelected" style="display:none;"
-                                onclick="return confirmMultiSell()">
-                            Sprzedaj zaznaczone
-                        </button>
-                    </form>
-                </div>
-
                 <div class="row g-3" id="inventoryGrid">
                     @foreach (var item in inventory)
                     {
@@ -94,13 +73,12 @@
 
                         <div class="col-6 col-md-4">
                             <div class="inventory-card card border-0 shadow-sm h-100 text-center position-relative overflow-hidden"
-                                 data-item-id="@item.Id"
-                                 style="border-top: 4px solid @rarityColor !important;
-                                        box-shadow: 0px 0px 7px 1px rgba(0,0,0,0.55) !important;
-                                        cursor: pointer;
-                                        transition: transform 0.15s, box-shadow 0.15s;">
+                                 data-item-id="@item.Id" style="border-top: 4px solid @rarityColor !important;
+                                box-shadow: 0px 0px 7px 1px rgba(0,0,0,0.55) !important;
+                                cursor: pointer;
+                                transition: transform 0.15s, box-shadow 0.15s;">
 
-                                <!-- CHECKBOX -->
+                                <!-- IKONA ZAZNACZENIA -->
                                 <div class="item-check position-absolute top-0 end-0 m-1"
                                      style="display:none; z-index:10; margin-right: 0.65rem !important">
                                     <i class="bi bi-check-circle-fill text-white"
@@ -110,24 +88,23 @@
                                 <div class="card-body py-3 px-2">
                                     @if (!string.IsNullOrWhiteSpace(item.IconPath))
                                     {
-                                        <img src="@item.IconPath" alt="@item.Name"
-                                             class="mb-2 rounded"
+                                        <img src="@item.IconPath" alt="@item.Name" class="mb-2 rounded"
                                              style="width:3rem;height:3rem;object-fit:cover;"
-                                             onerror="this.onerror=null;this.outerHTML='<i class=\'bi bi-box-seam default-item-icon mb-2 d-block\' style=\'font-size:2.2rem;color:'+'@rarityColor'+';\'></i>';"/>
+                                             onerror="this.onerror=null;this.outerHTML='<i class=\'bi bi-box-seam default-item-icon mb-2 d-block\' style=\'font-size:2.2rem;color:'+'@rarityColor'+';\'></i>';" />
                                     }
                                     else
                                     {
                                         <i class="bi bi-box-seam default-item-icon mb-2 d-block"
-                                           style="font-size:2.2rem;color:@rarityColor;"
-                                           title="Brak przypisanej grafiki">
+                                           style="font-size:2.2rem;color:@rarityColor;" title="Brak przypisanej grafiki">
                                         </i>
                                     }
                                     <div class="fw-bold small text-truncate mb-1" title="@item.Name">@item.Name</div>
                                     <span class="badge mb-2" style="background-color:@rarityColor;">@rarityName</span>
 
                                     <!-- PRZYCISK SPRZEDAJ (pojedynczy) -->
-                                    <form asp-controller="Store" asp-action="SellItem" method="post" class="mt-1 single-sell-form">
-                                        <input type="hidden" name="itemId" value="@item.Id"/>
+                                    <form asp-controller="Store" asp-action="SellItem" method="post"
+                                          class="mt-1 single-sell-form">
+                                        <input type="hidden" name="itemId" value="@item.Id" />
                                         <button type="submit" class="btn btn-sm btn-outline-danger w-100"
                                                 onclick="return confirm('Na pewno sprzedać @item.Name?')">
                                             <i class="bi bi-cash-coin me-1"></i>Sprzedaj
@@ -138,15 +115,38 @@
                         </div>
                     }
                 </div>
+
+                <!-- PASEK MULTI-SELL -->
+                <form asp-controller="Store" asp-action="SellMultiple" method="post" id="multiSellForm">
+                    <div id="multiSellBar" style="display:none; position:fixed; bottom:5rem; left:50%; transform:translateX(-50%); width: calc(100% - 2rem); max-width: 800px; z-index:999; background:#1e2330; padding: 14px 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid #ffffff;">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <span class="text-white fw-semibold">
+                                Zaznaczono: <span id="selectedNum" class="text-primary fw-bold">0</span> przedmiotów
+                            </span>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" id="btnSelectAll" class="btn btn-sm btn-select-all">
+                                    Zaznacz wszystko
+                                </button>
+                                <button type="button" id="btnDeselectAll" class="btn btn-sm btn-unselect-all">
+                                    Odznacz wszystko
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-sell-selected" onclick="return confirmMultiSell()">
+                                    Sprzedaj zaznaczone
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             }
             else
             {
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center p-5 text-muted" style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45);">
+                    <div class="card-body text-center p-5 text-muted"
+                         style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45);">
                         <i class="bi bi-box fs-1 d-block mb-3"></i>
                         <p class="mb-3">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
                         <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">
-                            Przejdź do sklepu
+                            <i class="bi bi-shop me-1"></i>Przejdź do sklepu
                         </a>
                     </div>
                 </div>
@@ -215,92 +215,98 @@
         background-color: rgba(55, 63, 77, 0.582) !important;
         transform: scale(0.97);
     }
+
     .inventory-card.selected .item-check {
         display: block !important;
     }
+
     .inventory-card:hover {
         transform: scale(0.98);
     }
+
     .inventory-card.selected:hover {
         transform: scale(0.97);
     }
+
     body.multi-mode .single-sell-form {
         display: none !important;
+    }
+
+    /* Odstep na dole strony zeby pasek nie zakrywal zawartosci */
+    body.multi-mode {
+        padding-bottom: 80px;
     }
 </style>
 
 <script>
-(function () {
-    const cards = document.querySelectorAll('.inventory-card');
-    const form = document.getElementById('multiSellForm');
-    const btnSell = document.getElementById('btnSellSelected');
-    const btnSelectAll = document.getElementById('btnSelectAll');
-    const btnDeselectAll = document.getElementById('btnDeselectAll');
-    const selectedCount = document.getElementById('selectedCount');
-    const selectedNum = document.getElementById('selectedNum');
+    (function () {
+        const cards = document.querySelectorAll('.inventory-card');
+        const form = document.getElementById('multiSellForm');
+        const bar = document.getElementById('multiSellBar');
+        const btnSelectAll = document.getElementById('btnSelectAll');
+        const btnDeselectAll = document.getElementById('btnDeselectAll');
+        const selectedNum = document.getElementById('selectedNum');
 
-    let selected = new Set();
+        let selected = new Set();
 
-    function updateUI() {
-        const count = selected.size;
-        const anySelected = count > 0;
+        function updateUI() {
+            const count = selected.size;
+            const anySelected = count > 0;
 
-        btnSell.style.display = anySelected ? '' : 'none';
-        selectedCount.style.display = anySelected ? '' : 'none';
-        selectedNum.textContent = count;
+            bar.style.display = anySelected ? '' : 'none';
+            selectedNum.textContent = count;
+            document.body.classList.toggle('multi-mode', anySelected);
 
-        btnSelectAll.style.display = (count === cards.length) ? 'none' : '';
-        btnDeselectAll.style.display = anySelected ? '' : 'none';
-
-        document.body.classList.toggle('multi-mode', anySelected);
-    }
-
-    function toggleCard(card) {
-        const id = card.dataset.itemId;
-        if (selected.has(id)) {
-            selected.delete(id);
-            card.classList.remove('selected');
-        } else {
-            selected.add(id);
-            card.classList.add('selected');
+            btnSelectAll.style.display = (count === cards.length) ? 'none' : '';
+            btnDeselectAll.style.display = anySelected ? '' : 'none';
         }
-        updateUI();
-    }
 
-    cards.forEach(card => {
-        card.addEventListener('click', function (e) {
-            if (e.target.closest('.single-sell-form')) return;
-            toggleCard(card);
-        });
-    });
+        function toggleCard(card) {
+            const id = card.dataset.itemId;
+            if (selected.has(id)) {
+                selected.delete(id);
+                card.classList.remove('selected');
+            } else {
+                selected.add(id);
+                card.classList.add('selected');
+            }
+            updateUI();
+        }
 
-    btnSelectAll.addEventListener('click', () => {
         cards.forEach(card => {
-            selected.add(card.dataset.itemId);
-            card.classList.add('selected');
+            card.addEventListener('click', function (e) {
+                if (e.target.closest('.single-sell-form')) return;
+                toggleCard(card);
+            });
         });
-        updateUI();
-    });
 
-    btnDeselectAll.addEventListener('click', () => {
-        selected.clear();
-        cards.forEach(card => card.classList.remove('selected'));
-        updateUI();
-    });
-
-    form.addEventListener('submit', function () {
-        form.querySelectorAll('input[name="itemIds"]').forEach(el => el.remove());
-        selected.forEach(id => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'itemIds';
-            input.value = id;
-            form.appendChild(input);
+        btnSelectAll.addEventListener('click', () => {
+            cards.forEach(card => {
+                selected.add(card.dataset.itemId);
+                card.classList.add('selected');
+            });
+            updateUI();
         });
-    });
 
-    window.confirmMultiSell = function () {
-        return confirm(`Na pewno chcesz sprzedać ${selected.size} przedmiotów?`);
-    };
-})();
+        btnDeselectAll.addEventListener('click', () => {
+            selected.clear();
+            cards.forEach(card => card.classList.remove('selected'));
+            updateUI();
+        });
+
+        form.addEventListener('submit', function () {
+            form.querySelectorAll('input[name="itemIds"]').forEach(el => el.remove());
+            selected.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'itemIds';
+                input.value = id;
+                form.appendChild(input);
+            });
+        });
+
+        window.confirmMultiSell = function () {
+            return confirm(`Na pewno chcesz sprzedać ${selected.size} przedmiotów?`);
+        };
+    })();
 </script>

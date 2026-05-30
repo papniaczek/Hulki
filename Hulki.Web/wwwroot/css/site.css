@@ -51,6 +51,26 @@ body {
     box-shadow: 0 0 0.5rem 0.05rem var(--bs-btn-bg);
 }
 
+.btn-unselect-all {
+    color: #ffffff !important; 
+    border: 1px solid #6c757d;
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-unselect-all:hover {
+    background-color: #ffffff;
+    color: #000000 !important;
+    border-color: #6c757d;
+}
+
+.btn-unselect-all:active, 
+.btn-unselect-all:focus:active {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff;
+}
+
 .btn-sell-selected{
   color: #DA292E; 
   border: 1px solid #DA292E; 
@@ -69,4 +89,22 @@ body {
   background-color: #DA292E !important; 
   color: #ffffff !important; 
   border-color: #DA292E;
+}
+
+@media (max-width: 777px) {
+    #multiSellBar .d-flex {
+        justify-content: center !important;
+        text-align: center;
+    }
+}
+
+#points{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+#points>i {
+  margin-bottom: 0.2rem;
 }
