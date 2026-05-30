@@ -2,28 +2,32 @@
     ViewData["Title"] = "Logowanie";
 }
 
+@{
+    var hasError = !ViewData.ModelState.IsValid;
+    var inputClass = hasError ? "form-control form-control-lg is-invalid" : "form-control form-control-lg";
+}
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-5">
                     <h3 class="text-center mb-4">Zaloguj się</h3>
-                    
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger">
-                            @Html.ValidationSummary(false, "", new { @class = "text-danger list-unstyled mb-0" })
-                        </div>
-                    }
 
                     <form asp-controller="Account" asp-action="Login" method="post">
                         <div class="mb-3">
                             <label class="form-label text-muted small text-uppercase">Email</label>
-                            <input type="email" name="email" class="form-control form-control-lg" required />
+                            <input type="email" name="email" class="@inputClass" required />
                         </div>
                         <div class="mb-4">
                             <label class="form-label text-muted small text-uppercase">Hasło</label>
-                            <input type="password" name="password" class="form-control form-control-lg" required />
+                            <input type="password" name="password" class="@inputClass" required />
+                            @if (hasError)
+                            {
+                                <div class="invalid-feedback d-block">
+                                    Nieprawidłowy email lub hasło.
+                                </div>
+                            }
                         </div>
                         <button type="submit" class="btn btn-success btn-lg w-100">Zaloguj</button>
                     </form>

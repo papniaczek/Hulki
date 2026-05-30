@@ -8,31 +8,28 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-5">
                     <h3 class="text-center mb-4">Dołącz do terapii</h3>
-                    
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger">
-                            @Html.ValidationSummary(false, "", new { @class = "text-danger list-unstyled mb-0" })
-                        </div>
-                    }
 
-                    <form asp-controller="Account" asp-action="Register" method="post">
+                    <form asp-controller="Account" asp-action="Register" method="post" id="registerForm" novalidate>
                         <div class="mb-3">
                             <label class="form-label text-muted small text-uppercase">Imię</label>
-                            <input type="text" name="firstName" class="form-control form-control-lg" required />
+                            <input type="text" name="firstName" id="firstName" class="form-control form-control-lg" required />
+                            <div class="invalid-feedback">Imię nie może być puste.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small text-uppercase">Nazwisko</label>
-                            <input type="text" name="lastName" class="form-control form-control-lg" required />
+                            <input type="text" name="lastName" id="lastName" class="form-control form-control-lg" required />
+                            <div class="invalid-feedback">Nazwisko nie może być puste.</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted small text-uppercase">Email</label>
-                            <input type="email" name="email" class="form-control form-control-lg" required />
+                            <input type="email" name="email" id="email" class="form-control form-control-lg" required />
+                            <div class="invalid-feedback">Podaj poprawny adres email (np. wujek@kujek.pl).</div>
                         </div>
                         <div class="mb-4">
                             <label class="form-label text-muted small text-uppercase">Hasło</label>
-                            <input type="password" name="password" class="form-control form-control-lg" required />
-                            <div class="form-text">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
+                            <input type="password" name="password" id="password" class="form-control form-control-lg" required />
+                            <div class="invalid-feedback">Hasło musi mieć co najmniej 6 znaków.</div>
+                            <div class="form-text" id="passwordHint">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg w-100">Zarejestruj się</button>
                     </form>
@@ -41,3 +38,88 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        const form = document.getElementById('registerForm');
+
+        const rules = {
+            firstName: {
+                validate: v => v.trim().length > 0
+            },
+            lastName: {
+                validate: v => v.trim().length > 0
+            },
+            email: {
+                validate: v => /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(v.trim())
+            },
+            password: {
+                validate: v => v.length >= 6 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v),
+                onValid: () => document.getElementById('passwordHint').style.display = '',
+                onInvalid: () => document.getElementById('passwordHint').style.display = 'none'
+            }
+        };
+
+        // Osobny stan dla unikalności emaila (async)
+        let emailTaken = false;
+        const emailInput = document.getElementById('email');
+        const emailFeedback = emailInput.nextElementSibling;
+
+        async function checkEmailUniqueness() {
+            const val = emailInput.value.trim();
+            if (!rules.email.validate(val)) return;
+
+            try {
+                const res = await fetch(`/Account/CheckEmailExists?email=${encodeURIComponent(val)}`);
+                const data = await res.json();
+                emailTaken = data.exists;
+
+                if (emailTaken) {
+                    emailInput.classList.add('is-invalid');
+                    emailInput.classList.remove('is-valid');
+                    emailFeedback.textContent = 'Ten adres email jest już zarejestrowany.';
+                } else {
+                    emailFeedback.textContent = 'Podaj poprawny adres email (np. wujek@kujek.pl).';
+                    validateField('email'); 
+                }
+            } catch (_) { /* ignoruj błędy sieciowe */ }
+        }
+
+        function validateField(id) {
+            const input = document.getElementById(id);
+            const rule = rules[id];
+            const isValid = rule.validate(input.value);
+
+            // Dla emaila uwzględnij też wynik sprawdzenia unikalności
+            const finalValid = id === 'email' ? (isValid && !emailTaken) : isValid;
+
+            input.classList.toggle('is-invalid', !finalValid);
+            input.classList.toggle('is-valid', finalValid);
+
+            if (finalValid && rule.onValid) rule.onValid();
+            if (!finalValid && rule.onInvalid) rule.onInvalid();
+
+            return finalValid;
+        }
+
+        // Walidacja na bieżąco po opuszczeniu pola
+        Object.keys(rules).forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('blur', () => validateField(id));
+            input.addEventListener('input', () => {
+                if (input.classList.contains('is-invalid') || input.classList.contains('is-valid')) {
+                    if (id === 'email') emailTaken = false;
+                    validateField(id);
+                }
+            });
+        });
+
+        // Walidacja przy submit
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            await checkEmailUniqueness();
+            const allValid = Object.keys(rules).map(id => validateField(id)).every(Boolean);
+            if (allValid) form.submit();
+        });
+    })();
+</script>

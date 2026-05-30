@@ -48,12 +48,9 @@
                 Mój Ekwipunek
             </h5>
             <h5 style="text-align: center; margin-bottom: 20px; margin-top: -5px;">
-                @if (inventory != null && inventory.Any())
-                {
                     <span class="badge bg-primary ms-2">
                         Liczba posiadanych przedmiotów: @inventory.Count
                     </span>
-                }
             </h5>
 
             @if (inventory != null && inventory.Any())
@@ -77,7 +74,7 @@
                         <div class="col-6 col-md-4">
                             <div class="card border-0 shadow-sm h-100 text-center position-relative overflow-hidden"
                                  style="border-top: 4px solid @rarityColor !important; box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.55) !important">
-                                <div class="card-body py-3 px-2">
+                                <div class="card-body py-3 px-2" >
                                     @if (!string.IsNullOrWhiteSpace(item.IconPath))
                                     {
                                         <img src="@item.IconPath" alt="@item.Name"
@@ -111,8 +108,8 @@
             }
             else
             {
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center p-5 text-muted">
+                <div class="card border-0 shadow-sm" >
+                    <div class="card-body text-center p-5 text-muted" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.45);">
                         <i class="bi bi-box fs-1 d-block mb-3"></i>
                         <p class="mb-3">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
                         <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">
@@ -129,12 +126,17 @@
                 Ostatnie wpisy
             </h5>
             <h5 style="text-align: center; margin-bottom: 20px; margin-top: -5px;">
-                @if (inventory != null && inventory.Any())
-                {
                     <span class="badge bg-primary ms-2">
-                        Ostatni wpis z dnia: 29.05.2026
+                        @if (reports != null && reports.Any())
+                        {
+                            
+                            <span>Ostatni wpis dnia: @(reports.First().CreatedAt.ToString("dd.MM.yyyy"))</span>
+                        }
+                        else
+                        {
+                            @:Brak wpisów
+                        }
                     </span>
-                }
             </h5>
             <div class="card border-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.45);">
                 <div class="card-body p-0">

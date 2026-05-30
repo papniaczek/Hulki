@@ -60,6 +60,13 @@ public class AccountController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> CheckEmailExists(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        return Json(new { exists = user != null });
+    }
+
+    [HttpGet]
     public IActionResult Login() => View();
 
     [HttpPost]
