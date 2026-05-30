@@ -18,7 +18,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm text-white p-4 d-flex flex-row align-items-center justify-content-between rounded-4"
-                 style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+                 style="background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
                 <div class="d-flex align-items-center gap-3">
                     <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
                          style="width:64px;height:64px;font-size:1.8rem;">
@@ -118,7 +118,8 @@
 
                 <!-- PASEK MULTI-SELL -->
                 <form asp-controller="Store" asp-action="SellMultiple" method="post" id="multiSellForm">
-                    <div id="multiSellBar" style="display:none; position:fixed; bottom:5rem; left:50%; transform:translateX(-50%); width: calc(100% - 2rem); max-width: 800px; z-index:999; background:#1e2330; padding: 14px 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid #ffffff;">
+                    <div id="multiSellBar"
+                         style="display:none; position:fixed; bottom:5rem; left:50%; transform:translateX(-50%); width: calc(100% - 2rem); max-width: 800px; z-index:999; background:#1e2330; padding: 14px 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.35); border-radius: 8px; border: 1px solid #ffffff;">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                             <span class="text-white fw-semibold">
                                 Zaznaczono: <span id="selectedNum" class="text-primary fw-bold">0</span> przedmiotów
@@ -130,7 +131,8 @@
                                 <button type="button" id="btnDeselectAll" class="btn btn-sm btn-unselect-all">
                                     Odznacz wszystko
                                 </button>
-                                <button type="submit" class="btn btn-sm btn-sell-selected" onclick="return confirmMultiSell()">
+                                <button type="submit" class="btn btn-sm btn-sell-selected"
+                                        onclick="return confirmMultiSell()">
                                     Sprzedaj zaznaczone
                                 </button>
                             </div>
@@ -146,7 +148,7 @@
                         <i class="bi bi-box fs-1 d-block mb-3"></i>
                         <p class="mb-3">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
                         <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">
-                            <i class="bi bi-shop me-1"></i>Przejdź do sklepu
+                            Przejdź do sklepu
                         </a>
                     </div>
                 </div>
@@ -198,7 +200,7 @@
                     </ul>
                 </div>
                 <div class="card-footer bg-transparent border-0 text-center pb-3">
-                    <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-sm btn-primary"
+                    <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-primary"
                        style="color: #0d6efd; border: 1px solid #0d6efd; background-color: transparent; transition: all 0.2s ease-in-out;"
                        onmouseover="this.style.backgroundColor='#0d6efd'; this.style.color='#ffffff';"
                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0d6efd';">

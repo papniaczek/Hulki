@@ -22,7 +22,7 @@
                     </h2>
                     <p class="text-center text-muted mb-4">
                         Opisz jak minął Ci dzień. Każdy szczery wpis to <strong>+10 punktów</strong>,
-                        <i class="bi bi-star-fill text-warning"></i> za załącznik dodatkowe <strong>+5</strong>!
+                        <i class="bi bi-star-fill text-warning"></i> za załącznik <strong>dodatkowe +5</strong>!
                     </p>
 
                     @if (alreadyReported)
@@ -46,34 +46,33 @@
                                 @Html.ValidationSummary(false, "", new { @class = "text-danger list-unstyled mb-0" })
                             </div>
                         }
-
-                        <div class="mb-4 p-3 rounded-3" style="background: linear-gradient(135deg, #f0f8ff, #e8f4fd); border: 1px solid #b8daff;">
+                        <div class="mb-4 p-3 rounded-3" style="background: #1d1d1d; border: 1px solid rgb(52, 89, 230); text-align: center;">
                             <p class="fw-bold mb-2 text-primary">
-                                <i class="bi bi-lightbulb-fill text-warning me-1"></i> Nie wiesz od czego zacząć? Kliknij pytanie:
+                                Nie wiesz od czego zacząć? Kliknij pytanie:
                             </p>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap gap-2" style="justify-content: center;">
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
-                                    data-prompt="Jak minął mi dzisiaj dzień? Czy miałem pokusy i jak sobie z nimi poradziłem?">
+                                        data-prompt="Jak minął mi dzisiaj dzień? Czy miałem pokusy i jak sobie z nimi poradziłem?">
                                     💬 Jak minął dzień?
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
-                                    data-prompt="Co dziś zrobiłem, żeby zadbać o siebie i swoje zdrowie?">
+                                        data-prompt="Co dziś zrobiłem, żeby zadbać o siebie i swoje zdrowie?">
                                     💪 Co zrobiłem dla siebie?
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
-                                    data-prompt="Jakie emocje towarzyszyły mi dzisiaj? Skąd się wzięły i jak sobie z nimi poradziłem?">
+                                        data-prompt="Jakie emocje towarzyszyły mi dzisiaj? Skąd się wzięły i jak sobie z nimi poradziłem?">
                                     😌 Jakie emocje odczuwałem?
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
-                                    data-prompt="Z czego jestem dziś dumny? Co poszło dobrze, nawet jeśli to mała rzecz?">
+                                        data-prompt="Z czego jestem dziś dumny? Co poszło dobrze, nawet jeśli to mała rzecz?">
                                     🌟 Z czego jestem dumny?
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
-                                    data-prompt="Co było najtrudniejsze dzisiaj i co pomogło mi przez to przejść?">
+                                        data-prompt="Co było najtrudniejsze dzisiaj i co pomogło mi przez to przejść?">
                                     🧗 Co było najtrudniejsze?
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
-                                    data-prompt="Jaki mam plan na jutro? Co chcę zrobić inaczej lub lepiej?">
+                                        data-prompt="Jaki mam plan na jutro? Co chcę zrobić inaczej lub lepiej?">
                                     📅 Plan na jutro
                                 </button>
                             </div>
@@ -84,7 +83,7 @@
                             <div class="mb-4">
                                 <label class="form-label fw-bold">Treść raportu <span class="text-danger">*</span></label>
                                 <textarea id="reportContent" name="content" class="form-control" rows="6" required
-                                    placeholder="Napisz tutaj swoje przemyślenia..."></textarea>
+                                          placeholder="Napisz tutaj swoje przemyślenia..."></textarea>
                             </div>
 
                             <div class="mb-4 p-3 bg-dark rounded border">
@@ -92,33 +91,34 @@
                                     <i class="bi bi-paperclip"></i> Dowód utrzymania postanowienia
                                     <span class="badge bg-secondary ms-2">opcjonalne +5 pkt</span>
                                 </label>
-                                <p class="small text-muted mb-2">Zrzut ekranu usuniętej aplikacji, zdjęcie z siłowni, cokolwiek co pomogło Ci w trzeźwości.</p>
-                                <input type="file" name="attachment" class="form-control" accept="image/*,.pdf" />
-                            </div>
+                                <p class="small text-muted mb-2">Zrzut ekranu usuniętej aplikacji, zdjęcie z siłowni,
+                                    cokolwiek co pomogło Ci w trzeźwości.</p>
+                                    <input type="file" name="attachment" class="form-control" accept="image/*,.pdf" />
+                                </div>
 
-                            <button type="submit" class="btn btn-success btn-lg w-100">
-                                Zapisz raport i odbierz punkty <i class="bi bi-star-fill text-warning ms-1"></i>
-                            </button>
-                        </form>
-                    }
+                                <button type="submit" class="btn btn-success btn-lg w-100">
+                                    Zapisz raport i odbierz punkty <i class="bi bi-star-fill text-warning ms-1"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    document.querySelectorAll('.prompt-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const textarea = document.getElementById('reportContent');
-            const prompt = this.getAttribute('data-prompt');
-            if (textarea.value.trim() === '') {
-                textarea.value = prompt + '\n\n';
-            } else {
-                textarea.value += '\n\n' + prompt + '\n\n';
-            }
-            textarea.focus();
-            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    <script>
+        document.querySelectorAll('.prompt-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const textarea = document.getElementById('reportContent');
+                const prompt = this.getAttribute('data-prompt');
+                if (textarea.value.trim() === '') {
+                    textarea.value = prompt + '\n\n';
+                } else {
+                    textarea.value += '\n\n' + prompt + '\n\n';
+                }
+                textarea.focus();
+                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            });
         });
-    });
-</script>
+    </script>

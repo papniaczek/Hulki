@@ -75,8 +75,8 @@
                     <th class="py-3">E-mail</th>
                     <th class="py-3 text-center">Saldo</th>
                     <th class="py-3 text-center">Wpisy</th>
-                    <th class="py-3 text-center">Status konta</th>
-                    <th class="py-3 text-end pe-4">Akcje</th>
+                    <th class="py-3 text-center" >Status konta</th>
+                    <th class="py-3 text-end"style="padding-right: 3.5rem;">Akcje</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -103,11 +103,11 @@
                             <td class="text-center">
                                 @if (isLocked)
                                 {
-                                    <span class="badge bg-danger"><i class="bi bi-lock-fill"></i> Zablokowane</span>
+                                    <span class="badge bg-danger">Zablokowane</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Aktywne</span>
+                                    <span class="badge bg-success">Aktywne</span>
                                 }
                             </td>
                             <td class="text-end pe-4">
