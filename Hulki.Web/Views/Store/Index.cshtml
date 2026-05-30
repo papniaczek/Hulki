@@ -5,7 +5,7 @@
 }
 
 <div class="container mt-4">
-    
+
     <!-- HEADER SKLEPU (Dokładnie jak na Twoim screenie) -->
     <div class="card bg-dark text-light border-light-subtle mb-4">
         <div class="card-body d-flex justify-content-between align-items-center p-4">
@@ -29,12 +29,13 @@
     {
         <div class="alert alert-success shadow-sm border-0">@TempData["SuccessMessage"]</div>
     }
-    
+
     <!-- PRZYCISK TYLKO DLA TERAPEUTY / ADMINA -->
     @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
     {
         <div class="text-end mb-4">
-            <button type="button" class="btn btn-outline-info fw-bold" data-bs-toggle="modal" data-bs-target="#addItemModal">
+            <button type="button" class="btn btn-outline-info fw-bold" data-bs-toggle="modal"
+                    data-bs-target="#addItemModal">
                 <i class="bi bi-plus-circle"></i> Dodaj nowy przedmiot do puli
             </button>
         </div>
@@ -44,98 +45,110 @@
     <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content bg-dark text-light border-secondary shadow-lg">
-                
+
                 <div class="modal-header border-secondary">
                     <h5 class="modal-title text-info fw-bold">Kreator Nagród</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                 </div>
-                
+
                 <form asp-controller="Store" asp-action="AddRewardItem" method="post">
                     <div class="modal-body">
-                        <p class="text-muted small">Przedmiot zostanie natychmiast dodany do ogólnej puli losowań w sklepie.</p>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Nazwa przedmiotu</label>
-                            <input type="text" name="name" class="form-control bg-dark text-light border-secondary" required placeholder="np. Złoty Miecz Trzeźwości" />
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Rzadkość</label>
-                            <select name="itemRarityId" class="form-select bg-dark text-light border-secondary" required>
-                                @if(ViewBag.Rarities != null)
-                                {
-                                    foreach(var rarity in ViewBag.Rarities)
+                        <p class="text-muted small">Przedmiot zostanie natychmiast dodany do ogólnej puli losowań w
+                            sklepie.</p>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nazwa przedmiotu</label>
+                                <input type="text" name="name" class="form-control bg-dark text-light border-secondary"
+                                       required placeholder="np. Złoty Miecz Trzeźwości" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Rzadkość</label>
+                                <select name="itemRarityId" class="form-select bg-dark text-light border-secondary"
+                                        required>
+                                    @if (ViewBag.Rarities != null)
                                     {
-                                        <option value="@rarity.Id">@rarity.Name</option>
+                                        foreach (var rarity in ViewBag.Rarities)
+                                        {
+                                            <option value="@rarity.Id">@rarity.Name</option>
+                                        }
                                     }
-                                }
-                            </select>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Opis</label>
+                                <textarea name="description" class="form-control bg-dark text-light border-secondary"
+                                          rows="2" placeholder="Krótki opis przedmiotu"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Cena (pkt)</label>
+                                <input type="number" min="0" name="price" value="0"
+                                       class="form-control bg-dark text-light border-secondary" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ścieżka do ikony</label>
+                                <input type="text" name="iconPath" class="form-control bg-dark text-light border-secondary"
+                                       placeholder="/images/shop/icon.png" />
+                            </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Opis</label>
-                            <textarea name="description" class="form-control bg-dark text-light border-secondary" rows="2" placeholder="Krótki opis przedmiotu"></textarea>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Cena (pkt)</label>
-                            <input type="number" min="0" name="price" value="0" class="form-control bg-dark text-light border-secondary" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Ścieżka do ikony</label>
-                            <input type="text" name="iconPath" class="form-control bg-dark text-light border-secondary" placeholder="/images/shop/icon.png" />
-                        </div>
-                    </div>
-                    <div class="modal-footer border-secondary">
-                        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Anuluj</button>
-                        <button type="submit" class="btn btn-info fw-bold">Zapisz przedmiot</button>
-                    </div>
-                </form>
-                
-            </div>
-        </div>
-    </div>
-
-    <!-- LISTA GIER -->
-    <div class="row">
-        @foreach (var game in Model)
-        {
-            // MAGIA: Dynamiczne dobieranie akcji z kontrolera na podstawie typu gry!
-            string actionName = "PlayRoulette"; // Domyślnie ładujemy ruletkę dla bezpieczeństwa
-
-            if (game.GameType?.Name == "Zdrapka") 
-            {
-                actionName = "PlayScratchcard";
-            }
-            else if (game.GameType?.Name == "3 Karty") 
-            {
-                actionName = "PlayCards";
-            }
-            else if (game.GameType?.Name == "Lootbox" || game.GameType?.Name == "Koło Fortuny")
-            {
-                actionName = "PlayRoulette";
-            }
-
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 bg-dark text-light border-light-subtle shadow-sm">
-                    <div class="card-header text-center border-bottom border-light-subtle pt-4 pb-3">
-                        <h4 class="card-title fw-bold mb-0">@game.Name</h4>
-                    </div>
-                    <div class="card-body text-center d-flex align-items-center justify-content-center p-4">
-                        <p class="card-text text-muted mb-0">@game.Description</p>
-                    </div>
-                    <div class="card-footer bg-dark border-top-0 p-4 pt-0">
-                        <!-- FORMULARZ WYSYŁAJĄCY DO ODPOWIEDNIEJ METODY -->
-                        <form asp-controller="Store" asp-action="@actionName" method="post">
-                            <input type="hidden" name="gameId" value="@game.Id" />
-                            <button type="submit" class="btn btn-warning w-100 fw-bold rounded-3 py-2" style="color: #000;">
-                                Otwórz za @game.Cost pkt
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn px-4" data-bs-dismiss="modal"
+                                    style="color: #DA292E; border: 1px solid #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
+                                    onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
+                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">
+                                Anuluj
                             </button>
-                        </form>
-                    </div>
+                            <button type="submit" class="btn btn-info fw-bold">Zapisz przedmiot</button>
+                        </div>
+                    </form>
+
                 </div>
             </div>
-        }
+        </div>
+
+        <!-- LISTA GIER -->
+        <div class="row">
+            @foreach (var game in Model)
+            {
+                // MAGIA: Dynamiczne dobieranie akcji z kontrolera na podstawie typu gry!
+                string actionName = "PlayRoulette"; // Domyślnie ładujemy ruletkę dla bezpieczeństwa
+
+                if (game.GameType?.Name == "Zdrapka")
+                {
+                    actionName = "PlayScratchcard";
+                }
+                else if (game.GameType?.Name == "3 Karty")
+                {
+                    actionName = "PlayCards";
+                }
+                else if (game.GameType?.Name == "Lootbox" || game.GameType?.Name == "Koło Fortuny")
+                {
+                    actionName = "PlayRoulette";
+                }
+
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 bg-dark text-light border-light-subtle shadow-sm">
+                        <div class="card-header text-center border-bottom border-light-subtle pt-4 pb-3">
+                            <h4 class="card-title fw-bold mb-0">@game.Name</h4>
+                        </div>
+                        <div class="card-body text-center d-flex align-items-center justify-content-center p-4">
+                            <p class="card-text text-muted mb-0">@game.Description</p>
+                        </div>
+                        <div class="card-footer bg-dark border-top-0 p-4 pt-0">
+                            <!-- FORMULARZ WYSYŁAJĄCY DO ODPOWIEDNIEJ METODY -->
+                            <form asp-controller="Store" asp-action="@actionName" method="post">
+                                <input type="hidden" name="gameId" value="@game.Id" />
+                                <button type="submit" class="btn btn-warning w-100 fw-bold rounded-3 py-2" style="color: #000;">
+                                    Otwórz za @game.Cost pkt
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
-</div>

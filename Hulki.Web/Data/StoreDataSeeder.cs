@@ -8,9 +8,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Hulki.Web.Data;
 
 /// <summary>
-/// Seeder danych sklepu. Uruchamiany przy starcie aplikacji (Program.cs), dzięki czemu
-/// oferta jest kompletna zanim ktokolwiek trafi na /api/shop/items. Ten sam kod jest
-/// wywoływany z StoreController.Index, więc wizyta w sklepie też odświeża dane.
+/// Seeder danych sklepu. 
+/// Uruchamiany przy starcie aplikacji (Program.cs), wypełnia bazę danymi testowymi i przykładowymi nagrodami, grami i rzadkościami.
 /// </summary>
 public static class StoreDataSeeder
 {
@@ -56,9 +55,7 @@ public static class StoreDataSeeder
 
         await context.SaveChangesAsync();
 
-        // 4. Przykładowe nagrody (Description / Price) – ceny 10-100 pkt.
-        //    IconPath celowo zostaje null – frontend pokazuje wtedy domyślną ikonę zasobnika.
-        //    Admin może przypisać własną grafikę przez formularz "Kreator Nagród".
+        // 4. Przykładowe nagrody 
         var rarityLookup = await context.ItemRarities.ToDictionaryAsync(r => r.Name);
 
         var seedItems = new (string Name, string Rarity, int Price, string Description)[]
@@ -91,8 +88,7 @@ public static class StoreDataSeeder
             }
             else
             {
-                // Uzupełniamy tylko brakujące Description / Price – IconPath zostaje tak,
-                // jak ustawił admin (czyli najczęściej null i fallback na froncie).
+                // Uzupełniamy tylko brakujące Description / Price 
                 if (string.IsNullOrWhiteSpace(existing.Description)) existing.Description = item.Description;
                 if (existing.Price == 0)                              existing.Price       = item.Price;
             }
@@ -100,9 +96,7 @@ public static class StoreDataSeeder
 
         await context.SaveChangesAsync();
 
-        // 5. Generyczny backfill – uzupełniamy puste Description i Price dla starszych rekordów
-        //    (np. dodanych przez formularz admina przed migracją). IconPath zostawiamy w spokoju:
-        //    jeśli admin nie przypisał grafiki, widok pokaże domyślną ikonę zasobnika.
+        // 5. Generyczny backfill 
         var stale = await context.RewardItems
             .Include(r => r.ItemRarity)
             .Where(r => r.Price == 0 || r.Description == null)
@@ -130,10 +124,7 @@ public static class StoreDataSeeder
         if (stale.Count > 0)
             await context.SaveChangesAsync();
 
-        // 6. Jednorazowe sprzątanie po starej wersji seedera, która wstawiała
-        //    wszystkim przedmiotom /graphics/smile.png lub /graphics/pudzian.jpg.
-        //    Kasujemy tylko te konkretne dwie ścieżki – grafiki wpisane ręcznie
-        //    przez admina pozostają nietknięte.
+        // 6. Jednorazowe sprzątanie po starej wersji seedera
         var legacyIcons = new[] { "/graphics/smile.png", "/graphics/pudzian.jpg" };
         var polluted = await context.RewardItems
             .Where(r => r.IconPath != null && legacyIcons.Contains(r.IconPath))
