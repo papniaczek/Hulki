@@ -82,6 +82,8 @@ public class StoreController : Controller
 
         ViewBag.WonItem = wonItem;
         ViewBag.AllRewards = allRewards.Select(r => new { name = r.Name, rarity = r.ItemRarity.Name }).ToList();
+        ViewBag.GameId = gameId;
+        ViewBag.GameCost = game.Cost;
 
         return View("RouletteGame");
     }
