@@ -227,6 +227,69 @@ public class StoreController : Controller
         return RedirectToAction("Index", "Profile");
     }
 
+
+    [HttpPost]
+    public async Task<IActionResult> SellMultiple(List<Guid> itemIds)
+    {
+        if (itemIds == null || !itemIds.Any())
+        {
+            TempData["ErrorMessage"] = "Nie wybrano zadnych przedmiotow.";
+            return RedirectToAction("Index", "Profile");
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        var entries = await _context.PatientInventories
+            .Include(pi => pi.RewardItem)
+            .ThenInclude(ri => ri.ItemRarity)
+            .Where(pi => pi.AppUserId == user.Id && itemIds.Contains(pi.RewardItemId))
+            .ToListAsync();
+
+        if (!entries.Any())
+        {
+            TempData["ErrorMessage"] = "Nie znaleziono wybranych przedmiotow.";
+            return RedirectToAction("Index", "Profile");
+        }
+
+        var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
+        if (wallet == null)
+        {
+            wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
+            _context.Wallets.Add(wallet);
+        }
+
+        int totalPrice = 0;
+        foreach (var entry in entries)
+        {
+            int sellPrice = entry.RewardItem.ItemRarity?.Name switch
+            {
+                "Mityczny" => 40,
+                "Legendarny" => 25,
+                "Epicki" => 15,
+                "Rzadki" => 10,
+                "Niepospolity" => 6,
+                _ => 3
+            };
+            totalPrice += sellPrice;
+
+            _context.PointTransactions.Add(new PointTransaction
+            {
+                Id = Guid.NewGuid(),
+                Amount = sellPrice,
+                Description = $"Sprzedaz: {entry.RewardItem.Name}",
+                TransactionDate = DateTime.Now,
+                WalletId = wallet.Id
+            });
+
+            _context.PatientInventories.Remove(entry);
+        }
+
+        wallet.Balance += totalPrice;
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = $"Sprzedano {entries.Count} przedmiotow za lacznie {totalPrice} pkt!";
+        return RedirectToAction("Index", "Profile");
+    }
+
     [HttpPost]
     public async Task<IActionResult> AddRewardItem(string name, int itemRarityId, string? description, int price, string? iconPath)
     {

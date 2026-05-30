@@ -48,14 +48,35 @@
                 Mój Ekwipunek
             </h5>
             <h5 style="text-align: center; margin-bottom: 20px; margin-top: -5px;">
-                    <span class="badge bg-primary ms-2">
-                        Liczba posiadanych przedmiotów: @inventory.Count
-                    </span>
+                <span class="badge bg-primary ms-2">
+                    Liczba posiadanych przedmiotów: @inventory.Count
+                </span>
             </h5>
 
             @if (inventory != null && inventory.Any())
             {
-                <div class="row g-3">
+                <!-- PASEK MULTI-SELL -->
+                <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap" id="multiSellBar">
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-select-all" id="btnSelectAll">
+                            Zaznacz wszystko
+                        </button>
+                        <button type="button" class="btn btn-sm btn-select-all" id="btnDeselectAll" style="display:none;">
+                            Odznacz wszystko
+                        </button>
+                        <span class="text-muted small" id="selectedCount" style="display:none;">
+                            Zaznaczono: <strong id="selectedNum">0</strong>
+                        </span>
+                    </div>
+                    <form asp-controller="Store" asp-action="SellMultiple" method="post" id="multiSellForm">
+                        <button type="submit" class="btn btn-sm btn-sell-selected" id="btnSellSelected" style="display:none;"
+                                onclick="return confirmMultiSell()">
+                            Sprzedaj zaznaczone
+                        </button>
+                    </form>
+                </div>
+
+                <div class="row g-3" id="inventoryGrid">
                     @foreach (var item in inventory)
                     {
                         var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
@@ -72,9 +93,21 @@
                         };
 
                         <div class="col-6 col-md-4">
-                            <div class="card border-0 shadow-sm h-100 text-center position-relative overflow-hidden"
-                                 style="border-top: 4px solid @rarityColor !important; box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.55) !important">
-                                <div class="card-body py-3 px-2" >
+                            <div class="inventory-card card border-0 shadow-sm h-100 text-center position-relative overflow-hidden"
+                                 data-item-id="@item.Id"
+                                 style="border-top: 4px solid @rarityColor !important;
+                                        box-shadow: 0px 0px 7px 1px rgba(0,0,0,0.55) !important;
+                                        cursor: pointer;
+                                        transition: transform 0.15s, box-shadow 0.15s;">
+
+                                <!-- CHECKBOX -->
+                                <div class="item-check position-absolute top-0 end-0 m-1"
+                                     style="display:none; z-index:10; margin-right: 0.65rem !important">
+                                    <i class="bi bi-check-circle-fill text-white"
+                                       style="font-size:1.3rem; filter: drop-shadow(0 0 2px rgba(0,0,0,0.6));"></i>
+                                </div>
+
+                                <div class="card-body py-3 px-2">
                                     @if (!string.IsNullOrWhiteSpace(item.IconPath))
                                     {
                                         <img src="@item.IconPath" alt="@item.Name"
@@ -92,8 +125,8 @@
                                     <div class="fw-bold small text-truncate mb-1" title="@item.Name">@item.Name</div>
                                     <span class="badge mb-2" style="background-color:@rarityColor;">@rarityName</span>
 
-                                    <!-- PRZYCISK SPRZEDAJ -->
-                                    <form asp-controller="Store" asp-action="SellItem" method="post" class="mt-1">
+                                    <!-- PRZYCISK SPRZEDAJ (pojedynczy) -->
+                                    <form asp-controller="Store" asp-action="SellItem" method="post" class="mt-1 single-sell-form">
                                         <input type="hidden" name="itemId" value="@item.Id"/>
                                         <button type="submit" class="btn btn-sm btn-outline-danger w-100"
                                                 onclick="return confirm('Na pewno sprzedać @item.Name?')">
@@ -108,12 +141,12 @@
             }
             else
             {
-                <div class="card border-0 shadow-sm" >
-                    <div class="card-body text-center p-5 text-muted" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.45);">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-5 text-muted" style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45);">
                         <i class="bi bi-box fs-1 d-block mb-3"></i>
                         <p class="mb-3">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
                         <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">
-                            <i class="bi bi-shop me-1"></i>Przejdź do sklepu
+                            Przejdź do sklepu
                         </a>
                     </div>
                 </div>
@@ -126,19 +159,18 @@
                 Ostatnie wpisy
             </h5>
             <h5 style="text-align: center; margin-bottom: 20px; margin-top: -5px;">
-                    <span class="badge bg-primary ms-2">
-                        @if (reports != null && reports.Any())
-                        {
-                            
-                            <span>Ostatni wpis dnia: @(reports.First().CreatedAt.ToString("dd.MM.yyyy"))</span>
-                        }
-                        else
-                        {
-                            @:Brak wpisów
-                        }
-                    </span>
+                <span class="badge bg-primary ms-2">
+                    @if (reports != null && reports.Any())
+                    {
+                        <span>Ostatni wpis dnia: @(reports.First().CreatedAt.ToString("dd.MM.yyyy"))</span>
+                    }
+                    else
+                    {
+                        @:Brak wpisów
+                    }
+                </span>
             </h5>
-            <div class="card border-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.45);">
+            <div class="card border-0" style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45);">
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush rounded-3">
                         @if (reports != null && reports.Any())
@@ -166,7 +198,8 @@
                     </ul>
                 </div>
                 <div class="card-footer bg-transparent border-0 text-center pb-3">
-                    <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-sm btn-primary" style="color: #0d6efd; border: 1px solid #0d6efd; background-color: transparent; transition: all 0.2s ease-in-out;"
+                    <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-sm btn-primary"
+                       style="color: #0d6efd; border: 1px solid #0d6efd; background-color: transparent; transition: all 0.2s ease-in-out;"
                        onmouseover="this.style.backgroundColor='#0d6efd'; this.style.color='#ffffff';"
                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0d6efd';">
                         Dodaj wpis
@@ -176,3 +209,98 @@
         </div>
     </div>
 </div>
+
+<style>
+    .inventory-card.selected {
+        background-color: rgba(55, 63, 77, 0.582) !important;
+        transform: scale(0.97);
+    }
+    .inventory-card.selected .item-check {
+        display: block !important;
+    }
+    .inventory-card:hover {
+        transform: scale(0.98);
+    }
+    .inventory-card.selected:hover {
+        transform: scale(0.97);
+    }
+    body.multi-mode .single-sell-form {
+        display: none !important;
+    }
+</style>
+
+<script>
+(function () {
+    const cards = document.querySelectorAll('.inventory-card');
+    const form = document.getElementById('multiSellForm');
+    const btnSell = document.getElementById('btnSellSelected');
+    const btnSelectAll = document.getElementById('btnSelectAll');
+    const btnDeselectAll = document.getElementById('btnDeselectAll');
+    const selectedCount = document.getElementById('selectedCount');
+    const selectedNum = document.getElementById('selectedNum');
+
+    let selected = new Set();
+
+    function updateUI() {
+        const count = selected.size;
+        const anySelected = count > 0;
+
+        btnSell.style.display = anySelected ? '' : 'none';
+        selectedCount.style.display = anySelected ? '' : 'none';
+        selectedNum.textContent = count;
+
+        btnSelectAll.style.display = (count === cards.length) ? 'none' : '';
+        btnDeselectAll.style.display = anySelected ? '' : 'none';
+
+        document.body.classList.toggle('multi-mode', anySelected);
+    }
+
+    function toggleCard(card) {
+        const id = card.dataset.itemId;
+        if (selected.has(id)) {
+            selected.delete(id);
+            card.classList.remove('selected');
+        } else {
+            selected.add(id);
+            card.classList.add('selected');
+        }
+        updateUI();
+    }
+
+    cards.forEach(card => {
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('.single-sell-form')) return;
+            toggleCard(card);
+        });
+    });
+
+    btnSelectAll.addEventListener('click', () => {
+        cards.forEach(card => {
+            selected.add(card.dataset.itemId);
+            card.classList.add('selected');
+        });
+        updateUI();
+    });
+
+    btnDeselectAll.addEventListener('click', () => {
+        selected.clear();
+        cards.forEach(card => card.classList.remove('selected'));
+        updateUI();
+    });
+
+    form.addEventListener('submit', function () {
+        form.querySelectorAll('input[name="itemIds"]').forEach(el => el.remove());
+        selected.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'itemIds';
+            input.value = id;
+            form.appendChild(input);
+        });
+    });
+
+    window.confirmMultiSell = function () {
+        return confirm(`Na pewno chcesz sprzedać ${selected.size} przedmiotów?`);
+    };
+})();
+</script>
