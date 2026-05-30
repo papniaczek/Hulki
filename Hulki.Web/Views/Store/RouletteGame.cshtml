@@ -72,8 +72,8 @@
     <!-- PRZYCISK SPRÓBUJ PONOWNIE  -->
     <form asp-controller="Store" asp-action="PlayRoulette" method="post" id="retry-form" class="d-none mt-3">
         <input type="hidden" name="gameId" value="@ViewBag.GameId" />
-        <button type="submit" id="retry-btn" class="btn btn-warning px-5 py-3 fw-bold">
-            <i class="bi bi-arrow-repeat me-2";></i><strong>SPRÓBUJ PONOWNIE! (@ViewBag.GameCost PKT)</strong>
+        <button type="submit" id="retry-btn" class="btn btn-warning px-5 py-3 fw-bold" style="margin-top: 28px">
+            <i class="bi bi-arrow-repeat me-2"></i><strong>SPRÓBUJ PONOWNIE! (@ViewBag.GameCost PKT)</strong>
         </button>
     </form>
     
