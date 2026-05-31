@@ -114,3 +114,15 @@ body {
   align-items: center;
   gap: 0.2rem;
 }
+
+/* Domyślny kolor (czarny) */
+.dropdown-item.custom-therapist-link {
+    color: green;
+    font-weight: bold;
+}
+
+/* Kolor po najechaniu (zielony) */
+.dropdown-item.custom-therapist-link:hover {
+    background-color: green;
+    color: white;
+}
