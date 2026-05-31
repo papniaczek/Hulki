@@ -8,19 +8,18 @@
 }
 
 <div class="container mt-5">
-    <div class="row justify-content-center">
+    <div class="row justify-content-center" style="min-height: 70vh; align-items: center;">
         <div class="col-md-5">
             <div class="card shadow-sm border-0">
-                <div class="card-body p-5">
-                    <h3 class="text-center mb-4">Zaloguj się</h3>
-
+                <div class="card-body p-5" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 8%;">
+                    <h3 class="text-center mb-4" style="user-select: none;">Zaloguj się</h3>
                     <form asp-controller="Account" asp-action="Login" method="post">
                         <div class="mb-3">
-                            <label class="form-label text-muted small text-uppercase">Email</label>
+                            <label class="form-label text-muted small text-uppercase" style="user-select: none;">Email</label>
                             <input type="email" name="email" class="@inputClass" required />
                         </div>
                         <div class="mb-4">
-                            <label class="form-label text-muted small text-uppercase">Hasło</label>
+                            <label class="form-label text-muted small text-uppercase" style="user-select: none;">Hasło</label>
                             <input type="password" name="password" class="@inputClass" required />
                             @if (hasError)
                             {

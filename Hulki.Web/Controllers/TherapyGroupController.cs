@@ -199,7 +199,7 @@ public class TherapyGroupController : Controller
         {
             _context.PatientGroups.Remove(membership);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Wniosek został odrzucony / Pacjent został usunięty.";
+            TempData["ErrorMessage"] = "Wniosek został odrzucony. Pacjent został usunięty.";
         }
 
         return RedirectToAction(nameof(Manage), new { id = groupId });
