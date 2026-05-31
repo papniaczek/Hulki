@@ -14,7 +14,7 @@
 }
 
 <div class="container mt-4">
-    <!-- HEADER KARTY PROFILU -->
+    <!-- HEADER -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm text-white p-4 d-flex flex-row align-items-center justify-content-between rounded-4"
@@ -144,7 +144,7 @@
             {
                 <div class="card border-0 shadow-sm">
                     <div class="card-body text-center p-5 text-muted"
-                         style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45);">
+                         style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45); border-radius: 0.5rem;">
                         <i class="bi bi-box fs-1 d-block mb-3"></i>
                         <p class="mb-3">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę!</p>
                         <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary">
@@ -172,7 +172,7 @@
                     }
                 </span>
             </h5>
-            <div class="card border-0" style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45);">
+            <div class="card border-0" style="box-shadow: 0px 0px 10px 1px rgba(0,0,0,0.45); border-radius: 0.5rem;">
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush rounded-3">
                         @if (reports != null && reports.Any())

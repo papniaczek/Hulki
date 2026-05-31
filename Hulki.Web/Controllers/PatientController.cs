@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
@@ -25,6 +27,99 @@ namespace Hulki.Web.Controllers;
             _context = context;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
+        }
+
+        // PANEL PACJENTA Z WYKRESAMI POSTĘPU
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            // --- Raporty z ostatnich 30 dni ---
+            var thirtyDaysAgo = DateTime.Today.AddDays(-29);
+            var reports = await _context.DailyReports
+                .Where(r => r.AppUserId == user.Id && r.CreatedAt >= thirtyDaysAgo)
+                .OrderBy(r => r.CreatedAt)
+                .ToListAsync();
+
+            // Dane dla wykresu aktywności (liczba raportów per dzień)
+            var last30Days = Enumerable.Range(0, 30)
+                .Select(i => DateTime.Today.AddDays(-29 + i))
+                .ToList();
+
+            var activityLabels = last30Days.Select(d => d.ToString("dd.MM")).ToList();
+            var activityData = last30Days.Select(d =>
+                reports.Count(r => r.CreatedAt.Date == d.Date)).ToList();
+
+            // --- Transakcje punktowe (ostatnie 30 dni) ---
+            var wallet = await _context.Wallets
+                .Include(w => w.AppUser)
+                .FirstOrDefaultAsync(w => w.AppUserId == user.Id);
+
+            List<PointTransaction> transactions = new();
+            if (wallet != null)
+            {
+                transactions = await _context.PointTransactions
+                    .Where(t => t.WalletId == wallet.Id && t.TransactionDate >= thirtyDaysAgo)
+                    .OrderBy(t => t.TransactionDate)
+                    .ToListAsync();
+            }
+
+            // Dane dla wykresu skumulowanych punktów (bieżące saldo każdego dnia)
+            var currentBalance = wallet?.Balance ?? 0;
+            var totalPointsInPeriod = transactions.Sum(t => t.Amount);
+            var balanceBeforePeriod = currentBalance - totalPointsInPeriod;
+
+            var pointsLabels = last30Days.Select(d => d.ToString("dd.MM")).ToList();
+            var pointsData = new List<int>();
+            var runningBalance = balanceBeforePeriod;
+            foreach (var day in last30Days)
+            {
+                runningBalance += transactions
+                    .Where(t => t.TransactionDate.Date == day.Date)
+                    .Sum(t => t.Amount);
+                pointsData.Add(runningBalance);
+            }
+
+            // --- Streak (seria kolejnych dni z raportem) ---
+            var allReports = await _context.DailyReports
+                .Where(r => r.AppUserId == user.Id)
+                .Select(r => r.CreatedAt.Date)
+                .Distinct()
+                .OrderByDescending(d => d)
+                .ToListAsync();
+
+            int streak = 0;
+            var checkDate = DateTime.Today;
+            foreach (var reportDate in allReports)
+            {
+                if (reportDate == checkDate || reportDate == checkDate.AddDays(-1))
+                {
+                    streak++;
+                    checkDate = reportDate;
+                }
+                else break;
+            }
+
+            // --- Łączna liczba raportów i procent aktywności ---
+            var totalReports = await _context.DailyReports.CountAsync(r => r.AppUserId == user.Id);
+            var reportsThisMonth = reports.Count;
+            var daysInMonth = DateTime.Today.Day;
+            var activityPercent = daysInMonth > 0 ? (int)Math.Round((double)reportsThisMonth / daysInMonth * 100) : 0;
+
+            ViewBag.ActivityLabels = activityLabels;
+            ViewBag.ActivityData = activityData;
+            ViewBag.PointsLabels = pointsLabels;
+            ViewBag.PointsData = pointsData;
+            ViewBag.CurrentBalance = currentBalance;
+            ViewBag.Streak = streak;
+            ViewBag.TotalReports = totalReports;
+            ViewBag.ReportsThisMonth = reportsThisMonth;
+            ViewBag.ActivityPercent = activityPercent;
+            ViewBag.UserName = user.FirstName ?? user.UserName;
+
+            return View();
         }
 
         // 1. WYŚWIETLANIE FORMULARZA

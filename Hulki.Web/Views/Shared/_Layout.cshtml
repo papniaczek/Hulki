@@ -75,11 +75,22 @@
                         var currentUser = await UserManager.GetUserAsync(User);
                         var displayName = currentUser?.FirstName ?? User.Identity.Name;
 
-                        <li class="nav-item d-flex align-items-center me-3">
-                            <a class="nav-link text-success fw-bold" asp-controller="Profile" asp-action="Index">
-                                Witaj @displayName!
-                            </a>
-                        </li>
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-light" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown">
+                                    @displayName
+                                </a>
+                                <ul class="dropdown-menu border-0 shadow">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Moje konto</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Patient" asp-action="Index">Moje statystyki</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                         <li class="nav-item">
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-link nav-link text-danger">Wyloguj</button>

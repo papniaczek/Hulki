@@ -1,0 +1,289 @@
+@{
+    ViewData["Title"] = "Mój Panel";
+
+    var activityLabels = (List<string>)ViewBag.ActivityLabels;
+    var activityData = (List<int>)ViewBag.ActivityData;
+    var pointsLabels = (List<string>)ViewBag.PointsLabels;
+    var pointsData = (List<int>)ViewBag.PointsData;
+
+    int currentBalance = ViewBag.CurrentBalance ?? 0;
+    int streak = ViewBag.Streak ?? 0;
+    int totalReports = ViewBag.TotalReports ?? 0;
+    int reportsThisMonth = ViewBag.ReportsThisMonth ?? 0;
+    int activityPercent = ViewBag.ActivityPercent ?? 0;
+    string userName = ViewBag.UserName ?? "Pacjencie";
+    int daysInMonth = ViewBag.DaysInMonth ?? DateTime.Today.Day;
+
+    string activityLabelsJson = System.Text.Json.JsonSerializer.Serialize(activityLabels);
+    string activityDataJson = System.Text.Json.JsonSerializer.Serialize(activityData);
+    string pointsLabelsJson = System.Text.Json.JsonSerializer.Serialize(pointsLabels);
+    string pointsDataJson = System.Text.Json.JsonSerializer.Serialize(pointsData);
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold text-primary mb-1">
+                Mój Panel Postępów
+            </h2>
+            <p class="text-muted mb-0">Witaj, <strong>@userName</strong>! Tutaj widzisz swoje postępy w terapii.</p>
+        </div>
+        <div class="col-auto align-self-center">
+            <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-success" >
+                Dodaj wpis
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #1a73e8, #0d47a1);">
+                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(26,115,232,0.2);">
+                    <div class="display-5 fw-bold">@currentBalance</div>
+                    <div class="small mt-1 opacity-75">Punktów</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f57c00, #e65100);">
+                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(245,124,0,0.2);">
+                    <div class="display-5 fw-bold">@streak</div>
+                    <div class="small mt-1 opacity-75">Dni z rzędu</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);">
+                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(46,125,50,0.2);">
+                    <div class="display-5 fw-bold">@totalReports</div>
+                    <div class="small mt-1 opacity-75">Wszystkich wpisów</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #6a1b9a, #4a148c);">
+                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(106,27,154,0.2);">
+                    <div class="display-5 fw-bold">@reportsThisMonth</div>
+                    <div class="small mt-1 opacity-75">Dni sztywności w miesiącu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 0.5rem;">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-primary">
+                                <i class="bi bi-bar-chart-fill me-2"></i>Aktywność z ostatnich 30 dni
+                            </h5>
+                            <p class="text-muted small mb-0">Liczba wpisów dzienniczkowych każdego dnia</p>
+                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3">@reportsThisMonth
+                            wpisów</span>
+                        </div>
+                        <div style="position: relative; height: 260px;">
+                            <canvas id="activityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 0.5rem;">
+                        <h5 class="fw-bold mb-3 text-warning">
+                            <i class="bi bi-fire me-2"></i>Seria wpisów
+                        </h5>
+
+                        @if (streak == 0)
+                        {
+                            <div class="text-center py-3">
+                                <div style="font-size: 3.5rem;">💤</div>
+                                <p class="text-muted mt-2">Brak aktywnej serii.<br>Dodaj dziś wpis, żeby zacząć!</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center mb-3">
+                                <div style="font-size: 3.5rem;">🔥</div>
+                                <div class="display-4 fw-bold text-warning">@streak</div>
+                                <div class="text-muted">@(streak == 1 ? "dzień z rzędu" : streak < 5 ? "dni z rzędu" : "dni z rzędu")</div>
+                            </div>
+                            <div class="progress" style="height:12px; border-radius:6px;">
+                                @{
+                                    var streakGoal = streak < 7 ? 7 : streak < 30 ? 30 : 100;
+                                    var streakPct = Math.Min(100, (int)Math.Round((double)streak / streakGoal * 100));
+                                }
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: @streakPct%"
+                                     aria-valuenow="@streak" aria-valuemin="0" aria-valuemax="@streakGoal"></div>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small mt-1">
+                                <span>@streak dni</span>
+                                <span>Cel: @streakGoal dni</span>
+                            </div>
+                        }
+
+                        <hr class="my-3" />
+
+                        <h6 class="fw-bold mb-2 text-muted">Aktywność w tym miesiącu</h6>
+                        <div class="progress" style="height:18px; border-radius:9px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: @activityPercent%"
+                                 aria-valuenow="@activityPercent" aria-valuemin="0" aria-valuemax="100">
+                                @activityPercent%
+                            </div>
+                        </div>
+                        <p class="text-muted small mt-2 mb-0">
+                            @reportsThisMonth wpisów na @DateTime.Today.Day dni tego miesiąca
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 0.5rem;">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1 text-success">
+                                    <i class="bi bi-graph-up-arrow me-2"></i>Saldo punktów z ostatnich 30 dni
+                                </h5>
+                                <p class="text-muted small mb-0">Jak rosną Twoje punkty na przestrzeni czasu</p>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success fs-6 px-3">
+                                <i class="bi bi-coin me-1"></i>@currentBalance pkt
+                            </span>
+                        </div>
+                        <div style="position: relative; height: 220px;">
+                            <canvas id="pointsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @if (totalReports == 0)
+        {
+            <div class="card border-0 shadow-sm mt-4 text-center p-5" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important; border-radius: 0.5rem;">
+                <div style="font-size: 3rem;">📓</div>
+                <h4 class="fw-bold mt-3">Zacznij swoją historię!</h4>
+                <p class="text-muted">Jeszcze nie masz żadnych wpisów. Dodaj pierwszy dziś!</p>
+                <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-primary btn-lg mx-auto"
+                   style="max-width:260px;">
+                    <i class="bi bi-journal-plus me-2"></i>Dodaj pierwszy wpis
+                </a>
+            </div>
+        }
+
+    </div>
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+        <script>
+            const activityLabels = @Html.Raw(activityLabelsJson);
+            const activityData = @Html.Raw(activityDataJson);
+            const pointsLabels = @Html.Raw(pointsLabelsJson);
+            const pointsData = @Html.Raw(pointsDataJson);
+
+            Chart.defaults.color = '#adb5bd';
+            Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+            labels: activityLabels,
+            datasets: [{
+            label: 'Wpisy',
+            data: activityData,
+            backgroundColor: activityData.map(v =>
+            v > 0 ? 'rgba(26,115,232,0.85)' : 'rgba(255,255,255,0.06)'
+            ),
+            borderRadius: 6,
+            borderSkipped: false,
+            }]
+            },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+            legend: { display: false },
+            tooltip: {
+            callbacks: {
+            label: ctx => ctx.parsed.y === 1 ? '1 wpis' : ctx.parsed.y + ' wpisów'
+            }
+            }
+            },
+            scales: {
+            y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0 },
+            grid: { color: 'rgba(255,255,255,0.06)' }
+            },
+            x: {
+            grid: { display: false },
+            ticks: {
+            maxRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 15
+            }
+            }
+            }
+            }
+            });
+            const pointsCtx = document.getElementById('pointsChart').getContext('2d');
+            const gradientFill = pointsCtx.createLinearGradient(0, 0, 0, 220);
+            gradientFill.addColorStop(0, 'rgba(46,125,50,0.35)');
+            gradientFill.addColorStop(1, 'rgba(46,125,50,0.0)');
+
+            new Chart(pointsCtx, {
+            type: 'line',
+            data: {
+            labels: pointsLabels,
+            datasets: [{
+            label: 'Punkty',
+            data: pointsData,
+            borderColor: '#43a047',
+            backgroundColor: gradientFill,
+            borderWidth: 2.5,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#43a047',
+            fill: true,
+            tension: 0.4
+            }]
+            },
+            options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+            legend: { display: false },
+            tooltip: {
+            callbacks: {
+            label: ctx => ctx.parsed.y + ' pkt'
+            }
+            }
+            },
+            scales: {
+            y: {
+            beginAtZero: false,
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { callback: v => v + ' pkt' }
+            },
+            x: {
+            grid: { display: false },
+            ticks: {
+            maxRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 15
+            }
+            }
+            }
+            }
+            });
+        </script>
+    }
