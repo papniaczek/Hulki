@@ -1,0 +1,130 @@
+@model Hulki.Web.Models.DailyReport
+
+@{
+    ViewData["Title"] = "Szczegóły Wpisu";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Szczegóły Wpisu w Dzienniczku</h2>
+        <a asp-action="PatientDetails" asp-route-id="@Model.AppUserId" class="btn btn-sm btn-custom-back">
+            <i class="bi bi-arrow-left"></i> Wróć do profilu pacjenta
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm text-white p-4 mb-4 rounded-4"
+         style="background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
+                     style="width:64px;height:64px;font-size:1.8rem;">
+                    <i class="bi bi-journal-check fs-2"></i>
+                </div>
+                <div>
+                    <h2 class="mb-0 fw-bold">Wpis z dnia @Model.CreatedAt.ToString("dd.MM.yyyy")</h2>
+                    <p class="mb-0 text-white-50 small">
+                        <i class="bi bi-clock me-1"></i> Dokładna godzina: @Model.CreatedAt.ToString("HH:mm:ss")
+                    </p>
+                </div>
+            </div>
+            <div class="text-end" style="display: flex; flex-direction: column; align-items: right;">
+                <div class="text-white-50 small text-uppercase fw-bold mb-1">Status wpisu</div>
+                @if (Model.ReportStatus?.Name == "Oczekujący")
+                {
+                    <span class="badge bg-light text-dark fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name
+                    </span>
+                }
+                else if (Model.ReportStatus?.Name == "Zatwierdzony")
+                {
+                    <span class="badge bg-success text-white fs-6 px-3 py-2 rounded-pill shadow-sm" >@Model.ReportStatus?.Name
+                    </span>
+                }
+                else if (Model.ReportStatus?.Name == "Odrzucony")
+                {
+                    <span class="badge bg-danger text-white fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name
+                    </span>
+                }
+                else
+                {
+                    <span>Nieznany status</span>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm mt-3">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm mt-3">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-3" style="min-height: 205px;">
+                <div class="card-header bg-dark-subtle border-bottom"
+                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
+                    <h6 class="mb-0 fw-bold">Pacjent</h6>
+                </div>
+                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
+                    <h5 class="fw-bold mb-1" style="margin-top: 13px;">@Model.AppUser?.FirstName
+                        @Model.AppUser?.LastName</h5>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-envelope me-1"></i> @Model.AppUser?.Email
+                        </p>
+                        <hr class="text-muted opacity-25" style="margin: 20px 0;" />
+                        <div class="d-grid">
+                            <a asp-action="PatientDetails" asp-route-id="@Model.AppUserId"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i> Pokaż pełny profil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm mb-3" style="min-height: 205px;">
+                    <div class="card-header bg-black bg-opacity-25 border-bottom"
+                         style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
+                        <h6 class="mb-0 fw-bold">Odpowiedź pacjenta
+                        </h6>
+                    </div>
+                    <div class="card-body p-4" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); min-height: 166px;">
+                        <p class="mb-0 lh-base text-dark">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                </small>
+                            </div>
+                            <p class="mb-0 small text-truncate" style="color: white;">@Model.Content</p>
+                        </p>
+                        <div class="d-flex justify-content-end gap-2 mt-auto border-top pt-3">
+                            @if (Model.ReportStatus?.Name == "Oczekujący" || (Model.ReportStatus?.Name != "Zatwierdzony" &&
+                                Model.ReportStatus?.Name != "Odrzucony"))
+                            {
+                                <form asp-action="RejectReport" asp-controller="Admin" method="post"
+                                      onsubmit="return confirm('Czy na pewno chcesz odrzucić ten wpis? Punkty pacjenta zostaną cofnięte.');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-x-circle fw-bold"></i> Odrzuć
+                                    </button>
+                                </form>
+
+                                <form asp-action="ApproveReport" asp-controller="Admin" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-outline-success px-4">
+                                        <i class="bi bi-check-circle fw-bold"></i> Zatwierdź
+                                    </button>
+                                </form>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
