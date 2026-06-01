@@ -155,7 +155,7 @@
                     @if (reports != null && reports.Any())
                     {
                         <ul class="list-group list-group-flush">
-                            @foreach (var r in reports)
+                            @foreach (var r in reports.Take(3))
                             {
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
@@ -186,7 +186,7 @@
                     {
                         <table class="table table-sm mb-0">
                             <tbody>
-                            @foreach (var t in transactions)
+                            @foreach (var t in transactions.Take(6))
                             {
                                 <tr>
                                     <td class="ps-3 small text-muted" style="width:130px;">@t.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
