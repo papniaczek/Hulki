@@ -48,33 +48,6 @@
                                 <a class="nav-link text-light" asp-controller="TherapyGroup" asp-action="Index"
                                    style="user-select: none;">Grupy Wsparcia</a>
                             </li>
-
-                            @* @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-danger fw-bold" href="#" id="adminDropdown"
-                        role="button" data-bs-toggle="dropdown">
-                                    Panel Terapeuty
-                                </a>
-                                <ul class="dropdown-menu border-0 shadow">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Statystyki Kliniki</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="TherapyGroup" asp-action="Index">Zarządzaj Grupami</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Patients">Lista Pacjentów</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="ShopItems">Przedmioty w sklepie</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        } *@
                         }
                     </ul>
 
@@ -89,7 +62,7 @@
                                    data-bs-toggle="dropdown">
                                     @displayName
                                 </a>
-                                <ul class="dropdown-menu border-0 shadow">
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
                                     <li>
                                         <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Moje konto</a>
                                     </li>
@@ -104,13 +77,14 @@
                                                    asp-action="Index">Panel Terapeuty</a>
                                             </li>
                                         }
+                                        <li>
+                                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-link dropdown-item no-hover-bg">Wyloguj</button>
+                                            </form>
+                                        </li>
                                     </ul>
                                 </li>
-                                <li class="nav-item">
-                                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-link nav-link text-danger">Wyloguj</button>
-                                    </form>
-                                </li>
+
                             }
                     else
                             {

@@ -130,3 +130,14 @@ body {
     color: white !important;
 }
 
+.dropdown-item.no-hover-bg {
+    color: #dc3545; 
+}
+
+.dropdown-item.no-hover-bg:hover, 
+.dropdown-item.no-hover-bg:focus {
+    background-color: #dc3545; 
+;
+    color: white;
+}
+
