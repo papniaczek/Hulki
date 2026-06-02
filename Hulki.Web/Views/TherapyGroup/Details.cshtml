@@ -10,7 +10,16 @@
 }
 
 <div class="container mt-4 text-light">
-    
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm mb-3">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm mb-3">@TempData["ErrorMessage"]</div>
+    }
+
     <div class="card mb-4 " style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); !important border-radius: 0.5rem;!important">
         <div class="card-body p-4 d-flex justify-content-between align-items-center">
             <div>
@@ -375,11 +384,16 @@
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label small text-muted">Wybierz plik (PDF, JPG, PNG)</label>
-                                    <input type="file" name="uploadedFile" class="form-control bg-dark text-light border-secondary" accept=".pdf,.png,.jpg,.jpeg" required />
+                                    <label class="form-label small text-muted">Wybierz plik (PDF, JPG, JPEG, PNG)</label>
+                                    <div id="resourceFileContainer" class="p-2 rounded border border-secondary">
+                                        <input type="file" id="resourceFileInput" name="uploadedFile" class="form-control bg-dark text-light border-0" accept=".pdf,.png,.jpg,.jpeg" required />  
+                                    </div>
+                                    <div id="resourceFileError" class="text-danger mt-2 d-none">
+                                            Dozwolone są tylko pliki JPG, JPEG, PNG i PDF.
+                                        </div>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-info fw-bold w-100 mt-2">Wyślij do grupy</button>
+                                <button id="resourceSubmitBtn" type="submit" class="btn btn-info fw-bold w-100 mt-2">Wyślij do grupy</button>
                             </form>
                         </div>
                     </div>
@@ -394,7 +408,6 @@
                             {
                                 foreach (var res in resources)
                                 {
-                                    // Sprawdzamy rozszerzenie pliku, by dobrać odpowiednią ikonkę
                                     string iconClass = "bi-file-earmark-text text-muted";
                                     if (res.FilePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase)) iconClass = "bi-file-earmark-pdf text-danger";
                                     else if (res.FilePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || res.FilePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || res.FilePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)) iconClass = "bi-file-earmark-image text-success";
@@ -442,5 +455,34 @@
         } else {
             abcdFields.classList.add("d-none");
         }
+    }
+
+    const resourceFileInput = document.getElementById('resourceFileInput');
+    if (resourceFileInput) {
+        const resourceSubmitBtn = document.getElementById('resourceSubmitBtn');
+        const resourceFileError = document.getElementById('resourceFileError');
+        const resourceFileContainer = document.getElementById('resourceFileContainer');
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+
+        resourceFileInput.addEventListener('change', function () {
+            if (!this.files.length) {
+                resourceFileError.classList.add('d-none');
+                resourceFileContainer.classList.remove('border-danger');
+                resourceSubmitBtn.disabled = false;
+                return;
+            }
+
+            const extension = this.files[0].name.toLowerCase().split('.').pop();
+
+            if (!allowedExtensions.includes(extension)) {
+                resourceFileError.classList.remove('d-none');
+                resourceFileContainer.classList.add('border-danger');
+                resourceSubmitBtn.disabled = true;
+            } else {
+                resourceFileError.classList.add('d-none');
+                resourceFileContainer.classList.remove('border-danger');
+                resourceSubmitBtn.disabled = false;
+            }
+        });
     }
 </script>

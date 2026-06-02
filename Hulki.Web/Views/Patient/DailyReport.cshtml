@@ -3,8 +3,8 @@
     bool alreadyReported = ViewBag.AlreadyReportedToday == true;
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
+<div class="container mt-3">
+    <div class="row justify-content-center" >
         <div class="col-md-8">
 
             @if (TempData["ErrorMessage"] != null)
@@ -46,31 +46,38 @@
                                 @Html.ValidationSummary(false, "", new { @class = "text-danger list-unstyled mb-0" })
                             </div>
                         }
-                        <div class="mb-4 p-3 rounded-3" style="background: #1d1d1d; border: 1px solid rgb(52, 89, 230); text-align: center;">
+
+                        <div class="mb-3 p-3 rounded-3" style="background: #1d1d1d; border: 1px solid rgb(52, 89, 230); text-align: center;">
                             <p class="fw-bold mb-2 text-primary">
                                 Nie wiesz od czego zacząć? Kliknij pytanie:
                             </p>
+
                             <div class="d-flex flex-wrap gap-2" style="justify-content: center;">
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
                                         data-prompt="Jak minął mi dzisiaj dzień? Czy miałem pokusy i jak sobie z nimi poradziłem?">
                                     💬 Jak minął dzień?
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
                                         data-prompt="Co dziś zrobiłem, żeby zadbać o siebie i swoje zdrowie?">
                                     💪 Co zrobiłem dla siebie?
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
                                         data-prompt="Jakie emocje towarzyszyły mi dzisiaj? Skąd się wzięły i jak sobie z nimi poradziłem?">
                                     😌 Jakie emocje odczuwałem?
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
                                         data-prompt="Z czego jestem dziś dumny? Co poszło dobrze, nawet jeśli to mała rzecz?">
                                     🌟 Z czego jestem dumny?
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
                                         data-prompt="Co było najtrudniejsze dzisiaj i co pomogło mi przez to przejść?">
                                     🧗 Co było najtrudniejsze?
                                 </button>
+
                                 <button type="button" class="btn btn-sm btn-outline-primary prompt-btn"
                                         data-prompt="Jaki mam plan na jutro? Co chcę zrobić inaczej lub lepiej?">
                                     📅 Plan na jutro
@@ -86,39 +93,87 @@
                                           placeholder="Napisz tutaj swoje przemyślenia..."></textarea>
                             </div>
 
-                            <div class="mb-4 p-3 bg-dark rounded border">
+                            <!-- ZAŁĄCZNIK (Z MODYFIKACJĄ) -->
+                            <div id="attachmentContainer" class="mb-4 p-3 bg-dark rounded border">
                                 <label class="form-label fw-bold text-light">
                                     <i class="bi bi-paperclip"></i> Dowód utrzymania postanowienia
                                     <span class="badge bg-secondary ms-2">opcjonalne +5 pkt</span>
                                 </label>
-                                <p class="small text-muted mb-2">Zrzut ekranu usuniętej aplikacji, zdjęcie z siłowni,
-                                    cokolwiek co pomogło Ci w trzeźwości.</p>
-                                    <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf" />
-                                </div>
 
-                                <button type="submit" class="btn btn-success btn-lg w-100">
-                                    Zapisz raport i odbierz punkty <i class="bi bi-star-fill text-warning ms-1"></i>
-                                </button>
-                            </form>
-                        }
-                    </div>
+                                <p class="small text-muted mb-2">
+                                    Zrzut ekranu usuniętej aplikacji, zdjęcie z siłowni,
+                                    cokolwiek co pomogło Ci w trzeźwości.
+                                </p>
+
+                                <input id="attachmentInput"
+                                       type="file"
+                                       name="attachment"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.pdf" />
+
+                                <div id="attachmentError" class="text-danger mt-2 d-none">
+                                    Dozwolone są tylko pliki JPG, JPEG, PNG oraz PDF.
+                                </div>
+                            </div>
+
+                            <button id="saveBtn" type="submit" class="btn btn-success btn-lg w-100">
+                                Zapisz raport i odbierz punkty <i class="bi bi-star-fill text-warning ms-1"></i>
+                            </button>
+                        </form>
+                    }
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        document.querySelectorAll('.prompt-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const textarea = document.getElementById('reportContent');
-                const prompt = this.getAttribute('data-prompt');
-                if (textarea.value.trim() === '') {
-                    textarea.value = prompt + '\n\n';
-                } else {
-                    textarea.value += '\n\n' + prompt + '\n\n';
-                }
-                textarea.focus();
-                textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-            });
+<script>
+    document.querySelectorAll('.prompt-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const textarea = document.getElementById('reportContent');
+            const prompt = this.getAttribute('data-prompt');
+
+            if (textarea.value.trim() === '') {
+                textarea.value = prompt + '\n\n';
+            } else {
+                textarea.value += '\n\n' + prompt + '\n\n';
+            }
+
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
         });
-    </script>
+    });
+
+    const fileInput = document.getElementById('attachmentInput');
+    const saveBtn = document.getElementById('saveBtn');
+    const errorDiv = document.getElementById('attachmentError');
+    const container = document.getElementById('attachmentContainer');
+
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+
+    fileInput.addEventListener('change', function () {
+
+        if (!this.files.length) {
+            errorDiv.classList.add('d-none');
+            container.classList.remove('border-danger');
+            container.classList.remove('border-1');
+            saveBtn.disabled = false;
+            return;
+        }
+
+        const fileName = this.files[0].name.toLowerCase();
+        const extension = fileName.split('.').pop();
+
+        if (!allowedExtensions.includes(extension)) {
+            errorDiv.classList.remove('d-none');
+            container.classList.add('border-danger');
+            container.classList.add('border-1');
+            saveBtn.disabled = true;
+        } else {
+            errorDiv.classList.add('d-none');
+            container.classList.remove('border-danger');
+            container.classList.remove('border-1');
+            saveBtn.disabled = false;
+        }
+    });
+</script>
