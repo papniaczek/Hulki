@@ -60,7 +60,6 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> Patients(string? search)
     {
-        // Wyciągamy wszystkich userów, którzy nie mają roli Admin (czyli pacjentów).
         var admins = await _userManager.GetUsersInRoleAsync("Admin");
         var adminIds = admins.Select(a => a.Id).ToHashSet();
 
@@ -78,7 +77,6 @@ public class AdminController : Controller
 
         var patients = await query.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToListAsync();
 
-        // Liczymy raporty / saldo dla każdego pacjenta (jednym round-tripem do bazy).
         var patientIds = patients.Select(p => p.Id).ToList();
         var wallets = await _context
             .Wallets.Where(w => patientIds.Contains(w.AppUserId))
@@ -243,6 +241,7 @@ public class AdminController : Controller
         var report = await _context
             .DailyReports.Include(r => r.AppUser)
             .Include(r => r.ReportStatus)
+            .Include(r => r.ReportAttachments)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (report == null)
@@ -252,68 +251,79 @@ public class AdminController : Controller
 
     // 6. AKCEPTACJA / ODRZUCENIE WPISU
     [HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> ApproveReport(Guid id)
-{
-    var report = await _context.DailyReports
-        .Include(r => r.ReportStatus)
-        .FirstOrDefaultAsync(r => r.Id == id);
-
-    if (report == null) return NotFound();
-
-    // Szukamy statusu zatwierdzenia. Upewnij się, że nazwa w bazie to dokładnie "Zatwierdzony"
-    var approvedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Zatwierdzony");
-    if (approvedStatus != null && report.ReportStatusId != approvedStatus.Id)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ApproveReport(Guid id)
     {
-        report.ReportStatusId = approvedStatus.Id;
-        await _context.SaveChangesAsync();
-        TempData["SuccessMessage"] = "Wpis został zatwierdzony.";
-    }
+        var report = await _context
+            .DailyReports.Include(r => r.ReportStatus)
+            .FirstOrDefaultAsync(r => r.Id == id);
 
-    return RedirectToAction("ReportDetails", new { id = id });
-}
+        if (report == null)
+            return NotFound();
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> RejectReport(Guid id)
-{
-    var report = await _context.DailyReports
-        .Include(r => r.AppUser)
-        .Include(r => r.ReportStatus)
-        .FirstOrDefaultAsync(r => r.Id == id);
-
-    if (report == null) return NotFound();
-
-    var rejectedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Odrzucony");
-    
-    if (rejectedStatus != null && report.ReportStatusId != rejectedStatus.Id)
-    {
-        report.ReportStatusId = rejectedStatus.Id;
-
-        int pointsToDeduct = 10; 
-
-        var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == report.AppUserId);
-        if (wallet != null)
+        var approvedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s =>
+            s.Name == "Zatwierdzony"
+        );
+        if (approvedStatus != null && report.ReportStatusId != approvedStatus.Id)
         {
-            wallet.Balance -= pointsToDeduct;
-            if (wallet.Balance < 0) wallet.Balance = 0; 
-
-            _context.PointTransactions.Add(new PointTransaction
-            {
-                Id = Guid.NewGuid(),
-                Amount = -pointsToDeduct,
-                Description = "Odrzucenie wpisu w dzienniczku (cofnięcie punktów)",
-                TransactionDate = DateTime.Now,
-                WalletId = wallet.Id
-            });
+            report.ReportStatusId = approvedStatus.Id;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Wpis został zatwierdzony.";
         }
 
-        await _context.SaveChangesAsync();
-        TempData["SuccessMessage"] = $"Wpis został odrzucony. Odebrano {pointsToDeduct} pkt z konta pacjenta.";
+        return RedirectToAction("ReportDetails", new { id = id });
     }
 
-    return RedirectToAction("ReportDetails", new { id = id });
-}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RejectReport(Guid id)
+    {
+        var report = await _context
+            .DailyReports.Include(r => r.AppUser)
+            .Include(r => r.ReportStatus)
+            .FirstOrDefaultAsync(r => r.Id == id);
+
+        if (report == null)
+            return NotFound();
+
+        var rejectedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s =>
+            s.Name == "Odrzucony"
+        );
+
+        if (rejectedStatus != null && report.ReportStatusId != rejectedStatus.Id)
+        {
+            report.ReportStatusId = rejectedStatus.Id;
+
+            int pointsToDeduct = 10;
+
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w =>
+                w.AppUserId == report.AppUserId
+            );
+            if (wallet != null)
+            {
+                wallet.Balance -= pointsToDeduct;
+                if (wallet.Balance < 0)
+                    wallet.Balance = 0;
+
+                _context.PointTransactions.Add(
+                    new PointTransaction
+                    {
+                        Id = Guid.NewGuid(),
+                        Amount = -pointsToDeduct,
+                        Description = "Odrzucenie wpisu w dzienniczku (cofnięcie punktów)",
+                        TransactionDate = DateTime.Now,
+                        WalletId = wallet.Id,
+                    }
+                );
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["ErrorMessage"] =
+                $"Wpis został odrzucony. Odebrano {pointsToDeduct} pkt z konta pacjenta.";
+        }
+
+        return RedirectToAction("ReportDetails", new { id = id });
+    }
 
     // ====================================================================
     // ZARZĄDZANIE PRZEDMIOTAMI W SKLEPIE
@@ -425,7 +435,6 @@ public async Task<IActionResult> RejectReport(Guid id)
         if (item == null)
             return NotFound();
 
-        // Najpierw usuwamy powiązania z ekwipunkami pacjentów (FK).
         var ownedEntries = _context.PatientInventories.Where(pi => pi.RewardItemId == id);
         _context.PatientInventories.RemoveRange(ownedEntries);
 

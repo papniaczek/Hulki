@@ -174,9 +174,17 @@ namespace Hulki.Web.Controllers;
             _context.DailyReports.Add(report);
 
             // UPLOAD
-            bool hasAttachment = false; // Flaga, czy pacjent dodał plik
+            bool hasAttachment = false; 
             if (attachment != null && attachment.Length > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
+                var fileExtension = Path.GetExtension(attachment.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    ModelState.AddModelError("", "Nieobsługiwany format pliku. Obsługiwane rozszerzenia to: .jpg, .jpeg, .png, .pdf");
+                    return View();
+                }
+
                 hasAttachment = true;
                 var fileType = await _context.FileTypes.FirstOrDefaultAsync(f => f.Name == "Dokument") 
                                ?? new FileType { Name = "Dokument", Extension = Path.GetExtension(attachment.FileName) };
@@ -205,24 +213,22 @@ namespace Hulki.Web.Controllers;
                 _context.ReportAttachments.Add(reportAttachment);
             }
 
-            // --- DODAWANIE PUNKTÓW (ULEPSZONE POD HARMONOGRAM) ---
+            // DODAWANIE PUNKTÓW 
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
             
-            // Jeśli jakimś cudem nie ma portfela
             if (wallet == null)
             {
                 wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
                 _context.Wallets.Add(wallet);
-                await _context.SaveChangesAsync(); // Zapisujemy nowy portfel, żeby wygenerował się w bazie
+                await _context.SaveChangesAsync(); 
             }
 
-            // Logika dodatkowych aktywności!
-            int pointsEarned = 10; // Baza za napisanie czegokolwiek
+            int pointsEarned = 10; 
             string transactionReason = "Nagroda za dzienny wpis";
 
             if (hasAttachment)
             {
-                pointsEarned += 5; // Dodatkowe punkty za dodanie załącznika
+                pointsEarned += 5; 
                 transactionReason += " (+5 pkt za dodanie załącznika)";
             }
 
@@ -232,7 +238,7 @@ namespace Hulki.Web.Controllers;
             {
                 Id = Guid.NewGuid(),
                 Amount = pointsEarned,
-                Description = transactionReason, // Używam Twojego pola Description
+                Description = transactionReason,
                 TransactionDate = DateTime.Now,
                 WalletId = wallet.Id
             };

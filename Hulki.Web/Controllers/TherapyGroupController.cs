@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,7 +25,6 @@ public class TherapyGroupController : Controller
     // 1. LISTA GRUP
     public async Task<IActionResult> Index()
     {
-        // Wywołujemy siewnik typów terapii również tutaj na wypadek, gdyby ktoś najpierw wszedł na listę
         await SeedTherapyTypesIfNotExists();
 
         var user = await _userManager.GetUserAsync(User);
@@ -131,7 +131,6 @@ public class TherapyGroupController : Controller
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync();
 
-        // NOWE: Pobieranie materiałów dla grupy
         var resources = await _context.GroupResources
             .Where(r => r.TherapyGroupId == id)
             .OrderByDescending(r => r.CreatedAt)
@@ -139,7 +138,7 @@ public class TherapyGroupController : Controller
 
         ViewBag.Messages = messages;
         ViewBag.Quests = quests;
-        ViewBag.Resources = resources; // Przekazujemy do widoku
+        ViewBag.Resources = resources;
         ViewBag.CurrentUserId = user.Id;
         ViewBag.IsStaff = isStaff;
 
@@ -153,7 +152,6 @@ public class TherapyGroupController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null || string.IsNullOrWhiteSpace(content)) return RedirectToAction(nameof(Details), new { id = groupId });
 
-        // Dodatkowe zabezpieczenie można by tu dodać, ale polegamy na tym z Details
         var message = new GroupMessage
         {
             TherapyGroupId = groupId,
@@ -211,7 +209,6 @@ public class TherapyGroupController : Controller
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Create()
     {
-        // Automatyczne uzupełnienie słownika przed załadowaniem widoku formularza
         await SeedTherapyTypesIfNotExists();
 
         ViewBag.TherapyTypes = await _context.TherapyTypes.ToListAsync();
@@ -376,7 +373,6 @@ public class TherapyGroupController : Controller
 
             if (accept)
             {
-                // Dodajemy punkty do portfela pacjenta!
                 var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == submission.AppUserId);
                 if (wallet != null)
                 {
@@ -432,14 +428,22 @@ public class TherapyGroupController : Controller
             return RedirectToAction(nameof(Details), new { id = groupId });
         }
 
-        // Definiujemy katalog zapisu (np. wwwroot/uploads/resources)
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
+        var fileExtension = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            TempData["ErrorMessage"] = "Nieobsługiwany format pliku. Obsługiwane rozszerzenia to: .jpg, .jpeg, .png, .pdf";
+            return RedirectToAction(nameof(Details), new { id = groupId });
+        }
+
+        // Definiujemy katalog zapisu
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resources");
         if (!Directory.Exists(uploadsFolder))
         {
             Directory.CreateDirectory(uploadsFolder);
         }
 
-        // Zabezpieczenie nazwy pliku przed nadpisaniem (unikalny Guid)
+        // Zabezpieczenie nazwy pliku przed nadpisaniem 
         var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(uploadedFile.FileName);
         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -454,7 +458,7 @@ public class TherapyGroupController : Controller
         {
             TherapyGroupId = groupId,
             Title = title,
-            FilePath = "/uploads/resources/" + uniqueFileName // Ścieżka relatywna do wyświetlenia/pobrania
+            FilePath = "/uploads/resources/" + uniqueFileName 
         };
 
         _context.GroupResources.Add(resource);

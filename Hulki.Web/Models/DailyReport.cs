@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -21,4 +22,6 @@ public class DailyReport
     public string AppUserId { get; set; }
     [ForeignKey("AppUserId")]
     public virtual AppUser AppUser { get; set; }
+
+    public virtual ICollection<ReportAttachment> ReportAttachments { get; set; } = new List<ReportAttachment>();
 }
