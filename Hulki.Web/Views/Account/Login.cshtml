@@ -7,10 +7,11 @@
     var inputClass = hasError ? "form-control form-control-lg is-invalid" : "form-control form-control-lg";
 }
 
+
 <div class="container mt-5">
     <div class="row justify-content-center" style="min-height: 70vh; align-items: center;">
         <div class="col-md-5">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-none border-0">
                 <div class="card-body p-5" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 8%;">
                     <h3 class="text-center mb-4" style="user-select: none;">Zaloguj się</h3>
                     <form asp-controller="Account" asp-action="Login" method="post">
@@ -31,6 +32,10 @@
                         <button type="submit" class="btn btn-success btn-lg w-100">Zaloguj</button>
                     </form>
                 </div>
+            </div>
+            <div class="text-center mt-3">
+                <span class="text-muted small">Nie masz konta? </span>
+                <a asp-controller="Account" asp-action="Register" class="text-decoration-none" style="font-size: 0.90rem;">Zarejestruj się</a>
             </div>
         </div>
     </div>

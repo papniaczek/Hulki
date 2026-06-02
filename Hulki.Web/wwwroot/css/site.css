@@ -9,8 +9,32 @@
   --bs-dark-bg-subtle-rgb: 27, 27, 34;
   --bs-dark: #17171C;
   --bs-dark-rgb: 23, 23, 28;
+  /* #7A46CC (klasyczny kontrast)
+#8E44AD (bardziej stonowany) */
 }
 
+.btn-outline-primary {
+  --bs-btn-color: #6C5CE7;
+  --bs-btn-border-color: #6C5CE7;
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: #6C5CE7;
+  --bs-btn-hover-border-color: #6C5CE7;
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: #6C5CE7;
+  --bs-btn-active-border-color: #6C5CE7;
+}
+.btn-custom-blue {
+    color: #0d6efd !important;
+    background-color: transparent !important;
+    border-color: #0d6efd !important;
+    transition: all 0.2s ease-in-out; 
+}
+
+.btn-custom-blue:hover {
+    color: #ffffff !important;
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
 html {
   font-size: 14px;
 }
@@ -27,7 +51,7 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 80px;
   background-color: var(--bs-body-bg);
 }
 
@@ -179,8 +203,15 @@ a.nav-link:focus:active {
 
 .custom-footer-gradient-border {
     background-color: #0D0D0F !important;
-    position: relative;
-    border-top: none !important; 
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    min-height: 60px;
+    border-top: none !important;
+    
+    display: flex;
+    align-items: center; 
+    z-index: 10;
 }
 
 .custom-footer-gradient-border::before {
@@ -190,7 +221,8 @@ a.nav-link:focus:active {
     left: 0;
     width: 100%;
     height: 3px; 
-    background: linear-gradient(to top, #0D0D0F, #17171C); 
+    background: linear-gradient(to top, #0D0D0F, #17171C) !important;
+    z-index: 11;
 }
 
 .custom-navbar-gradient-border {
@@ -206,4 +238,23 @@ a.nav-link:focus:active {
     width: 100%;
     height: 5px;
     background: linear-gradient(to bottom, #1B1B22, #16161B); 
+}
+
+.custom-login-button {
+    color: #ffffff !important;
+    border: 1px solid #46CC5E !important;
+    background-color: transparent;
+    transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+.custom-login-button:hover {
+    background-color: #46CC5E !important;
+    color: #ffffff !important;
+}
+.custom-login-button:active,
+.custom-login-button:focus:active {
+    box-shadow: 0 0 0.5rem 0.05rem var(--bs-primary);
+    background-color: #46CC5E !important;
 }

@@ -2,12 +2,12 @@
     ViewData["Title"] = "Rejestracja w Klinice";
 }
 
-<div class="container mt-5">
+<div class="container mt-3">
     <div class="row justify-content-center" style="min-height: 76vh; align-items: center;">
         <div class="col-md-6">
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-none border-0">
                 <div class="card-body p-5" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 8%;">
-                    <h3 class="text-center mb-4" style="user-select: none;">Dołącz do terapii</h3>
+                    <h3 class="text-center mb-4" style="user-select: none;">Dołącz do terapii już dzisiaj!</h3>
 
                     <form asp-controller="Account" asp-action="Register" method="post" id="registerForm" novalidate>
                         <div class="mb-3">
@@ -31,10 +31,13 @@
                             <div class="invalid-feedback">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
                             <div class="form-text" id="passwordHint" style="user-select: none;">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100">Zarejestruj się</button>
+                        <button type="submit" class="btn btn-success btn-lg w-100">Zarejestruj się</button>
                     </form>
                 </div>
             </div>
+            <div class="text-center mt-3">
+                <span class="text-muted small">Masz już konto? </span>
+                <a asp-controller="Account" asp-action="Login" class="text-decoration-none" style="font-size: 0.90rem;">Zaloguj się</a>
         </div>
     </div>
 </div>
@@ -82,7 +85,7 @@
                     emailFeedback.textContent = 'Podaj poprawny adres email (np. wujek@kujek.pl).';
                     validateField('email'); 
                 }
-            } catch (_) { /* ignoruj błędy sieciowe */ }
+            } catch (_) {  }
         }
 
         function validateField(id) {
@@ -90,7 +93,6 @@
             const rule = rules[id];
             const isValid = rule.validate(input.value);
 
-            // Dla emaila uwzględnij też wynik sprawdzenia unikalności
             const finalValid = id === 'email' ? (isValid && !emailTaken) : isValid;
 
             input.classList.toggle('is-invalid', !finalValid);
