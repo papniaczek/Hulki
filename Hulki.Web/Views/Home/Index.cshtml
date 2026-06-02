@@ -2,15 +2,22 @@
     ViewData["Title"] = "Strona główna";
 }
 
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap"
+          rel="stylesheet">
+</head>
+
 <div class="container mt-4">
     <div class="row align-items-center mb-5">
-        <div class="col-md-7">
-            <h1 class="display-3 fw-bold text-primary">Klinika Hulki</h1>
-            <p class="lead fs-4 text-muted">Twój osobisty system wsparcia w drodze do wolności od uzależnień.</p>
-        </div>
-        <div class="col-md-5 text-center">
-            <img src="graphics/pudzian.jpg" class="img-fluid rounded-5 shadow-lg" style="max-height: 300px;"
-                 alt="Therapy">
+        <div class="col-md-12 text-center ">
+            <div id="banner" class="mb-4">
+                <canvas id="banner-canvas"></canvas>
+                <div class="banner-glow"></div>
+                <h1 class="title" data-text="KLINIKA HULKI">KLINIKA HULKI</h1>
+                <p class="title-description">Twój osobisty system wsparcia w drodze do wolności od uzależnień.</p>
+            </div>
         </div>
     </div>
 
@@ -19,17 +26,16 @@
     }
     @if (quote != null)
     {
-        <div class="card border-0 shadow-sm mb-5 quote-card" id="quote-card">
-            <div class="card-body p-4 p-md-3 text-center">
-                <i class="bi bi-quote text-primary d-block mb-3" style="font-size:2.5rem;"></i>
-                <blockquote class="blockquote mb-3">
-                    <p class="fs-4 fst-italic mb-0" id="quote-content">&bdquo;@quote.Content&rdquo;</p>
+        <div class="card border-0 mb-5 quote-card" id="quote-card">
+            <div class="card-body p-5 text-center position-relative">
+                <blockquote class="blockquote mb-4 position-relative z-1">
+                    <p class="fs-4 fw-light mb-0" id="quote-content">&bdquo;@quote.Content&rdquo;</p>
                 </blockquote>
-                <footer class="blockquote-footer mb-3" id="quote-author-wrapper">
-                    <span id="quote-author">@(quote.Author ?? "Nieznany autor")</span>
+                <footer class="blockquote-footer mb-4 position-relative z-1" id="quote-author-wrapper">
+                    <span id="quote-author" class="text-uppercase fw-bold letter-spacing-1">@(quote.Author ?? "Nieznany autor")</span>
                 </footer>
-                <button type="button" class="btn btn-sm btn-outline-primary" id="quote-refresh">
-                    <i class="bi bi-arrow-clockwise me-1"></i>Nowy cytat
+                <button type="button" class="btn btn-quote-refresh position-relative z-1" id="quote-refresh">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Nowy cytat
                 </button>
             </div>
         </div>
@@ -38,8 +44,9 @@
     @if (User.Identity.IsAuthenticated)
     {
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm hover-shadow transition border-bottom border-primary border-4 bg-dark-subtle" style="border-color: #0d6efd !important;">
+            <div class="col-md-4 scroll-reveal" style="transition-delay:0ms">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition border-bottom border-primary border-4 bg-dark-subtle"
+                     style="border-color: #0d6efd !important;">
                     <div class="card-body text-center p-4">
                         <div class="icon-circle bg-primary-light text-primary mb-3 mx-auto">
                             <i class="bi bi-journal-check fs-2 " style="color: #0d6efd!important;"></i>
@@ -47,14 +54,15 @@
                         <h4>Dzienniczek</h4>
                         <p class="text-muted small">Dodaj dzisiejszy raport i odbierz 10 punktów.</p>
                         <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-custom-blue stretched-link">
-    Otwórz
-</a>
+                            Otwórz
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm hover-shadow transition border-bottom border-warning border-4 bg-dark-subtle">
+            <div class="col-md-4 scroll-reveal" style="transition-delay:150ms">
+                <div
+                    class="card h-100 border-0 shadow-sm hover-shadow transition border-bottom border-warning border-4 bg-dark-subtle">
                     <div class="card-body text-center p-4">
                         <div class="icon-circle bg-warning-light text-warning mb-3 mx-auto">
                             <i class="bi bi-gem fs-2"></i>
@@ -67,8 +75,9 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm hover-shadow transition border-bottom border-info border-4 bg-dark-subtle" style="border-color: #287BB5 !important;">
+            <div class="col-md-4 scroll-reveal" style="transition-delay:300ms">
+                <div class="card h-100 border-0 shadow-sm hover-shadow transition border-bottom border-info border-4 bg-dark-subtle"
+                     style="border-color: #287BB5 !important;">
                     <div class="card-body text-center p-4">
                         <div class="icon-circle bg-info-light text-info mb-3 mx-auto">
                             <i class="bi bi-people fs-2" style="color: #287BB5"></i>
@@ -81,123 +90,106 @@
             </div>
         </div>
     }
-</div>
 
-<div class="mt-5 mb-4 marquee-fullwidth-section">
-    <h3 class="text-center text-uppercase fw-bold mb-4">Uzdrowieni dzięki naszej terapii</h3>
-    <div class="marquee-container shadow-sm">
-        <ul class="marquee-track">
-            <li class="marquee-item">
-                <img src="graphics/sigmy/jasper.jpg" alt="Jasper" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">W końcu odzyskałem kontrolę nad swoim życiem.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/cyprianbanino187.jpg" alt="Cyprianbanino187" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Teraz patrzę w przyszłość z optymizmem.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/mammon.jpg" alt="Mammon" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Dzięki terapii zbudowałem nowe, lepsze relacje.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/bagieta.jpg" alt="Bagieta" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Zrozumiałem, co jest w życiu najważniejsze.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/rafonix.jpg" alt="Rafonix" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">To była najlepsza decyzja w moim życiu.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/magical.jpg" alt="Magical" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Dostałem drugą szansę i nie zmarnuję jej.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/rafatus.jpg" alt="Rafatus" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Wreszcie czuję się wolny od nałogów.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/pasut.jpg" alt="Pasut" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Zyskałem siłę, której tak bardzo potrzebowałem.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/randombruce.jpg" alt="Randombruce" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Moje życie nabrało nowego sensu.</p>
-                </div>
-            </li>
 
-            <li class="marquee-item">
-                <img src="graphics/sigmy/jasper.jpg" alt="Jasper" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">W końcu odzyskałem kontrolę nad swoim życiem.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/cyprianbanino187.jpg" alt="Cyprianbanino187" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Teraz patrzę w przyszłość z optymizmem.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/mammon.jpg" alt="Mammon" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Dzięki terapii zbudowałem nowe, lepsze relacje.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/bagieta.jpg" alt="Bagieta" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Zrozumiałem, co jest w życiu najważniejsze.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/rafonix.jpg" alt="Rafonix" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">To była najlepsza decyzja w moim życiu.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/magical.jpg" alt="Magical" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Dostałem drugą szansę i nie zmarnuję jej.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/rafatus.jpg" alt="Rafatus" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Wreszcie czuję się wolny od nałogów.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/pasut.jpg" alt="Pasut" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Zyskałem siłę, której tak bardzo potrzebowałem.</p>
-                </div>
-            </li>
-            <li class="marquee-item">
-                <img src="graphics/sigmy/randombruce.jpg" alt="Randombruce" class="marquee-img">
-                <div class="marquee-overlay">
-                    <p class="marquee-text">Moje życie nabrało nowego sensu.</p>
-                </div>
-            </li>
-        </ul>
+    <div class="therapy-carousel-section mt-5 mb-4 p-4 rounded text-white">
+        <h3 class="text-center text-uppercase fw-bold mb-4 text-primary">Uzdrowieni dzięki naszej terapii</h3>
+
+        <div class="carousel-wrapper">
+            <button class="carousel-btn prev-btn" aria-label="Poprzednie">&lt;</button>
+
+            <div class="carousel-track-container">
+                <ul class="carousel-track">
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/rafatus.jpg" alt="Rafatus" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">RAFATUS</h4>
+                            <p class="slide-text">Wreszcie czuję się wolny od nałogów.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/pasut.jpg" alt="Pasut" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">Robert Pasut</h4>
+                            <p class="slide-text">Zyskałem siłę, której tak bardzo potrzebowałem.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/randombruce.jpg" alt="Randombruce" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">RandomBruce</h4>
+                            <p class="slide-text">Moje życie nabrało nowego sensu.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/jasper.jpg" alt="Jasper" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">DawidJasper</h4>
+                            <p class="slide-text">W końcu odzyskałem kontrolę nad swoim życiem.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/cyprianbanino187.jpg" alt="Cyprianbanino187" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">Cyprianbanino187</h4>
+                            <p class="slide-text">Teraz patrzę w przyszłość z optymizmem.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/mammon.jpg" alt="Mammon" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">MAMM0N</h4>
+                            <p class="slide-text">Dzięki terapii zbudowałem nowe, lepsze relacje.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/bagieta.jpg" alt="Bagieta" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">Bagietka Michael</h4>
+                            <p class="slide-text">Zrozumiałem, co jest w życiu najważniejsze.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/rafonix.jpg" alt="Rafonix" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">RAFONIX</h4>
+                            <p class="slide-text">To była najlepsza decyzja w moim życiu.</p>
+                        </div>
+                    </li>
+
+                    <li class="carousel-slide">
+                        <img src="graphics/sigmy/magical.jpg" alt="Magical" class="slide-img">
+                        <div class="slide-overlay"></div>
+                        <div class="slide-content">
+                            <h4 class="slide-name text-uppercase">Daniel MAGICAL</h4>
+                            <p class="slide-text">Dostałem drugą szansę i nie zmarnuję jej.</p>
+                        </div>
+                    </li>
+
+                </ul>
+            </div>
+
+            <button class="carousel-btn next-btn" aria-label="Następne">&gt;</button>
+        </div>
+        <div class="carousel-dots mt-4"></div>
     </div>
+</div>
 </div>
 
 <style>
@@ -232,137 +224,89 @@
     }
 
     .quote-card {
-        background: linear-gradient(
-  135deg,
-  rgba(70, 204, 94, 0.06),
-  rgba(139, 92, 246, 0.10)
-);
-        border-left: 4px solid #6C5CE7 !important;
-    }
-
-    .quote-card.loading {
-        opacity: 0.5;
-    }
-
-    .marquee-fullwidth-section {
+        background: linear-gradient(145deg, #1f1f27 0%, #16161b 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15) !important;
+        border-radius: 16px;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
         position: relative;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 99vw;
         overflow: hidden;
-        border-radius: 1rem;
+        transition: opacity 0.3s ease;
     }
 
-    .marquee-container {
-        overflow: hidden;
-        white-space: nowrap;
-        background-color: var(--bs-dark-bg-subtle, #f8f9fa);
-        padding: 20px 0;
-        position: relative;
-        width: 100%;
-    }
-
-
-
-    .marquee-container::before, .marquee-container::after {
-        content: "";
-        height: 100%;
+    .quote-card::before {
+        content: '\201C';
         position: absolute;
-        width: 150px;
-        z-index: 5;
+        top: -35px;
+        left: 15px;
+        font-size: 250px;
+        color: rgba(70, 204, 94, 0.04);
+        font-family: Georgia, serif;
+        line-height: 1;
+        z-index: 0;
         pointer-events: none;
     }
 
-    .marquee-container::before {
-        left: 0;
-        top: 0;
-        background: linear-gradient(to right, var(--bs-body-bg, #fff), transparent);
-    }
-
-    .marquee-container::after {
-        right: 0;
-        top: 0;
-        background: linear-gradient(to left, var(--bs-body-bg, #fff), transparent);
-    }
-
-    .marquee-track {
-        display: inline-flex;
-        gap: 20px;
-        animation: scrollMarquee 35s linear infinite;
-        width: max-content;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .marquee-track:hover {
-        animation-play-state: paused;
-    }
-
-    .marquee-item {
-        position: relative;
-        overflow: hidden;
-        height: 180px;
-        width: 250px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        cursor: pointer;
-        transition: transform 0.3s ease;
-    }
-
-    .marquee-item:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 12px rgba(0,0,0,0.2);
-    }
-
-    .marquee-img {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-        border-radius: 12px;
-        transition: filter 0.3s ease, transform 0.3s ease;
-    }
-
-    .marquee-item:hover .marquee-img {
-        filter: brightness(50%);
-        transform: scale(1.1);
-    }
-
-    .marquee-overlay {
+    .quote-card::after {
+        content: '\201D';
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 15px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 3;
-        text-align: center;
-        white-space: normal;
+        bottom: -165px;
+        right: 15px;
+        font-size: 250px;
+        color: rgba(70, 204, 94, 0.04);
+        font-family: Georgia, serif;
+        line-height: 1;
+        z-index: 0;
+        pointer-events: none;
     }
 
-    .marquee-item:hover .marquee-overlay {
-        opacity: 1;
+    #quote-content {
+        color: #e0e0e0;
+        line-height: 1.6;
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     }
 
-    .marquee-text {
-        color: #fff;
-        font-weight: bold;
-        font-size: 0.95rem;
-        margin: 0;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    #quote-author-wrapper {
+        color: #46CC5E;
+        font-size: 0.85rem;
     }
 
-    @@keyframes scrollMarquee {
-        0% {
-            transform: translateX(0);
-        }
+    .letter-spacing-1 {
+        letter-spacing: 1px;
+    }
+
+    .btn-quote-refresh {
+        background: transparent;
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.4);
+        border-radius: 50px;
+        padding: 8px 24px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-quote-refresh:hover {
+        background: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+        border-color: #46CC5E;
+    }
+
+    .quote-card.loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .quote-card.loading .bi-arrow-clockwise {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
         100% {
-            transform: translateX(calc(-50% - 10px));
+            transform: rotate(360deg);
         }
     }
 </style>
@@ -397,4 +341,139 @@
             }
         });
     })();
+</script>
+
+<script>
+    (function () {
+        const banner = document.getElementById('banner');
+        const canvas = document.getElementById('banner-canvas');
+        if (banner && canvas) {
+            const ctx = canvas.getContext('2d');
+            function resizeCanvas() {
+                canvas.width = banner.offsetWidth;
+                canvas.height = banner.offsetHeight;
+            }
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const particles = Array.from({ length: 70 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.8 + 0.4,
+                speed: Math.random() * 0.55 + 0.2,
+                opacity: Math.random() * 0.55 + 0.15,
+                drift: (Math.random() - 0.5) * 0.35,
+            }));
+
+            function drawParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(70,204,94,' + p.opacity + ')';
+                    ctx.fill();
+                    p.y -= p.speed;
+                    p.x += p.drift;
+                    p.opacity -= 0.0015;
+                    if (p.y < -5 || p.opacity <= 0) {
+                        p.x = Math.random() * canvas.width;
+                        p.y = canvas.height + 5;
+                        p.opacity = Math.random() * 0.55 + 0.15;
+                        p.speed = Math.random() * 0.55 + 0.2;
+                        p.drift = (Math.random() - 0.5) * 0.35;
+                    }
+                });
+                requestAnimationFrame(drawParticles);
+            }
+            drawParticles();
+        }
+
+        // Scroll reveal
+        const revealEls = document.querySelectorAll('.scroll-reveal');
+        if ('IntersectionObserver' in window) {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('revealed');
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            revealEls.forEach(el => obs.observe(el));
+        } else {
+            revealEls.forEach(el => el.classList.add('revealed'));
+        }
+    })();
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const track = document.querySelector('.carousel-track');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        const dotsContainer = document.querySelector('.carousel-dots');
+
+        const generateDots = () => {
+            dotsContainer.innerHTML = '';
+            const slides = track.querySelectorAll('.carousel-slide');
+            if (slides.length === 0) return;
+
+            const visibleSlides = Math.round(track.clientWidth / slides[0].clientWidth);
+
+            const pages = Math.ceil(slides.length / visibleSlides);
+
+            for (let i = 0; i < pages; i++) {
+                const dot = document.createElement('span');
+                dot.classList.add('dot');
+                if (i === 0) dot.classList.add('active');
+
+                dot.addEventListener('click', () => {
+                    track.scrollTo({ left: track.clientWidth * i, behavior: 'smooth' });
+                });
+
+                dotsContainer.appendChild(dot);
+            }
+            updateDots();
+        };
+
+        const updateDots = () => {
+            const dots = document.querySelectorAll('.dot');
+            if (dots.length === 0) return;
+
+            let activeIndex = Math.round(track.scrollLeft / track.clientWidth);
+
+            activeIndex = Math.max(0, Math.min(activeIndex, dots.length - 1));
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeIndex);
+            });
+        };
+
+        track.addEventListener('scroll', updateDots);
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                generateDots();
+            }, 150);
+        });
+
+        generateDots();
+
+        prevBtn.addEventListener('click', () => {
+            if (track.scrollLeft <= 0) {
+                track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+            } else {
+                track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' });
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 2) {
+                track.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                track.scrollBy({ left: track.clientWidth, behavior: 'smooth' });
+            }
+        });
+    });
 </script>
