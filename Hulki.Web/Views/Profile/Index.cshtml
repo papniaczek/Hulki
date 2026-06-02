@@ -18,11 +18,11 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm text-white p-4 d-flex flex-row align-items-center justify-content-between rounded-4"
-                 style="background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
-                <div class="d-flex align-items-center gap-3">
+                 style="background: linear-gradient(135deg, #46CC5E, #1F8F3A); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
+                <div class="d-flex align-items-center gap-3" style="text-shadow: 0 2px 6px rgba(0,0,0,0.6);">
                     <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
                          style="width:64px;height:64px;font-size:1.8rem;">
-                        👤
+                        <i class="bi bi-person-fill"></i>
                     </div>
                     <div>
                         <h2 class="mb-0 fw-bold">@user.FirstName @user.LastName</h2>
@@ -48,7 +48,7 @@
                 Mój Ekwipunek
             </h5>
             <h5 style="text-align: center; margin-bottom: 20px; margin-top: -5px;">
-                <span class="badge bg-primary ms-2">
+                <span class="badge bg-primary ms-2" style="text-shadow: 0 2px 6px rgba(0,0,0,0.6);">
                     Liczba posiadanych przedmiotów: @inventory.Count
                 </span>
             </h5>
@@ -161,7 +161,7 @@
                 Ostatnie wpisy
             </h5>
             <h5 style="text-align: center; margin-bottom: 20px; margin-top: -5px;">
-                <span class="badge bg-primary ms-2">
+                <span class="badge bg-primary ms-2" style="text-shadow: 0 2px 6px rgba(0,0,0,0.6);">
                     @if (reports != null && reports.Any())
                     {
                         <span>Ostatni wpis dnia: @(reports.First().CreatedAt.ToString("dd.MM.yyyy"))</span>
