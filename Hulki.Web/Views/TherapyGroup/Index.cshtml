@@ -7,33 +7,47 @@
 
 <div class="container mt-4 text-light">
 
-    <div class="card mb-4" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); !important border-radius: 0.5rem;!important">
-        <div class="card-body d-flex justify-content-between align-items-center p-4">
-            <div>
-                <h2 class="text-primary fw-bold mb-1">Grupy Wsparcia Terapeutycznego</h2>
-                <p class="text-muted mb-0">Dołącz do bezpiecznej przestrzeni i walcz o lepsze jutro razem z innymi.</p>
+    <div class="group-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 194px; !important">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase d-flex align-items-center" style="letter-spacing: 1px;">
+                    Grupy Wsparcia
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">Dołącz do bezpiecznej przestrzeni i walcz o lepsze jutro razem z innymi.</p>
             </div>
+            <div class="text-md-end text-center number-of-groups p-3 rounded-3 shadow-sm">
+                    <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">Liczba GRUP
+                    </h6>
+                    <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
+                        @Model.Count()
+                    </h2>
+                </div>
             @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
             {
-                <div>
-                    <a asp-action="Create" class="btn btn-success fw-bold px-4 py-2">
-                        <i class="bi bi-plus-lg me-1"></i> Stwórz nową grupę
+                <div class="text-md-end">
+                    <a asp-action="Create" class="btn btn-outline-primary fw-bold rounded-pill px-4 py-2 custom-glow-btn">
+                        <i class="bi bi-plus-lg me-2"></i> Stwórz nową grupę
                     </a>
                 </div>
             }
         </div>
+        <div class="group-header-glow"></div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success bg-dark text-success border-success shadow-sm mb-4">@TempData["SuccessMessage"]</div>
+        <div class="alert alert-success shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i> @TempData["SuccessMessage"]
+        </div>
     }
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger bg-dark text-danger border-danger shadow-sm mb-4">@TempData["ErrorMessage"]</div>
+        <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> @TempData["ErrorMessage"]
+        </div>
     }
 
-    <div class="row">
+    <div class="row g-4">
         @foreach (var group in Model)
         {
             // Liczymy tylko zatwierdzonych uczestników w grupie
@@ -42,20 +56,28 @@
             // Szukamy rekordu powiązania aktualnego użytkownika z tą grupą
             var userMembership = group.PatientGroups?.FirstOrDefault(pg => pg.AppUserId == currentUserId);
 
-            <div class="col-md-6 mb-4">
-                <div class="card" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); !important border-radius: 0.5rem;!important">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h4 class="text-info fw-bold mb-0">@group.Name</h4>
-                            <span class="badge bg-secondary text-uppercase px-2 py-1 small">@group.TherapyType?.Name</span>
+            <div class="col-md-6">
+                <div class="card group-card h-100 d-flex flex-column">
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div class="d-flex align-items-center">
+                                <div class="group-icon-wrapper me-3 flex-shrink-0">
+                                    <i class="bi bi-heart-pulse-fill text-primary fs-3"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-light fw-bold mb-1 group-title">@group.Name</h4>
+                                    <span class="badge group-badge text-uppercase px-2 py-1 small">@group.TherapyType?.Name</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <p class="text-muted mb-4" style="min-height: 50px;">@group.Description</p>
+                        <p class="text-muted mb-4 flex-grow-1" style="min-height: 50px;">@group.Description</p>
 
-                        <div class="d-flex align-items-center justify-content-between text-muted small border-top border-secondary pt-3">
-                            <div>
-                                <i class="bi bi-people-fill me-1 text-primary"></i>
-                                Uczestnicy: <strong class="text-light">@approvedCount / @group.MaxParticipants</strong>
+                        <div class="d-flex align-items-center justify-content-between text-muted small border-top border-secondary pt-3 mt-auto">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-people-fill me-2 fs-5 text-primary"></i>
+                                <span>Uczestnicy: <strong class="text-light">@approvedCount / @group.MaxParticipants</strong></span>
                             </div>
 
                             <div>
@@ -63,33 +85,33 @@
                                 {
                                     if (userMembership.IsApproved)
                                     {
-                                        <span class="badge bg-success px-3 py-2 text-uppercase fw-bold"><i class="bi bi-patch-check-fill me-1"></i> Członek</span>
+                                        <span class="badge bg-success px-3 py-2 text-uppercase fw-bold rounded-pill"><i class="bi bi-patch-check-fill me-1"></i> Członek</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-warning text-dark px-3 py-2 text-uppercase fw-bold"><i class="bi bi-hourglass-split me-1"></i> Oczekuje</span>
+                                        <span class="badge bg-warning text-dark px-3 py-2 text-uppercase fw-bold rounded-pill"><i class="bi bi-hourglass-split me-1"></i> Oczekuje</span>
                                     }
                                 }
                             </div>
                         </div>
                     </div>
 
-                    <div class="card-footer bg-dark border-top-0 p-4 pt-0 d-flex flex-column gap-2">
+                    <div class="card-footer bg-transparent border-top-0 p-4 pt-0 d-flex flex-column gap-2">
                         @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
                         {
-                            <a asp-action="Details" asp-route-id="@group.Id" class="btn btn-success w-100 fw-bold py-2">
+                            <a asp-action="Details" asp-route-id="@group.Id" class="btn btn-success w-100 fw-bold py-2 rounded-pill custom-btn-action">
                                 <i class="bi bi-door-open-fill me-1"></i> Wejdź do grupy
                             </a>
 
-                            <div class="d-flex gap-2 w-100">
-                                <a asp-action="Manage" asp-route-id="@group.Id" class="btn btn-outline-info flex-grow-1 fw-bold" title="Zarządzaj wnioskami pacjentów">
+                            <div class="d-flex gap-2 w-100 mt-1">
+                                <a asp-action="Manage" asp-route-id="@group.Id" class="btn btn-outline-info flex-grow-1 fw-bold rounded-pill" title="Zarządzaj wnioskami pacjentów">
                                     <i class="bi bi-shield-check me-1"></i> Wnioski (@group.PatientGroups?.Count(pg => !pg.IsApproved))
                                 </a>
-                                <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-outline-warning fw-bold" title="Edytuj grupę">
+                                <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-outline-warning fw-bold rounded-pill px-3" title="Edytuj grupę">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
-                                <form asp-action="Delete" asp-route-id="@group.Id" method="post" onsubmit="return confirm('Czy na pewno usunąć grupę? Spowoduje to wypisanie wszystkich pacjentów.');" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger fw-bold" title="Usuń grupę">
+                                <form asp-action="Delete" asp-route-id="@group.Id" method="post" onsubmit="return confirm('Czy na pewno usunąć grupę? Spowoduje to wypisanie wszystkich pacjentów.');" class="d-inline m-0 p-0">
+                                    <button type="submit" class="btn btn-outline-danger fw-bold rounded-pill px-3" title="Usuń grupę">
                                         <i class="bi bi-trash3-fill"></i>
                                     </button>
                                 </form>
@@ -101,13 +123,13 @@
                             {
                                 if (approvedCount >= group.MaxParticipants)
                                 {
-                                    <button class="btn btn-danger w-100 fw-bold py-2" disabled>Brak wolnych miejsc</button>
+                                    <button class="btn btn-danger w-100 fw-bold py-2 rounded-pill opacity-75" disabled><i class="bi bi-slash-circle me-1"></i> Brak wolnych miejsc</button>
                                 }
                                 else
                                 {
-                                    <form asp-action="Join" method="post" class="w-100">
+                                    <form asp-action="Join" method="post" class="w-100 m-0">
                                         <input type="hidden" name="id" value="@group.Id"/>
-                                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-pill custom-btn-action">
                                             <i class="bi bi-box-arrow-in-right me-1"></i> Zapisz się do grupy
                                         </button>
                                     </form>
@@ -115,21 +137,122 @@
                             }
                             else if (!userMembership.IsApproved)
                             {
-                                <button class="btn btn-outline-warning w-100 fw-bold py-2" disabled style="opacity: 0.7;">
-                                    <i class="bi bi-clock-history me-1"></i> Oczekiwanie na decyzję terapeuty...
+                                <button class="btn btn-outline-warning w-100 fw-bold py-2 rounded-pill opacity-75" disabled>
+                                    <i class="bi bi-clock-history me-1"></i> Oczekiwanie na decyzję...
                                 </button>
                             }
                             else
                             {
-                                <a asp-action="Details" asp-route-id="@group.Id" class="btn btn-success w-100 fw-bold py-2">
+                                <a asp-action="Details" asp-route-id="@group.Id" class="btn btn-success w-100 fw-bold py-2 rounded-pill custom-btn-action">
                                     <i class="bi bi-door-open-fill me-1"></i> Wejdź do grupy
                                 </a>
                             }
                         }
                     </div>
-
                 </div>
             </div>
         }
     </div>
 </div>
+
+<style>
+
+.group-header-card {
+    background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+    border: 1px solid rgba(70, 204, 94, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.group-header-glow {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+
+.group-card {
+    background-color: #1b1b22;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+
+.group-icon-wrapper {
+    width: 55px;
+    height: 55px;
+    border-radius: 14px;
+    background: rgba(70, 204, 94, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.number-of-groups {
+                background: rgba(0, 0, 0, 0.25);
+                border: 1px solid rgba(70, 204, 94, 0.15);
+                min-width: 180px;
+            }
+
+.group-title {
+    transition: color 0.3s ease;
+}
+
+.group-badge {
+    background-color: rgba(70, 204, 94, 0.10);
+    color: #46CC5E;
+    border: 1px solid rgba(70, 204, 94, 0.3);
+    transition: all 0.3s ease;
+}
+
+
+.custom-btn-action {
+    transition: all 0.3s ease;
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    background-color: #1f1f27;
+    border-color: rgba(70, 204, 94, 0.4) !important;
+    box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15);
+}
+
+
+.group-card:hover .group-icon-wrapper {
+    background: #46CC5E;
+    box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+}
+
+.group-card:hover .group-icon-wrapper i {
+    color: #17171C !important;
+}
+
+
+.group-card:hover .group-title {
+    color: #46CC5E !important;
+}
+
+.custom-btn-action:hover {
+    box-shadow: 0 0 15px rgba(70, 204, 94, 0.5);
+    transform: scale(1.02);
+}
+
+
+.custom-glow-btn {
+    transition: all 0.3s ease;
+}
+
+.custom-glow-btn:hover {
+    background: #46CC5E;
+    color: #17171C !important;
+    box-shadow: 0 0 15px rgba(70, 204, 94, 0.6);
+}
+</style>

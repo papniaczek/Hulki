@@ -6,149 +6,248 @@
 
 <div class="container mt-4">
 
-    <!-- HEADER SKLEPU (Dokładnie jak na Twoim screenie) -->
-    <div class="card mb-4" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); !important border-radius: 0.5rem;!important">
-        <div class="card-body d-flex justify-content-between align-items-center p-4">
-            <div>
-                <h2 class="text-primary fw-bold mb-1">Sklep z Nagrodami</h2>
-                <p class="text-muted mb-0">Wymieniaj punkty z Dzienniczka na ekskluzywne wyposażenie.</p>
-            </div>
-            <div class="text-end">
-                <h6 class="text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px;">Twój portfel</h6>
-                <h2 class="text-success fw-bold mb-0">@ViewBag.Points</h2>
-            </div>
-        </div>
-    </div>
-
-    <!-- KOMUNIKATY (Błędy i sukcesy) -->
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger shadow-sm border-0">@TempData["ErrorMessage"]</div>
-    }
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success shadow-sm border-0">@TempData["SuccessMessage"]</div>
-    }
-
-    <!-- PRZYCISK TYLKO DLA TERAPEUTY / ADMINA -->
-    @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
-    {
-        <div class="text-end mb-4">
-            <button type="button" class="btn btn-outline-info fw-bold" data-bs-toggle="modal"
-                    data-bs-target="#addItemModal">
-                <i class="bi bi-plus-circle"></i> Dodaj nowy przedmiot do puli
-            </button>
-        </div>
-    }
-
-    <!-- MODAL (Formularz) -->
-    <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content bg-dark text-light border-secondary shadow-lg">
-
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-info fw-bold">Kreator Nagród</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+    <div class="store-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 194px; !important">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase d-flex align-items-center"
+                    style="letter-spacing: 1px;">
+                    Sklep z Nagrodami
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">Wymieniaj punkty z Dzienniczka na ekskluzywne
+                    wyposażenie.</p>
                 </div>
 
-                <form asp-controller="Store" asp-action="AddRewardItem" method="post">
-                    <div class="modal-body">
-                        <p class="text-muted small">Przedmiot zostanie natychmiast dodany do ogólnej puli losowań w
-                            sklepie.</p>
+                <div class="text-md-end text-center wallet-box p-3 rounded-3 shadow-sm">
+                    <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">Twój portfel</h6>
+                    <h2
+                        class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
+                        @ViewBag.Points
+                    </h2>
+                </div>
+            </div>
+            <div class="store-header-glow"></div>
+        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nazwa przedmiotu</label>
-                                <input type="text" name="name" class="form-control bg-dark text-light border-secondary"
-                                       required placeholder="np. Złoty Miecz Trzeźwości" />
-                            </div>
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+            </div>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success shadow-sm border-0 rounded-3 mb-4">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            </div>
+        }
 
-                            <div class="mb-3">
-                                <label class="form-label">Rzadkość</label>
-                                <select name="itemRarityId" class="form-select bg-dark text-light border-secondary"
-                                        required>
-                                    @if (ViewBag.Rarities != null)
-                                    {
-                                        foreach (var rarity in ViewBag.Rarities)
+        @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
+        {
+            <div class="text-end mb-4">
+                <button type="button" class="btn btn-outline-info fw-bold rounded-pill px-4" data-bs-toggle="modal"
+                        data-bs-target="#addItemModal">
+                    <i class="bi bi-plus-circle me-2"></i> Dodaj nowy przedmiot do puli
+                </button>
+            </div>
+        }
+
+        <div class="modal fade" id="addItemModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-light border-secondary shadow-lg rounded-4">
+
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title text-info fw-bold"><i class="bi bi-magic me-2"></i>Kreator Nagród</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                    </div>
+
+                    <form asp-controller="Store" asp-action="AddRewardItem" method="post">
+                        <div class="modal-body p-4">
+                            <p class="text-muted small mb-4">Przedmiot zostanie natychmiast dodany do ogólnej puli losowań w
+                                sklepie.</p>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Nazwa przedmiotu</label>
+                                    <input type="text" name="name" class="form-control bg-dark text-light border-secondary"
+                                           required placeholder="np. Złoty Miecz Trzeźwości" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Rzadkość</label>
+                                    <select name="itemRarityId" class="form-select bg-dark text-light border-secondary"
+                                            required>
+                                        @if (ViewBag.Rarities != null)
                                         {
-                                            <option value="@rarity.Id">@rarity.Name</option>
+                                            foreach (var rarity in ViewBag.Rarities)
+                                            {
+                                                <option value="@rarity.Id">@rarity.Name</option>
+                                            }
                                         }
-                                    }
-                                </select>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Opis</label>
+                                    <textarea name="description" class="form-control bg-dark text-light border-secondary"
+                                              rows="2" placeholder="Krótki opis przedmiotu"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Cena (pkt)</label>
+                                    <input type="number" min="0" name="price" value="0"
+                                           class="form-control bg-dark text-light border-secondary" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Ścieżka do ikony</label>
+                                    <input type="text" name="iconPath" class="form-control bg-dark text-light border-secondary"
+                                           placeholder="/images/shop/icon.png" />
+                                </div>
                             </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Opis</label>
-                                <textarea name="description" class="form-control bg-dark text-light border-secondary"
-                                          rows="2" placeholder="Krótki opis przedmiotu"></textarea>
+                            <div class="modal-footer border-secondary p-3">
+                                <button type="button" class="btn btn-custom-cancel rounded-pill px-4"
+                                        data-bs-dismiss="modal">Anuluj</button>
+                                <button type="submit" class="btn btn-info fw-bold rounded-pill px-4">Zapisz przedmiot</button>
                             </div>
+                        </form>
 
-                            <div class="mb-3">
-                                <label class="form-label">Cena (pkt)</label>
-                                <input type="number" min="0" name="price" value="0"
-                                       class="form-control bg-dark text-light border-secondary" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Ścieżka do ikony</label>
-                                <input type="text" name="iconPath" class="form-control bg-dark text-light border-secondary"
-                                       placeholder="/images/shop/icon.png" />
-                            </div>
-                        </div>
-                        <div class="modal-footer border-secondary">
-                            <button type="button" class="btn px-4" data-bs-dismiss="modal"
-                                    style="color: #DA292E; border: 1px solid #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
-                                    onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
-                                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">
-                                Anuluj
-                            </button>
-                            <button type="submit" class="btn btn-info fw-bold">Zapisz przedmiot</button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- LISTA GIER -->
-        <div class="row">
-            @foreach (var game in Model)
-            {
-                // MAGIA: Dynamiczne dobieranie akcji z kontrolera na podstawie typu gry!
-                string actionName = "PlayRoulette"; // Domyślnie ładujemy ruletkę dla bezpieczeństwa
-
-                if (game.GameType?.Name == "Zdrapka")
-                {
-                    actionName = "PlayScratchcard";
-                }
-                else if (game.GameType?.Name == "3 Karty")
-                {
-                    actionName = "PlayCards";
-                }
-                else if (game.GameType?.Name == "Lootbox" || game.GameType?.Name == "Koło Fortuny")
-                {
-                    actionName = "PlayRoulette";
-                }
-
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); !important border-radius: 0.5rem;!important">
-                        <div class="card-header text-center border-bottom border-light-subtle pt-4 pb-3">
-                            <h4 class="card-title fw-bold mb-0">@game.Name</h4>
-                        </div>
-                        <div class="card-body text-center d-flex align-items-center justify-content-center p-4">
-                            <p class="card-text text-muted mb-0">@game.Description</p>
-                        </div>
-                        <div class="card-footer bg-dark border-top-0 p-4 pt-0">
-                            <!-- FORMULARZ WYSYŁAJĄCY DO ODPOWIEDNIEJ METODY -->
-                            <form asp-controller="Store" asp-action="@actionName" method="post">
-                                <input type="hidden" name="gameId" value="@game.Id" />
-                                <button type="submit" class="btn btn-warning w-100 fw-bold rounded-3 py-2" style="color: #000;">
-                                    Otwórz za @game.Cost pkt
-                                </button>
-                            </form>
-                        </div>
                     </div>
                 </div>
-            }
+            </div>
+
+            <div class="row g-4">
+                @foreach (var game in Model)
+                {
+                    string actionName = "PlayRoulette";
+                    string iconClass = "bi-controller";
+
+                    if (game.GameType?.Name == "Zdrapka")
+                    {
+                        actionName = "PlayScratchcard";
+                        iconClass = "bi-ticket-detailed";
+                    }
+                    else if (game.GameType?.Name == "3 Karty")
+                    {
+                        actionName = "PlayCards";
+                        iconClass = "bi-suit-spade-fill";
+                    }
+                    else if (game.GameType?.Name == "Lootbox" || game.GameType?.Name == "Koło Fortuny")
+                    {
+                        actionName = "PlayRoulette";
+                        iconClass = "bi-box-seam-fill";
+                    }
+
+                    <div class="col-md-4">
+                        <div class="card game-card h-100 d-flex flex-column">
+                            <div class="card-body text-center p-4 d-flex flex-column justify-content-center flex-grow-1">
+                                <div class="game-icon-wrapper mb-3">
+                                    <i class="bi @iconClass text-warning fs-1"></i>
+                                </div>
+                                <h4 class="card-title fw-bold mb-2 text-light">@game.Name</h4>
+                                <p class="card-text text-muted mb-0">@game.Description</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0 p-4 pt-0 mt-auto">
+                                <form asp-controller="Store" asp-action="@actionName" method="post">
+                                    <input type="hidden" name="gameId" value="@game.Id" />
+                                    <button type="submit" class="btn btn-warning w-100 fw-bold rounded-pill py-2 btn-game-play">
+                                        Otwórz za @game.Cost pkt
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
+
+        <style>
+            .store-header-card {
+                background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+                border: 1px solid rgba(70, 204, 94, 0.15);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            }
+
+            .store-header-glow {
+                position: absolute;
+                top: -50px;
+                right: -50px;
+                width: 250px;
+                height: 250px;
+                background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+                border-radius: 50%;
+                z-index: 0;
+                pointer-events: none;
+            }
+
+            .wallet-box {
+                background: rgba(0, 0, 0, 0.25);
+                border: 1px solid rgba(70, 204, 94, 0.15);
+                min-width: 180px;
+            }
+
+            .game-card {
+                background-color: #1b1b22;
+                border: 1px solid rgba(255, 255, 255, 0.03) !important;
+                border-radius: 16px;
+                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .game-icon-wrapper {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: rgba(255, 193, 7, 0.08);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+                transition: all 0.3s ease;
+            }
+
+            .game-card .card-title {
+                transition: color 0.3s ease;
+            }
+
+            .game-card:hover {
+                transform: translateY(-5px);
+                background-color: #1f1f27;
+                border-color: rgba(255, 193, 7, 0.4) !important;
+                box-shadow: 0 10px 25px rgba(255, 193, 7, 0.15);
+            }
+
+            .game-card:hover .game-icon-wrapper {
+                background: #ffc107;
+                box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
+            }
+
+            .game-card:hover .game-icon-wrapper i {
+                color: #17171C !important;
+            }
+
+            .game-card:hover .card-title {
+                color: #ffc107 !important;
+            }
+
+            .btn-game-play {
+                color: #17171C !important;
+                transition: all 0.3s ease;
+            }
+
+            .btn-game-play:hover {
+                box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+                transform: scale(1.03);
+            }
+
+            .btn-custom-cancel {
+                color: #DA292E;
+                border: 1px solid #DA292E;
+                background-color: transparent;
+                transition: all 0.2s ease-in-out;
+            }
+
+            .btn-custom-cancel:hover {
+                background-color: #DA292E;
+                color: #ffffff;
+            }
+        </style>
