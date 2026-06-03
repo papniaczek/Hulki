@@ -21,12 +21,14 @@
                     <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
                         @Model.Count()
                     </h2>
+
                 </div>
             @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
             {
                 <div class="text-md-end">
                     <a asp-action="Create" class="btn btn-outline-primary fw-bold rounded-pill px-4 py-2 custom-glow-btn">
                         <i class="bi bi-plus-lg me-2"></i> Stwórz nową grupę
+                        @* Naprawic *@
                     </a>
                 </div>
             }
