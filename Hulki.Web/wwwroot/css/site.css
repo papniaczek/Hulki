@@ -728,6 +728,57 @@ a.nav-link:focus:active {
   }
 }
 
+.scroll-to-top-btn {
+    position: fixed;
+    bottom: 40px;
+    left: 40px;
+    width: 55px;
+    height: 55px;
+    background: rgba(23, 23, 28, 0.6); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
+    border: 2px solid rgba(70, 204, 94, 0.3);
+    color: #46CC5E; 
+    border-radius: 50%;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(40px) scale(0.8);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.scroll-to-top-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    animation: floatIdle 3s ease-in-out infinite; 
+}
+
+.scroll-to-top-btn i {
+    transition: transform 0.3s ease;
+}
+
+
+.scroll-to-top-btn:hover {
+    background: #46CC5E;
+    color: #17171C; 
+    border-color: #46CC5E;
+    box-shadow: 0 0 25px rgba(70, 204, 94, 0.6), 0 0 50px rgba(70, 204, 94, 0.2);
+    animation: none; 
+    transform: translateY(-1px) scale(1.1);
+}
+
+.scroll-to-top-btn:hover i {
+    animation: arrowBounce 0.6s infinite alternate ease-in-out;
+}
+
+
 @keyframes glitchBot {
 
   0%,
