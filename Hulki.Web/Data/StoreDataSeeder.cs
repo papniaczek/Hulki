@@ -47,11 +47,11 @@ public static class StoreDataSeeder
         var scratchType = await context.GameTypes.FirstOrDefaultAsync(t => t.Name == "Zdrapka");
 
         if (!await context.Games.AnyAsync(g => g.Name == "Ruletka Nagród") && lootType != null)
-            context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ruletka Nagród", Cost = 10, GameTypeId = lootType.Id });
+            context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ruletka Nagród", Description = "Zakręć ruletką i zdobądź losową nagrodę!", Cost = 10, GameTypeId = lootType.Id });
         if (!await context.Games.AnyAsync(g => g.Name == "Ślepy Los") && cardsType != null)
-            context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ślepy Los", Cost = 15, GameTypeId = cardsType.Id });
+            context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Ślepy Los", Description = "Wybierz jedną z trzech kart i sprawdź swoje szczęście.", Cost = 15, GameTypeId = cardsType.Id });
         if (!await context.Games.AnyAsync(g => g.Name == "Szczęśliwa Zdrapka") && scratchType != null)
-            context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Szczęśliwa Zdrapka", Cost = 5, GameTypeId = scratchType.Id });
+            context.Games.Add(new Game { Id = Guid.NewGuid(), Name = "Szczęśliwa Zdrapka", Description = "Zdrap i odkryj ukrytą nagrodę.", Cost = 5, GameTypeId = scratchType.Id });
 
         await context.SaveChangesAsync();
 

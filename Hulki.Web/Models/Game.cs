@@ -12,7 +12,7 @@ public class Game
     [Required(ErrorMessage = "Nazwa gry/skrzynki jest wymagana")]
     public string Name { get; set; } // np. "Skrzynia Początkującego"
 
-    public string Description { get; set; }
+    public string? Description { get; set; }
         
     public int Cost { get; set; } // Ile punktów terapii kosztuje zagranie/otwarcie
 

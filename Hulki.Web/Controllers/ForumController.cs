@@ -133,6 +133,36 @@ public class ForumController : Controller
         return RedirectToAction(nameof(Topic), new { id = forumTopicId });
     }
 
+    // 7. CREATE: Formularz dodawania nowej kategorii forum (GET)
+    [HttpGet]
+    public IActionResult CreateCategory()
+    {
+        return View();
+    }
+
+    // 8. CREATE: Zapis nowej kategorii forum (POST)
+    [HttpPost]
+    public async Task<IActionResult> CreateCategory(string name, string? description)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            TempData["ErrorMessage"] = "Nazwa forum nie może być pusta!";
+            return View();
+        }
+
+        var newCategory = new ForumCategory
+        {
+            Name = name,
+            Description = description
+        };
+
+        _context.ForumCategories.Add(newCategory);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Pomyślnie dodano nowe forum!";
+        return RedirectToAction(nameof(Index));
+    }
+
     // --- SEEDING
     private async Task SeedForumCategoriesIfNotExists()
     {
