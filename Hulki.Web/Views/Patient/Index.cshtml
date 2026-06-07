@@ -21,269 +21,291 @@
 }
 
 <div class="container mt-4 mb-5">
-    <div class="row mb-4">
-        <div class="col">
-            <h2 class="fw-bold text-primary mb-1">
-                Mój Panel Postępów
-            </h2>
-            <p class="text-muted mb-0">Witaj, <strong>@userName</strong>! Tutaj widzisz swoje postępy w terapii.</p>
+
+    <div class="dashboard-header-card mb-4 p-4 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+                <h2 class="text-primary fw-bold mb-1 text-uppercase" style="letter-spacing: 1px;">Mój Panel Postępów</h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">Witaj, <strong class="text-white">@userName</strong>! Tutaj widzisz swoje postępy w terapii.</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-primary fw-bold rounded-pill px-4 custom-glow-btn text-uppercase">
+                    <i class="bi bi-pencil-square me-2"></i>Dodaj wpis
+                </a>
+            </div>
         </div>
-        <div class="col-auto align-self-center">
-            <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-success">
-                Dodaj wpis
-            </a>
-        </div>
+        <div class="dashboard-glow"></div>
     </div>
 
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #1a73e8, #0d47a1);">
-                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(26,115,232,0.2);">
-                    <div class="display-5 fw-bold">@currentBalance</div>
-                    <div class="small mt-1 opacity-75">Punktów</div>
+            <div class="card stat-card border-0 h-100 rounded-4" style="--stat-color: #0d6efd;">
+                <div class="card-body text-center py-4 d-flex flex-column justify-content-center">
+                    <div class="display-5 fw-bold text-white mb-1">@currentBalance</div>
+                    <div class="small text-uppercase fw-bold text-primary" style="letter-spacing: 1px;">Punktów</div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f57c00, #e65100);">
-                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(245,124,0,0.2);">
-                    <div class="display-5 fw-bold">@streak</div>
-                    <div class="small mt-1 opacity-75">Dni z rzędu</div>
+            <div class="card stat-card border-0 h-100 rounded-4" style="--stat-color: #f57c00;">
+                <div class="card-body text-center py-4 d-flex flex-column justify-content-center">
+                    <div class="display-5 fw-bold text-white mb-1">@streak</div>
+                    <div class="small text-uppercase fw-bold text-warning" style="letter-spacing: 1px;">Dni z rzędu</div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #2e7d32, #1b5e20);">
-                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(46,125,50,0.2);">
-                    <div class="display-5 fw-bold">@totalReports</div>
-                    <div class="small mt-1 opacity-75">Wszystkich wpisów</div>
+            <div class="card stat-card border-0 h-100 rounded-4" style="--stat-color: #46CC5E;">
+                <div class="card-body text-center py-4 d-flex flex-column justify-content-center">
+                    <div class="display-5 fw-bold text-white mb-1">@totalReports</div>
+                    <div class="small text-uppercase fw-bold text-success" style="letter-spacing: 1px;">Wszystkich wpisów</div>
                 </div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #6a1b9a, #4a148c);">
-                <div class="card-body text-white text-center py-4" style="box-shadow: 0px 0px 10px 1px rgba(106,27,154,0.2);">
-                    <div class="display-5 fw-bold">@reportsThisMonth</div>
-                    <div class="small mt-1 opacity-75">Dni sztywności w miesiącu</div>
+            <div class="card stat-card border-0 h-100 rounded-4" style="--stat-color: #9d4edd;">
+                <div class="card-body text-center py-4 d-flex flex-column justify-content-center">
+                    <div class="display-5 fw-bold text-white mb-1">@reportsThisMonth</div>
+                    <div class="small text-uppercase fw-bold" style="color: #c77dff; letter-spacing: 1px;">Wpisów w miesiącu</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row g-4">
-
         <div class="col-12 col-lg-7">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); border-radius: 0.5rem;">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="card border-0 shadow-sm h-100 rounded-4 dark-panel-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom border-secondary pb-3">
                         <div>
-                            <h5 class="fw-bold mb-1 text-primary">
-                                <i class="bi bi-bar-chart-fill me-2"></i>Aktywność z ostatnich 30 dni
+                            <h5 class="fw-bold mb-1 text-primary text-uppercase" style="letter-spacing: 1px;">
+                                <i class="bi bi-bar-chart-fill me-2"></i>Aktywność z 30 dni
                             </h5>
-                            <p class="text-muted small mb-0">Liczba wpisów dzienniczkowych każdego dnia</p>
+                            <p class="text-muted small mb-0">Liczba wpisów każdego dnia</p>
                         </div>
-                        <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3">@reportsThisMonth
-                            wpisów</span>
-                        </div>
-                        <div style="position: relative; height: 260px;">
-                            <canvas id="activityChart"></canvas>
-                        </div>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary fs-6 px-3 py-2 rounded-pill">@reportsThisMonth wpisów</span>
+                    </div>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="activityChart"></canvas>
                     </div>
                 </div>
             </div>
-
-            <div class="col-12 col-lg-5">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); border-radius: 0.5rem;">
-                        <h5 class="fw-bold mb-3 text-warning">
-                            <i class="bi bi-fire me-2"></i>Seria wpisów
-                        </h5>
-
-                        @if (streak == 0)
-                        {
-                            <div class="text-center py-3">
-                                <div style="font-size: 3.5rem;">💤</div>
-                                <p class="text-muted mt-2">Brak aktywnej serii.<br>Dodaj dziś wpis, żeby zacząć!</p>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="text-center mb-3">
-                                <div style="font-size: 3.5rem;">🔥</div>
-                                <div class="display-4 fw-bold text-warning">@streak</div>
-                                <div class="text-muted">@(streak == 1 ? "dzień z rzędu" : streak < 5 ? "dni z rzędu" : "dni z rzędu")</div>
-                            </div>
-                            <div class="progress" style="height:12px; border-radius:6px;">
-                                @{
-                                    var streakGoal = streak < 7 ? 7 : streak < 30 ? 30 : 100;
-                                    var streakPct = Math.Min(100, (int)Math.Round((double)streak / streakGoal * 100));
-                                }
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: @streakPct%"
-                                     aria-valuenow="@streak" aria-valuemin="0" aria-valuemax="@streakGoal"></div>
-                            </div>
-                            <div class="d-flex justify-content-between text-muted small mt-1">
-                                <span>@streak dni</span>
-                                <span>Cel: @streakGoal dni</span>
-                            </div>
-                        }
-
-                        <hr class="my-3" />
-
-                        <h6 class="fw-bold mb-2 text-muted">Aktywność w tym miesiącu</h6>
-                        <div class="progress" style="height:18px; border-radius:9px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: @activityPercent%"
-                                 aria-valuenow="@activityPercent" aria-valuemin="0" aria-valuemax="100">
-                                @activityPercent%
-                            </div>
-                        </div>
-                        <p class="text-muted small mt-2 mb-0">
-                            @reportsThisMonth wpisów na @DateTime.Today.Day dni tego miesiąca
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4" style="box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.55); border-radius: 0.5rem;">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div>
-                                <h5 class="fw-bold mb-1 text-success">
-                                    <i class="bi bi-graph-up-arrow me-2"></i>Saldo punktów z ostatnich 30 dni
-                                </h5>
-                                <p class="text-muted small mb-0">Jak rosną Twoje punkty na przestrzeni czasu</p>
-                            </div>
-                            <span class="badge bg-success bg-opacity-10 text-success fs-6 px-3">
-                                <i class="bi bi-coin me-1"></i>@currentBalance pkt
-                            </span>
-                        </div>
-                        <div style="position: relative; height: 220px;">
-                            <canvas id="pointsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        @if (totalReports == 0)
-        {
-            <div class="card border-0 shadow-sm mt-4 text-center p-5" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important; border-radius: 0.5rem;">
-                <div style="font-size: 3rem;">📓</div>
-                <h4 class="fw-bold mt-3">Zacznij swoją historię!</h4>
-                <p class="text-muted">Jeszcze nie masz żadnych wpisów. Dodaj pierwszy dziś!</p>
-                <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-primary btn-lg mx-auto"
-                   style="max-width:260px;">
-                    <i class="bi bi-journal-plus me-2"></i>Dodaj pierwszy wpis
-                </a>
-            </div>
-        }
+        <div class="col-12 col-lg-5">
+            <div class="card border-0 shadow-sm h-100 rounded-4 dark-panel-card">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4 text-warning border-bottom border-secondary pb-3 text-uppercase" style="letter-spacing: 1px;">
+                        <i class="bi bi-fire me-2"></i>Twoja Seria
+                    </h5>
 
+                    @if (streak == 0)
+                    {
+                        <div class="text-center py-4">
+                            <div style="font-size: 3.5rem; filter: grayscale(1);">💤</div>
+                            <p class="text-muted mt-2 fw-bold">Brak aktywnej serii.<br>Dodaj dziś wpis, żeby zacząć!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center mb-4">
+                            <div style="font-size: 4rem; filter: drop-shadow(0 0 15px rgba(245,124,0,0.5));">🔥</div>
+                            <div class="display-3 fw-bold text-warning text-shadow-glow">@streak</div>
+                            <div class="text-muted text-uppercase fw-bold mt-1" style="letter-spacing: 1px;">@(streak == 1 ? "dzień z rzędu" : streak < 5 ? "dni z rzędu" : "dni z rzędu")</div>
+                        </div>
+                        <div class="progress bg-dark border border-secondary" style="height:16px; border-radius:8px;">
+                            @{
+                                var streakGoal = streak < 7 ? 7 : streak < 30 ? 30 : 100;
+                                var streakPct = Math.Min(100, (int)Math.Round((double)streak / streakGoal * 100));
+                            }
+                            <div class="progress-bar bg-warning progress-glow" role="progressbar" style="width: @streakPct%" aria-valuenow="@streak" aria-valuemin="0" aria-valuemax="@streakGoal"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mt-2 fw-bold">
+                            <span>@streak dni</span>
+                            <span>Cel: @streakGoal dni</span>
+                        </div>
+                    }
+
+                    <h6 class="fw-bold mt-5 mb-3 text-muted text-uppercase" style="letter-spacing: 1px;">Aktywność w tym miesiącu</h6>
+                    <div class="progress bg-dark border border-secondary" style="height:20px; border-radius:10px;">
+                        <div class="progress-bar bg-success progress-glow-success" role="progressbar" style="width: @activityPercent%" aria-valuenow="@activityPercent" aria-valuemin="0" aria-valuemax="100">
+                            <span class="fw-bold">@activityPercent%</span>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0 fw-bold">
+                        @reportsThisMonth wpisów na @DateTime.Today.Day dni tego miesiąca
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 dark-panel-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom border-secondary pb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-success text-uppercase" style="letter-spacing: 1px;">
+                                <i class="bi bi-graph-up-arrow me-2"></i>Historia Punktów
+                            </h5>
+                            <p class="text-muted small mb-0">Zarobki z ostatnich 30 dni</p>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success fs-6 px-3 py-2 rounded-pill">
+                            <i class="bi bi-coin me-1"></i>@currentBalance pkt
+                        </span>
+                    </div>
+                    <div style="position: relative; height: 240px;">
+                        <canvas id="pointsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    @section Scripts {
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-        <script>
-            const activityLabels = @Html.Raw(activityLabelsJson);
-            const activityData = @Html.Raw(activityDataJson);
-            const pointsLabels = @Html.Raw(pointsLabelsJson);
-            const pointsData = @Html.Raw(pointsDataJson);
+    @if (totalReports == 0)
+    {
+        <div class="card border-0 shadow-sm mt-5 text-center p-5 rounded-4 dark-panel-card">
+            <div style="font-size: 4rem;">📓</div>
+            <h3 class="fw-bold mt-3 text-uppercase text-light" style="letter-spacing: 1px;">Zacznij swoją historię!</h3>
+            <p class="text-muted mb-4 fs-5">Jeszcze nie masz żadnych wpisów. Dodaj pierwszy dziś!</p>
+            <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-primary btn-lg mx-auto fw-bold rounded-pill text-uppercase custom-glow-btn" style="max-width:300px; letter-spacing: 1px;">
+                <i class="bi bi-journal-plus me-2"></i>Dodaj pierwszy wpis
+            </a>
+        </div>
+    }
 
-            Chart.defaults.color = '#adb5bd';
-            Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+</div>
 
-            const activityCtx = document.getElementById('activityChart').getContext('2d');
-            new Chart(activityCtx, {
+<style>
+    .dashboard-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .dashboard-glow {
+        position: absolute;
+        top: -50px;
+        left: -50px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .stat-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-bottom: 3px solid var(--stat-color) !important;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background-color: #1f1f27;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px var(--stat-color);
+    }
+
+    .dark-panel-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .custom-glow-btn {
+        transition: all 0.3s ease;
+    }
+
+    .custom-glow-btn:hover {
+        background: #46CC5E;
+        color: #17171C !important;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.6);
+        transform: scale(1.02);
+    }
+
+    .text-shadow-glow {
+        text-shadow: 0 0 15px rgba(245, 124, 0, 0.5);
+    }
+
+    .progress-glow {
+        box-shadow: 0 0 10px #f57c00;
+    }
+
+    .progress-glow-success {
+        box-shadow: 0 0 10px #46CC5E;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        const activityLabels = @Html.Raw(activityLabelsJson);
+        const activityData = @Html.Raw(activityDataJson);
+        const pointsLabels = @Html.Raw(pointsLabelsJson);
+        const pointsData = @Html.Raw(pointsDataJson);
+
+        Chart.defaults.color = '#888899';
+        Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        new Chart(activityCtx, {
             type: 'bar',
             data: {
-            labels: activityLabels,
-            datasets: [{
-            label: 'Wpisy',
-            data: activityData,
-            backgroundColor: activityData.map(v =>
-            v > 0 ? 'rgba(26,115,232,0.85)' : 'rgba(255,255,255,0.06)'
-            ),
-            borderRadius: 6,
-            borderSkipped: false,
-            }]
+                labels: activityLabels,
+                datasets: [{
+                    label: 'Wpisy',
+                    data: activityData,
+                    backgroundColor: activityData.map(v => v > 0 ? '#0d6efd' : 'rgba(255,255,255,0.05)'),
+                    borderRadius: 4,
+                    borderSkipped: false,
+                }]
             },
             options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-            legend: { display: false },
-            tooltip: {
-            callbacks: {
-            label: ctx => ctx.parsed.y === 1 ? '1 wpis' : ctx.parsed.y + ' wpisów'
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
             }
-            }
-            },
-            scales: {
-            y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1, precision: 0 },
-            grid: { color: 'rgba(255,255,255,0.06)' }
-            },
-            x: {
-            grid: { display: false },
-            ticks: {
-            maxRotation: 45,
-            autoSkip: true,
-            maxTicksLimit: 15
-            }
-            }
-            }
-            }
-            });
-            const pointsCtx = document.getElementById('pointsChart').getContext('2d');
-            const gradientFill = pointsCtx.createLinearGradient(0, 0, 0, 220);
-            gradientFill.addColorStop(0, 'rgba(46,125,50,0.35)');
-            gradientFill.addColorStop(1, 'rgba(46,125,50,0.0)');
+        });
 
-            new Chart(pointsCtx, {
+        const pointsCtx = document.getElementById('pointsChart').getContext('2d');
+        const gradientFill = pointsCtx.createLinearGradient(0, 0, 0, 220);
+        gradientFill.addColorStop(0, 'rgba(70, 204, 94, 0.4)');
+        gradientFill.addColorStop(1, 'rgba(70, 204, 94, 0.0)');
+
+        new Chart(pointsCtx, {
             type: 'line',
             data: {
-            labels: pointsLabels,
-            datasets: [{
-            label: 'Punkty',
-            data: pointsData,
-            borderColor: '#43a047',
-            backgroundColor: gradientFill,
-            borderWidth: 2.5,
-            pointRadius: 3,
-            pointHoverRadius: 6,
-            pointBackgroundColor: '#43a047',
-            fill: true,
-            tension: 0.4
-            }]
+                labels: pointsLabels,
+                datasets: [{
+                    label: 'Punkty',
+                    data: pointsData,
+                    borderColor: '#46CC5E',
+                    backgroundColor: gradientFill,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#17171C',
+                    pointBorderColor: '#46CC5E',
+                    pointBorderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
             },
             options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-            legend: { display: false },
-            tooltip: {
-            callbacks: {
-            label: ctx => ctx.parsed.y + ' pkt'
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: false },
+                    x: { grid: { display: false } }
+                }
             }
-            }
-            },
-            scales: {
-            y: {
-            beginAtZero: false,
-            grid: { color: 'rgba(255,255,255,0.06)' },
-            ticks: { callback: v => v + ' pkt' }
-            },
-            x: {
-            grid: { display: false },
-            ticks: {
-            maxRotation: 45,
-            autoSkip: true,
-            maxTicksLimit: 15
-            }
-            }
-            }
-            }
-            });
-        </script>
-    }
+        });
+    </script>
+}

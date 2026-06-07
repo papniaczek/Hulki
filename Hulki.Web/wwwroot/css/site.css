@@ -512,8 +512,10 @@ a.nav-link:focus:active {
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  
-  
+}
+
+.carousel-slide:hover .slide-img {
+  filter: brightness(0.6);
 }
 
 .carousel-track::-webkit-scrollbar {
@@ -528,12 +530,10 @@ a.nav-link:focus:active {
   border-radius: 18px;
   overflow: hidden;
   background-color: #222;
-  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5),
+              0 8px 12px rgba(70, 204, 94, 0.15);
 }
 
-.carousel-slide:hover {
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5), 0 8px 12px rgba(70, 204, 94, 0.15);
-}
 
 .slide-img {
   width: 100%;
@@ -543,35 +543,18 @@ a.nav-link:focus:active {
   top: 0;
   left: 0;
   z-index: 1;
-  transition: transform 0.6s ease;
+  transition: filter 0.3s ease;
 }
 
-.carousel-slide:hover .slide-overlay {
-  opacity: 1;
-}
-
-.carousel-slide:hover .slide-content {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.carousel-slide:hover .slide-img {
-  transform: scale(1.08);
-}
-
-.carousel-slide:hover .slide-name {
-  color: #7FE593;
-  text-shadow: 0 0 10px rgba(127, 229, 147, 0.4);
-}
 
 .slide-overlay {
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 60%);
   z-index: 2;
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  opacity: 1;
 }
+
 
 
 .slide-content {
@@ -582,9 +565,8 @@ a.nav-link:focus:active {
   flex-direction: column;
   justify-content: flex-end;
   padding: 20px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .slide-name {
