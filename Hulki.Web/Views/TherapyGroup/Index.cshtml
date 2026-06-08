@@ -15,8 +15,8 @@
                         @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
                         {
                             <div class="text-md-end d-flex align-items-center">
-                                <a asp-action="Create" class="btn btn-outline-primary fw-bold rounded-pill px-3 py-1 custom-glow-btn">
-                                    Utwórz
+                                <a asp-action="Create" class="btn btn-custom-success fw-bold rounded-pill px-3 py-2 custom-glow-btn">
+                                    <i class="bi bi-plus-circle me-2"></i> Utwórz
                                 </a>
                             </div>
                         }
@@ -255,5 +255,18 @@
         background: #6C5CE7;
         color: #fff !important;
         box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
+    }
+
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
     }
 </style>

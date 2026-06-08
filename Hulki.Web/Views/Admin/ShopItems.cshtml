@@ -5,17 +5,25 @@
     var rarities = ViewBag.Rarities as List<Hulki.Web.Models.ItemRarity> ?? new();
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Zarządzanie przedmiotami w sklepie</h2>
-        <div class="d-flex gap-2">
-            <a asp-controller="Admin" asp-action="Index" class="btn btn-sm btn-custom-back">
-                <i class="bi bi-arrow-left"></i> Wróć do panelu
-            </a>
-            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#createItemModal">
-                <i class="bi bi-plus-circle"></i> Dodaj przedmiot
-            </button>
+<div class="container mt-4 text-light">
+    <div class="shopitems-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 160px;">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-bag-fill me-2"></i>Zarządzanie Sklepem
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">Dodawaj, edytuj i usuwaj przedmioty dostępne w sklepie.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4 py-2">
+                    <i class="bi bi-arrow-left me-1"></i> Wróć do panelu
+                </a>
+                <button type="button" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2" data-bs-toggle="modal" data-bs-target="#createItemModal" style="background-color: #46CC5E; color: #17171C; border: none;">
+                    <i class="bi bi-plus-circle me-1"></i> Dodaj przedmiot
+                </button>
+            </div>
         </div>
+        <div class="shopitems-header-glow"></div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -145,3 +153,46 @@
         </div>
     </div>
 </div>
+
+<style>
+    .shopitems-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .shopitems-header-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15) !important;
+    }
+
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E !important;
+        color: #17171C !important;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4) !important;
+    }
+</style>

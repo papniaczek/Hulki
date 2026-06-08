@@ -4,19 +4,56 @@
 }
 
 <style>
+    .roulette-header {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .roulette-header-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .roulette-header h2 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .roulette-header p {
+        position: relative;
+        z-index: 1;
+        margin: 10px 0 0 0;
+    }
+
     .roulette-container {
         position: relative;
         width: 100%;
         max-width: 800px;
         height: 180px;
         margin: 0 auto;
-        background: #1c1f23;
-        border: 2px solid #343a40;
+        background: #1b1b22;
+        border: 1px solid rgba(70, 204, 94, 0.2);
         border-radius: 8px;
         overflow: hidden;
-        box-shadow: inset 0 0 25px rgba(0,0,0,0.9);
+        box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15);
+        transition: all 0.3s ease;
     }
-    
 
     .roulette-pointer {
         position: absolute;
@@ -25,9 +62,9 @@
         transform: translateX(-50%);
         width: 4px;
         height: 100%;
-        background: #ffc107;
+        background: #46CC5E;
         z-index: 10;
-        box-shadow: 0 0 15px #ffc107;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.6);
     }
 
     .roulette-track {
@@ -45,10 +82,21 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        border-right: 1px solid #2b3035;
+        border-right: 1px solid rgba(70, 204, 94, 0.1);
         padding: 10px;
         text-align: center;
-        background: linear-gradient(180deg, #212529 0%, #1a1d20 100%);
+        background: linear-gradient(180deg, #1f1f27 0%, #1a1a20 100%);
+    }
+
+    .btn-success {
+        background-color: #46CC5E;
+        border-color: #46CC5E;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+        transform: translateY(-2px);
     }
 
     #retry-btn {
@@ -57,22 +105,25 @@
 </style>
 
 <div class="container mt-5 text-center text-light">
-    <h2>Trwa otwieranie skrzyni...</h2>
-    <p class="text-muted mb-5">Zobaczmy, co przygotował dla Ciebie los!</p>
+    <div class="roulette-header">
+        <div class="roulette-header-glow"></div>
+        <h2 class="text-light">Otwieranie Skrzyni</h2>
+        <p class="text-muted">Zobaczmy, co przygotował dla Ciebie los!</p>
+    </div>
 
     <div class="roulette-container shadow-lg">
         <div class="roulette-pointer"></div>
         <div class="roulette-track" id="roulette-track"></div>
     </div>
 
-    <button id="spin-btn" class="btn btn-warning px-5 py-3 fw-bold mt-5" onclick="spinRoulette()">
+    <button id="spin-btn" class="btn btn-success px-5 py-3 fw-bold mt-5" onclick="spinRoulette()">
         LOSUJ!
     </button>
 
     <!-- PRZYCISK SPRÓBUJ PONOWNIE  -->
     <form asp-controller="Store" asp-action="PlayRoulette" method="post" id="retry-form" class="d-none mt-3">
         <input type="hidden" name="gameId" value="@ViewBag.GameId" />
-        <button type="submit" id="retry-btn" class="btn btn-warning px-5 py-3 fw-bold" style="margin-top: 28px">
+        <button type="submit" id="retry-btn" class="btn btn-success px-5 py-3 fw-bold" style="margin-top: 28px">
             <i class="bi bi-arrow-repeat me-2"></i><strong>SPRÓBUJ PONOWNIE! (@ViewBag.GameCost PKT)</strong>
         </button>
     </form>
@@ -86,7 +137,7 @@
 <script>
     const allItems = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.AllRewards));
     const wonItem = { name: "@Html.Raw(wonItem.Name)", rarity: "@Html.Raw(wonItem.ItemRarity.Name)" };
-    
+
     const track = document.getElementById('roulette-track');
     const itemWidth = 150;
     const totalItems = 60;
@@ -95,11 +146,17 @@
     window.onload = () => {
         for (let i = 0; i < totalItems; i++) {
             let itemData = (i === winIndex) ? wonItem : allItems[Math.floor(Math.random() * allItems.length)];
-            let colorClass = itemData.rarity === 'Legendarny' ? 'text-warning' : 'text-light';
+            let colorStyle =
+                itemData.rarity === 'Legendarny' ? '#ffc107' :
+                    itemData.rarity === 'Epicki' ? '#6F42C1' :
+                        itemData.rarity === 'Rzadki' ? '#0D6EFD' :
+                            itemData.rarity === 'Niepospolity' ? '#198754' :
+                                itemData.rarity === 'Mityczny' ? '#DC3545' :
+                                    '#f8f9fa';
             let el = document.createElement('div');
             el.className = 'roulette-item';
             el.innerHTML = `<span class="badge bg-secondary mb-3">${itemData.rarity}</span>
-                            <span class="small fw-bold ${colorClass}">${itemData.name}</span>`;
+                <span class="small fw-bold" style="color:${colorStyle}">${itemData.name}</span>`;
             track.appendChild(el);
         }
     };

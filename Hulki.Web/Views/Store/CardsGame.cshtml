@@ -6,21 +6,62 @@ var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
 }
 
 <style>
+    .cards-header {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .cards-header-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .cards-header h2 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .cards-header p {
+        position: relative;
+        z-index: 1;
+        margin: 10px 0 0 0;
+    }
+
     .flip-card { background-color: transparent; width: 100%; height: 300px; perspective: 1000px; cursor: pointer; }
     .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
     .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
     .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px;}
 
-    /* Zmiana na ciemne kolory pasujące do Twojego motywu */
-    .flip-card-front { background-color: #212529; color: white; border: 2px solid #ffc107; } /* bg-dark, border-warning */
-    .flip-card-back { background-color: #343a40; color: white; transform: rotateY(180deg); border: 1px solid #6c757d;}
+    .flip-card-front { background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%); color: white; border: 2px solid rgba(70, 204, 94, 0.3); box-shadow: 0 0 15px rgba(70, 204, 94, 0.15); transition: all 0.3s ease; }
+    .flip-card-front:hover { border-color: rgba(70, 204, 94, 0.6); box-shadow: 0 0 20px rgba(70, 204, 94, 0.25); }
+    .flip-card-back { background: linear-gradient(135deg, #1f1f27 0%, #1a1a20 100%); color: white; transform: rotateY(180deg); border: 1px solid rgba(70, 204, 94, 0.2);}
 
-    .winner-card { background-color: #ffc107; color: #000; border: 2px solid #ffc107; } /* Żółta zwycięska karta */
+    .winner-card { background: linear-gradient(135deg, #46CC5E 0%, #3daa4a 100%); color: #000; border: 2px solid #46CC5E; box-shadow: 0 0 20px rgba(70, 204, 94, 0.4); }
+    .winner-card h5 { color: #000; }
 </style>
 
 <div class="container mt-5 text-center text-light">
-    <h2>Zaufaj swojemu instynktowi...</h2>
-    <p class="text-muted">Wybierz jedną z kart, aby poznać swoją nagrodę!</p>
+    <div class="cards-header">
+        <div class="cards-header-glow"></div>
+        <h2 class="text-light">Zaufaj swojemu instynktowi</h2>
+        <p class="text-muted">Wybierz jedną z kart, aby poznać swoją nagrodę!</p>
+    </div>
 
     <div class="row mt-5" id="cards-container">
         @for(int i=0; i<3; i++)
@@ -29,8 +70,8 @@ var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
             <div class="flip-card" onclick="revealCard(this)">
                 <div class="flip-card-inner shadow">
                     <div class="flip-card-front">
-                        <h1><i class="bi bi-question-circle" style="font-size: 4rem; color: #ffc107;"></i></h1>
-                        <p class="mt-3 text-warning">Kliknij mnie</p>
+                        <h1><i class="bi bi-question-circle" style="font-size: 4rem; color: #46CC5E;"></i></h1>
+                        <p class="mt-3" style="color: #46CC5E;">Kliknij mnie</p>
                     </div>
                     <div class="flip-card-back">
                         <h5 class="item-name fw-bold mb-3"></h5>

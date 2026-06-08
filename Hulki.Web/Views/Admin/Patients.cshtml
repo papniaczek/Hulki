@@ -7,12 +7,20 @@
     var search = ViewBag.Search as string;
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Lista Pacjentów</h2>
-        <a asp-controller="Admin" asp-action="Index" class="btn btn-sm btn-custom-back">
-            <i class="bi bi-arrow-left"></i> Wróć do panelu
-        </a>
+<div class="container mt-4 text-light">
+    <div class="patients-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 160px;">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-people-fill me-2"></i>Lista Pacjentów
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">Zarządzaj pacjentami, monitoruj ich aktywność i saldo punktów.</p>
+            </div>
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary fw-bold rounded-pill px-4 py-2">
+                <i class="bi bi-arrow-left me-1"></i> Wróć do panelu
+            </a>
+        </div>
+        <div class="patients-header-glow"></div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -132,3 +140,33 @@
         </div>
     </div>
 </div>
+
+<style>
+    .patients-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .patients-header-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15) !important;
+    }
+</style>

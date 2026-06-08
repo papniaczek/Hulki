@@ -27,17 +27,18 @@
     }
 
     <!-- HEADER -->
-    <div class="card border-0 shadow-sm text-white p-4 mb-4 rounded-4"
-         style="background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
-                     style="width:64px;height:64px;font-size:1.8rem;">
-                    👤
+    <div class="patient-header-card card border-0 shadow-lg text-light p-5 mb-4 rounded-4 position-relative overflow-hidden"
+         style="background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%); border: 1px solid rgba(70, 204, 94, 0.15) !important;">
+        <div class="patient-header-glow"></div>
+        <div class="position-relative z-1 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-4">
+                <div class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:70px;height:70px;background:rgba(70, 204, 94, 0.15);border: 2px solid rgba(70, 204, 94, 0.4);">
+                    <i class="bi bi-person-fill text-primary" style="font-size: 2rem;"></i>
                 </div>
                 <div>
-                    <h2 class="mb-0 fw-bold">@patient?.FirstName @patient?.LastName</h2>
-                    <p id="patient-email" class="mb-0 text-white-50 small">
+                    <h2 class="mb-1 fw-bold text-uppercase" style="letter-spacing: 1px;">@patient?.FirstName @patient?.LastName</h2>
+                    <p id="patient-email" class="mb-0 text-muted small">
                         <i class="bi bi-envelope me-1"></i>@patient?.Email
                         @if (isLocked)
                         {
@@ -47,13 +48,27 @@
                 </div>
             </div>
             <div class="text-end">
-                <div class="text-white-50 small text-uppercase fw-bold mb-1">Saldo portfela</div>
-                <div id="points" class="fw-bold" style="font-size:2.2rem;">
-                    @(wallet?.Balance ?? 0) <i class="bi bi-star-fill text-warning" style="font-size:1.5rem;"></i>
+                <div class="text-muted small text-uppercase fw-bold mb-2" style="letter-spacing: 0.5px;">Saldo portfela</div>
+                <div id="points" class="fw-bold text-success" style="font-size:2.5rem;">
+                    @(wallet?.Balance ?? 0) <i class="bi bi-star-fill" style="font-size:1.8rem;"></i>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        .patient-header-glow {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
 
     <div class="row g-4">
         <!-- LEWA KOLUMNA: AKCJE TERAPEUTY -->
@@ -247,6 +262,52 @@
                                 else
                                 {
                                     <p class="text-muted small mb-0 text-center">Pacjent nie posiada żadnych przedmiotów.</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .card {
+            background-color: #1b1b22 !important;
+            border: 1px solid rgba(255, 255, 255, 0.03) !important;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15) !important;
+            border-color: rgba(70, 204, 94, 0.2) !important;
+        }
+
+        .card-header {
+            background: rgba(70, 204, 94, 0.05) !important;
+            border-bottom: 1px solid rgba(70, 204, 94, 0.1) !important;
+        }
+
+        .list-group-item {
+            background-color: #1b1b22 !important;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            transition: all 0.2s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #1f1f27 !important;
+            border-color: rgba(70, 204, 94, 0.2) !important;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+        }
+    </style>
+</div>
                                 }
                             </div>
                         </div>

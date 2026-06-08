@@ -4,21 +4,92 @@
 }
 
 <style>
-    .scratch-container { position: relative; width: 350px; height: 250px; margin: 0 auto; border-radius: 10px; overflow: hidden; border: 2px solid #6c757d;}
+    .scratch-header {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .scratch-header-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .scratch-header h2 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .scratch-header p {
+        position: relative;
+        z-index: 1;
+        margin: 10px 0 0 0;
+    }
+
+    .scratch-container { 
+        position: relative; 
+        width: 350px; 
+        height: 250px; 
+        margin: 0 auto; 
+        border-radius: 10px; 
+        overflow: hidden; 
+        border: 1px solid rgba(70, 204, 94, 0.2);
+        box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15);
+    }
     
-    .scratch-result { position: absolute; width: 100%; height: 100%; background: #212529; color: white; display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 1; }
+    .scratch-result { 
+        position: absolute; 
+        width: 100%; 
+        height: 100%; 
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%); 
+        color: white; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        flex-direction: column; 
+        z-index: 1; 
+    }
     
-    .scratch-cover { position: absolute; width: 100%; height: 100%; background: repeating-linear-gradient(45deg, #495057, #495057 10px, #343a40 10px, #343a40 20px); z-index: 2; display: flex; align-items: center; justify-content: center; color: #adb5bd; font-weight: bold; font-size: 1.5rem; cursor: pointer; transition: opacity 1.5s ease-out; }
+    .scratch-cover { 
+        position: absolute; 
+        width: 100%; 
+        height: 100%; 
+        background: repeating-linear-gradient(45deg, rgba(70, 204, 94, 0.3), rgba(70, 204, 94, 0.3) 10px, rgba(70, 204, 94, 0.2) 10px, rgba(70, 204, 94, 0.2) 20px); 
+        z-index: 2; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        color: #46CC5E; 
+        font-weight: bold; 
+        font-size: 1.5rem; 
+        cursor: pointer; 
+        transition: opacity 1.5s ease-out; 
+    }
     
-    /* Nowa klasa, którą dodaje JS */
     .scratch-cover.scratched { opacity: 0; pointer-events: none; }
-    
-    
 </style>
 
 <div class="container mt-5 text-center text-light">
-    <h2>Szczęśliwa Zdrapka</h2>
-    <p class="text-muted">Przejedź kursorem lub kliknij w szare pole, aby odkryć nagrodę!</p>
+    <div class="scratch-header">
+        <div class="scratch-header-glow"></div>
+        <h2 class="text-light">Szczęśliwa Zdrapka</h2>
+        <p class="text-muted">Kliknij w szare pole, aby odkryć nagrodę!</p>
+    </div>
 
     <div class="scratch-container mt-5">
         <!-- Zwycięski przedmiot (ukryty pod spodem) -->
@@ -34,9 +105,9 @@
             {
                 <i class="bi bi-box-seam text-warning mb-2" style="font-size:3rem;" title="Brak przypisanej grafiki"></i>
             }
-            <h4 class="text-warning fw-bold mb-3">@Html.Raw(wonItem.Name)</h4>
-            <span class="badge bg-light text-dark mb-3" style="letter-spacing: 1px;">@Html.Raw(wonItem.ItemRarity.Name)</span>
-            <p class="text-success small fw-bold">@Html.Raw(ViewBag.Message)</p>
+            <h4 class="text-success fw-bold mb-3">@Html.Raw(wonItem.Name)</h4>
+            <span class="badge" style="background-color: #46CC5E; color: #000; letter-spacing: 1px;">@Html.Raw(wonItem.ItemRarity.Name)</span>
+            <p class="text-success small fw-bold mt-3">@Html.Raw(ViewBag.Message)</p>
         </div>
         
         <!-- Szare pole zdrapki -->
@@ -46,7 +117,7 @@
     </div>
 
     <div id="btn-back" class="mt-5" style="visibility: hidden; opacity: 0; transition: opacity 1s;">
-        <a asp-action="Index" class="btn btn-outline-warning px-5 py-2 fw-bold">Wróć do sklepu</a>
+        <a asp-action="Index" class="btn btn-outline-success px-5 py-2 fw-bold" style="color: #46CC5E; border-color: #46CC5E;">Wróć do sklepu</a>
     </div>
 </div>
 

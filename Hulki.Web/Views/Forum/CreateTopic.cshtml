@@ -3,41 +3,49 @@
     ViewData["Title"] = "Nowy Temat - " + category?.Name;
 }
 
-<div class="container mt-5">
+<div class="container mt-4 text-light">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow border-0 bg-dark-subtle">
-                <div class="card-header bg-success text-white p-3">
-                    <h4 class="m-0">Nowy temat w dziale: @category?.Name</h4>
+            <div class="form-card card h-100 d-flex flex-column border-0 rounded-4 shadow-lg">
+                <div class="card-header p-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, rgba(70, 204, 94, 0.15) 0%, rgba(70, 204, 94, 0.05) 100%); border-bottom: 1px solid rgba(70, 204, 94, 0.3); border-radius: 16px 16px 0 0;">
+                    <div class="form-icon-wrapper">
+                        <i class="bi bi-pencil-square text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="m-0 fw-bold text-light">Nowy temat</h4>
+                        <small class="text-muted">w dziale: <strong class="text-primary">@category?.Name</strong></small>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     @if (TempData["ErrorMessage"] != null)
                     {
-                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                        <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> @TempData["ErrorMessage"]
+                        </div>
                     }
 
                     <form asp-action="CreateTopic" method="post">
                         <input type="hidden" name="forumCategoryId" value="@category?.Id" />
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Tytuł tematu</label>
-                            <input type="text" name="title" class="form-control" required
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-light">Tytuł tematu</label>
+                            <input type="text" name="title" class="form-control form-control-lg bg-dark border-secondary text-light" required
                                    placeholder="Napisz krótki i zwięzły tytuł..." maxlength="200" />
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Treść</label>
-                            <textarea name="content" class="form-control" rows="8" required
+                            <label class="form-label fw-bold text-light">Treść</label>
+                            <textarea name="content" class="form-control form-control-lg bg-dark border-secondary text-light" rows="8" required
                                       placeholder="Opisz dokładnie swój problem lub przemyślenia..."></textarea>
                         </div>
 
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between gap-2">
                             <a asp-action="Category" asp-route-id="@category?.Id"
-                               class="btn text-light btn-outline-success"
+                               class="btn btn-outline-secondary fw-bold rounded-pill px-4 py-2"
                                style="color: #DA292E; border: 1px solid #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
                                onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
                                onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">Anuluj</a>
-                            <button type="submit" class="btn btn-success fw-bold">Utwórz temat</button>
+                            <button type="submit" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 custom-glow-btn" style="background-color: #46CC5E; color: #17171C; border: none;">Utwórz temat</button>
                         </div>
                     </form>
                 </div>
@@ -45,3 +53,38 @@
         </div>
     </div>
 </div>
+
+<style>
+    .form-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.03) !important;
+        transition: all 0.3s ease;
+    }
+
+    .form-icon-wrapper {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: rgba(70, 204, 94, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-control:focus {
+        background-color: #1f1f27 !important;
+        border-color: #46CC5E !important;
+        color: #fff !important;
+        box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .custom-glow-btn:hover {
+        background: #6C5CE7 !important;
+        color: #fff !important;
+        box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
+    }
+</style>

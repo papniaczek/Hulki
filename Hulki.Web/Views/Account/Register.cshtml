@@ -9,45 +9,85 @@
     }
 </style>
 
-<div class="container mt-4">
+<div class="container mt-4 text-light">
     <div class="row justify-content-center" style="min-height: 76vh; align-items: center;">
         <div class="col-md-6" style="padding-bottom: 0px !important">
-            <div class="card shadow-none border-0">
-                <div class="card-body p-5" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55); border-radius: 8%;">
-                    <h3 class="text-center mb-4" style="user-select: none;">Dołącz do terapii już dzisiaj!</h3>
+            <div class="register-card card border-0 rounded-4 shadow-lg" style="background-color: #1b1b22;">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="register-icon-wrapper mx-auto mb-3">
+                            <i class="bi bi-person-plus-fill text-primary fs-3"></i>
+                        </div>
+                        <h3 class="text-light fw-bold" style="user-select: none; letter-spacing: 1px;">DOŁĄCZ DO TERAPII</h3>
+                        <p class="text-muted small mb-0">Już dzisiaj! Zarezerwuj swoją przyszłość.</p>
+                    </div>
 
                     <form asp-controller="Account" asp-action="Register" method="post" id="registerForm" novalidate>
                         <div class="mb-3">
-                            <label class="form-label text-muted small text-uppercase" style="user-select: none;">Imię</label>
-                            <input type="text" name="firstName" id="firstName" class="form-control form-control-lg" required />
+                            <label class="form-label text-muted small text-uppercase fw-bold" style="user-select: none; letter-spacing: 0.5px;">Imię</label>
+                            <input type="text" name="firstName" id="firstName" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required placeholder="Jan" />
                             <div class="invalid-feedback">Imię nie może być puste.</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted small text-uppercase" style="user-select: none;">Nazwisko</label>
-                            <input type="text" name="lastName" id="lastName" class="form-control form-control-lg" required />
+                            <label class="form-label text-muted small text-uppercase fw-bold" style="user-select: none; letter-spacing: 0.5px;">Nazwisko</label>
+                            <input type="text" name="lastName" id="lastName" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required placeholder="Kowalski" />
                             <div class="invalid-feedback">Nazwisko nie może być puste.</div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted small text-uppercase" style="user-select: none;">Email</label>
-                            <input type="email" name="email" id="email" class="form-control form-control-lg" required />
+                            <label class="form-label text-muted small text-uppercase fw-bold" style="user-select: none; letter-spacing: 0.5px;">Email</label>
+                            <input type="email" name="email" id="email" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required placeholder="jan@example.com" />
                             <div class="invalid-feedback">Podaj poprawny adres email (np. wujek@kujek.pl).</div>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label text-muted small text-uppercase" style="user-select: none;">Hasło</label>
-                            <input type="password" name="password" id="password" class="form-control form-control-lg" required />
+                            <label class="form-label text-muted small text-uppercase fw-bold" style="user-select: none; letter-spacing: 0.5px;">Hasło</label>
+                            <input type="password" name="password" id="password" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required placeholder="••••••••" />
                             <div class="invalid-feedback">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
-                            <div class="form-text" id="passwordHint" style="user-select: none;">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
+                            <div class="form-text" id="passwordHint" style="user-select: none; color: rgba(255,255,255,0.6);">Min. 6 znaków, duża litera, cyfra i znak specjalny.</div>
                         </div>
-                        <button type="submit" class="btn btn-success btn-lg w-100">Zarejestruj się</button>
+                        <button type="submit" class="btn btn-register w-100 fw-bold py-3 rounded-3 mt-2" style="background: linear-gradient(135deg, #46CC5E 0%, #2eb34d 100%); color: #fff; border: none; transition: all 0.3s ease;">Zarejestruj się</button>
                     </form>
                 </div>
             </div>
-            <div class="text-center mt-3">
+            <div class="text-center mt-4">
                 <span class="text-muted small">Masz już konto? </span>
-                <a asp-controller="Account" asp-action="Login" class="text-decoration-none" style="font-size: 0.90rem;">Zaloguj się</a>
+                <a asp-controller="Account" asp-action="Login" class="text-primary fw-bold text-decoration-none" style="font-size: 0.95rem; transition: all 0.2s ease;" onmouseover="this.style.textShadow='0 0 10px rgba(70, 204, 94, 0.5)';" onmouseout="this.style.textShadow='none';">Zaloguj się</a>
         </div>
     </div>
 </div>
+
+<style>
+    .register-card {
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        transition: all 0.3s ease;
+    }
+
+    .register-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: rgba(70, 204, 94, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background-color: #1f1f27 !important;
+        border-color: #46CC5E !important;
+        color: #fff !important;
+        box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .btn-register:hover {
+        box-shadow: 0 0 20px rgba(70, 204, 94, 0.5);
+        transform: translateY(-2px);
+    }
+</style>
 
 <script>
     (function () {

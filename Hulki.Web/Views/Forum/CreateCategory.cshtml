@@ -2,39 +2,47 @@
     ViewData["Title"] = "Nowe Forum";
 }
 
-<div class="container mt-5">
+<div class="container mt-4 text-light">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow border-0 bg-dark-subtle">
-                <div class="card-header p-3" style="background-color: rgba(70, 204, 94, 0.15); border-bottom: 1px solid rgba(70, 204, 94, 0.3);">
-                    <h4 class="m-0 text-light fw-bold">
-                        <i class="bi bi-folder-plus me-2 text-success"></i>Nowe Forum
-                    </h4>
+            <div class="form-card card h-100 d-flex flex-column border-0 rounded-4 shadow-lg" style="background-color: #1b1b22; border: 1px solid rgba(255, 255, 255, 0.03);">
+                <div class="card-header p-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, rgba(70, 204, 94, 0.15) 0%, rgba(70, 204, 94, 0.05) 100%); border-bottom: 1px solid rgba(70, 204, 94, 0.3); border-radius: 16px 16px 0 0;">
+                    <div class="form-icon-wrapper">
+                        <i class="bi bi-folder-plus text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="m-0 fw-bold text-light">Nowe Forum</h4>
+                        <small class="text-muted">Utwórz nową kategorię dyskusji</small>
+                    </div>
                 </div>
                 <div class="card-body p-4">
                     @if (TempData["ErrorMessage"] != null)
                     {
-                        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+                        <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> @TempData["ErrorMessage"]
+                        </div>
                     }
 
                     <form asp-action="CreateCategory" method="post">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label fw-bold text-light">Nazwa forum</label>
-                            <input type="text" name="name" class="form-control" required
+                            <input type="text" name="name" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required
                                    placeholder="Np. Motywacja, Porady, Sukcesy..." maxlength="100" />
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label fw-bold text-light">Opis <span class="text-muted fw-normal">(opcjonalny)</span></label>
-                            <textarea name="description" class="form-control" rows="4"
+                            <textarea name="description" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" rows="4"
                                       placeholder="Krótki opis czego dotyczy to forum..." maxlength="500"></textarea>
                         </div>
 
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between gap-2">
                             <a asp-action="Index"
-                               class="btn btn-outline-secondary text-light"
-                               style="border-color: rgba(255,255,255,0.2);">Anuluj</a>
-                            <button type="submit" class="btn btn-success fw-bold px-4">
+                               class="btn btn-outline-secondary fw-bold rounded-pill px-4 py-2"
+                               style="border-color: #DA292E; color: #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
+                               onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
+                               onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">Anuluj</a>
+                            <button type="submit" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 custom-glow-btn" style="background-color: #46CC5E; color: #17171C; border: none;">
                                 <i class="bi bi-plus-circle me-1"></i> Utwórz forum
                             </button>
                         </div>
@@ -44,3 +52,39 @@
         </div>
     </div>
 </div>
+
+<style>
+    .form-icon-wrapper {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: rgba(70, 204, 94, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-control:focus {
+        background-color: #1f1f27 !important;
+        border-color: #46CC5E !important;
+        color: #fff !important;
+        box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .custom-glow-btn:hover {
+        background: #6C5CE7 !important;
+        color: #fff !important;
+        box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
+    }
+</style>

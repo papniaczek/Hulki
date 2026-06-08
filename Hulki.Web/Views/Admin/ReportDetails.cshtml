@@ -12,13 +12,14 @@
         </a>
     </div>
 
-    <div class="card border-0 shadow-sm text-white p-4 mb-4 rounded-4"
-         style="background: linear-gradient(135deg, #0d6efd, #0a58ca); box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55) !important">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div class="report-header-card card border-0 shadow-lg text-light p-4 mb-4 rounded-4 position-relative overflow-hidden"
+         style="background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%); border: 1px solid rgba(70, 204, 94, 0.15) !important;">
+        <div class="report-header-glow"></div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 position-relative z-1">
             <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
-                     style="width:64px;height:64px;font-size:1.8rem;">
-                    <i class="bi bi-journal-check fs-2"></i>
+                <div class="rounded-circle d-flex align-items-center justify-content-center"
+                     style="width:64px;height:64px;font-size:1.8rem;background:rgba(70, 204, 94, 0.15);border: 2px solid rgba(70, 204, 94, 0.4);">
+                    <i class="bi bi-journal-check fs-2 text-success"></i>
                 </div>
                 <div>
                     <h2 class="mb-0 fw-bold">Wpis z dnia @Model.CreatedAt.ToString("dd.MM.yyyy")</h2>
@@ -27,27 +28,77 @@
                     </p>
                 </div>
             </div>
-            <div class="text-end" style="display: flex; flex-direction: column; align-items: right;">
-                <div class="text-white-50 small text-uppercase fw-bold mb-1">Status wpisu</div>
+            <div class="text-end">
+                <div class="text-muted small text-uppercase fw-bold mb-2" style="letter-spacing: 0.5px;">Status wpisu</div>
                 @if (Model.ReportStatus?.Name == "Zatwierdzony")
                 {
-                    <span
-                        class="badge bg-success text-white fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name
-                    </span>
+                    <span class="badge bg-success text-white fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name</span>
                 }
                 else if (Model.ReportStatus?.Name == "Odrzucony")
                 {
-                    <span class="badge bg-danger text-white fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name
-                    </span>
+                    <span class="badge bg-danger text-white fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name</span>
                 }
                 else
                 {
-                    <span class="badge bg-light text-dark fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name
-                    </span>
+                    <span class="badge bg-secondary text-white fs-6 px-3 py-2 rounded-pill shadow-sm">@Model.ReportStatus?.Name</span>
                 }
             </div>
         </div>
     </div>
+
+    <style>
+        .report-header-glow {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .card {
+            background-color: #1b1b22 !important;
+            border: 1px solid rgba(255, 255, 255, 0.03) !important;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15) !important;
+            border-color: rgba(70, 204, 94, 0.2) !important;
+        }
+
+        .card-header {
+            background: rgba(70, 204, 94, 0.05) !important;
+            border-bottom: 1px solid rgba(70, 204, 94, 0.1) !important;
+        }
+
+        .btn-outline-primary {
+            color: #46CC5E !important;
+            border-color: rgba(70, 204, 94, 0.3) !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: rgba(70, 204, 94, 0.1) !important;
+            border-color: #46CC5E !important;
+            box-shadow: 0 0 15px rgba(70, 204, 94, 0.3);
+        }
+
+        .btn-outline-danger, .btn-outline-success {
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-success:hover {
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-outline-danger:hover {
+            box-shadow: 0 0 15px rgba(218, 41, 46, 0.4);
+        }
+    </style>
 
     @if (TempData["SuccessMessage"] != null)
     {
