@@ -20,6 +20,7 @@
             </div>
         </div>
     </div>
+    
 
     @{
         var quote = ViewBag.Quote as Hulki.Web.Models.Dto.QuoteDto;
@@ -189,7 +190,6 @@
         </div>
         <div class="carousel-dots mt-4"></div>
     </div>
-</div>
 </div>
 
 <style>
@@ -459,6 +459,24 @@
         });
 
         generateDots();
+
+        function nextSlide() {
+            if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 2) {
+                track.scrollTo({
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            } else {
+                track.scrollBy({
+                    left: track.clientWidth,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        nextBtn.addEventListener('click', nextSlide);
+
+        setInterval(nextSlide, 3000);
 
         prevBtn.addEventListener('click', () => {
             if (track.scrollLeft <= 0) {
