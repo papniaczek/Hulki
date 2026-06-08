@@ -100,15 +100,6 @@
         }
     </style>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success border-0 shadow-sm mt-3">@TempData["SuccessMessage"]</div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger border-0 shadow-sm mt-3">@TempData["ErrorMessage"]</div>
-    }
-
     <div class="row g-4">
         <div class="col-md-4">
             <div class="card border-0 shadow-sm mb-3" style="min-height: 205px;">

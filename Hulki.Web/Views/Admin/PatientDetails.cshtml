@@ -17,15 +17,6 @@
         </a>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success border-0 shadow-sm">@TempData["SuccessMessage"]</div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger border-0 shadow-sm">@TempData["ErrorMessage"]</div>
-    }
-
     <!-- HEADER -->
     <div class="patient-header-card card border-0 shadow-lg text-light p-5 mb-4 rounded-4 position-relative overflow-hidden"
          style="background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%); border: 1px solid rgba(70, 204, 94, 0.15) !important;">

@@ -7,14 +7,6 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
 
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-warning alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
-                    <i class="bi bi-clock-history me-2"></i> @TempData["ErrorMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-
             <div class="custom-card-container mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4">
                 <div class="position-relative z-1">
                     <h2 class="text-center mb-2 text-primary fw-bold text-uppercase" style="letter-spacing: 1px;">

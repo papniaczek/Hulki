@@ -27,13 +27,6 @@
 
                 <div class="card-body p-5">
 
-                    @if (TempData["ErrorMessage"] != null)
-                    {
-                        <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
-                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> @TempData["ErrorMessage"]
-                        </div>
-                    }
-
                     <form asp-action="CreateCategory" method="post">
                         <div class="mb-4">
                             <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Nazwa forum <span class="text-danger">*</span></label>
@@ -98,7 +91,7 @@
     }
 
     .form-control:focus {
-        background-color: #1f1f27 !important;
+        background-color: #131319 !important;
         border-color: #46CC5E !important;
         color: #fff !important;
         box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);

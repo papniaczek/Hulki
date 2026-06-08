@@ -14,9 +14,68 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/Hulki.Web.styles.css" asp-append-version="true"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        #flash-message {
+            position: fixed;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%) translateY(30px);
+            z-index: 1080;
+            width: auto;
+            max-width: 460px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        #flash-message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .flash-bubble {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            background: rgba(27, 27, 34, 0.98);
+            color: #f8f9fa;
+            border-radius: 18px;
+            padding: 1rem 1.3rem;
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .flash-bubble.success {
+            border-color: rgba(70, 204, 94, 0.45);
+        }
+
+        .flash-bubble.error {
+            border-color: rgba(218, 41, 46, 0.45);
+        }
+    </style>
 </head>
 
 <body>
+@if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+{
+    <div id="flash-message">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="flash-bubble success">
+                <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+            </div>
+        }
+        else if (TempData["ErrorMessage"] != null)
+        {
+            <div class="flash-bubble error">
+                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["ErrorMessage"]
+            </div>
+        }
+    </div>
+}
 <header>
     <nav
         class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark-subtle mb-3 custom-navbar-gradient-border">
@@ -142,6 +201,17 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var flash = document.getElementById('flash-message');
+        if (!flash) return;
+
+        flash.classList.add('show');
+        setTimeout(function () {
+            flash.classList.remove('show');
+        }, 5000);
+    });
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 

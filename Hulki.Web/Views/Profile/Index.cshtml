@@ -5,15 +5,6 @@
     var reports = ViewBag.Reports as List<DailyReport>;
 }
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show mx-3 mt-3 shadow-sm border-0 rounded-3 d-flex align-items-center"
-         role="alert">
-        <i class="bi bi-check-circle-fill me-2 fs-5"></i> @TempData["SuccessMessage"]
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-    </div>
-}
-
 <div class="container mt-4">
     <!-- HEADER PROFILU -->
     <div class="profile-header-card mb-5 p-4 position-relative overflow-hidden rounded-4">

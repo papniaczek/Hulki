@@ -36,19 +36,6 @@
         <div class="group-header-glow"></div>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
-            <i class="bi bi-check-circle-fill me-2 fs-5"></i> @TempData["SuccessMessage"]
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
-            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> @TempData["ErrorMessage"]
-        </div>
-    }
-
     <div class="row g-4">
         @foreach (var group in Model)
         {

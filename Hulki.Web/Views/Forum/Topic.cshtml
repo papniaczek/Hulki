@@ -24,14 +24,6 @@
         <div class="topic-header-glow"></div>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center">
-            <i class="bi bi-check-circle-fill me-2 fs-5"></i> @TempData["SuccessMessage"]
-        </div>
-    }
-
-
     <h5 class="mb-4 fw-bold text-primary text-uppercase" style="letter-spacing: 1px;">
         <i class="bi bi-chat-left-text-fill me-2"></i>Odpowiedzi (@(Model.Posts?.Count ?? 0))
     </h5>
