@@ -26,437 +26,492 @@
                     <i class="bi bi-person-fill text-light" style="font-size: 3rem;"></i>
                 </div>
                 <div>
-                    <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">@user.FirstName
-                        @user.LastName</h2>
-                        <p class="mb-0 text-muted small">
-                            <i class="bi bi-envelope me-2"></i>@user.Email
-                        </p>
-                    </div>
-                </div>
-                <div class="text-md-end text-center wallet-points p-3 rounded-3 shadow-sm">
-                    <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">TWÓJ PORTFEL
-                    </h6>
-                    <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
-                        @ViewBag.Points
+                    <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">
+                        @user.FirstName
+                        @user.LastName
                     </h2>
+                    <p class="mb-0 text-muted small">
+                        <i class="bi bi-envelope me-2"></i>@user.Email
+                    </p>
                 </div>
             </div>
-            <!-- Dekoracyjna poświata w tle -->
-            <div class="profile-header-glow-left"></div>
-            <div class="profile-header-glow-right"></div>
+            <div class="text-md-end text-center wallet-points p-3 rounded-3 shadow-sm">
+                <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">
+                    TWÓJ PORTFEL
+                </h6>
+                <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
+                    @ViewBag.Points
+                </h2>
+            </div>
         </div>
+        <div class="profile-header-glow-left"></div>
+        <div class="profile-header-glow-right"></div>
+    </div>
 
-        <div class="row g-4">
-            <!-- SEKCJA: EKWIPUNEK -->
-            <div class="col-md-7">
-                <div class="d-flex justify-content-center align-items-center gap-3 mb-4 border-bottom border-secondary pb-2">
-                    <h4 class="text-light fw-bold mb-0">Twój Ekwipunek
-                    </h4>
-                    <span class="badge bg-primary text-dark rounded-pill px-3 py-2 fw-bold">Posiadane:
-                        @inventory.Count</span>
-                    </div>
+    <div class="row g-4">
+        <!-- SEKCJA: EKWIPUNEK -->
+        <div class="col-md-7">
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-4 border-bottom border-secondary pb-2">
+                <h4 class="text-light fw-bold mb-0">
+                    Twój Ekwipunek
+                </h4>
+                <span class="badge bg-primary text-dark rounded-pill px-3 py-2 fw-bold">
+                    Posiadane:
+                    @inventory.Count
+                </span>
+            </div>
 
-                    @if (inventory != null && inventory.Any())
+            @if (inventory != null && inventory.Any())
+            {
+                <div class="row g-3" id="inventoryGrid">
+                    @foreach (var item in inventory)
                     {
-                        <div class="row g-3" id="inventoryGrid">
-                            @foreach (var item in inventory)
-                            {
-                                var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
-                                var rarityName = item.ItemRarity?.Name ?? "Pospolity";
+                        var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
+                        var rarityName = item.ItemRarity?.Name ?? "Pospolity";
 
-                                <div class="col-6 col-sm-4">
-                                    <!-- KARTA PRZEDMIOTU -->
-                                    <!-- Dodałem pb-5, żeby zrobić bezpieczne miejsce dla przycisku Sprzedaj -->
-                                    <div class="inventory-card card h-100 text-center position-relative overflow-hidden pb-5"
-                                         data-item-id="@item.Id" style="--item-color: @rarityColor;">
+                        <div class="col-6 col-sm-4">
+                            <!-- KARTA PRZEDMIOTU -->
+                            <div class="inventory-card card h-100 text-center position-relative overflow-hidden pb-5"
+                                 data-item-id="@item.Id" style="--item-color: @rarityColor;">
 
-                                        <!-- IKONA ZAZNACZENIA -->
-                                        <div class="item-check position-absolute top-0 end-0 m-2" style="display:none; z-index:10;">
-                                            <i class="bi bi-check-circle-fill text-success fs-4 drop-shadow"></i>
-                                        </div>
-
-                                        <div class="card-body pt-4 px-2 pb-0 d-flex flex-column align-items-center">
-                                            <div class="item-icon-container mb-3 d-flex align-items-center justify-content-center">
-                                                @if (!string.IsNullOrWhiteSpace(item.IconPath))
-                                                {
-                                                    <img src="@item.IconPath" alt="@item.Name" class="item-image"
-                                                         onerror="this.onerror=null;this.outerHTML='<i class=\'bi bi-box-seam item-icon-fallback\'></i>';" />
-                                                }
-                                                else
-                                                {
-                                                    <i class="bi bi-box-seam item-icon-fallback" title="Brak przypisanej grafiki"></i>
-                                                }
-                                            </div>
-                                            <div class="fw-bold small text-truncate w-100 mb-2 text-light" title="@item.Name">@item.Name
-                                            </div>
-                                            <span class="badge w-100"
-                                                  style="background-color: @rarityColor; color: #17171C;">@rarityName</span>
-                                        </div>
-
-                                        <!-- UKRYTY PRZYCISK SPRZEDAŻY -->
-                                        <div class="sell-overlay position-absolute bottom-0 start-0 w-100 p-2">
-                                            <form asp-controller="Store" asp-action="SellItem" method="post"
-                                                  class="single-sell-form m-0">
-                                                <input type="hidden" name="itemId" value="@item.Id" />
-                                                <button type="submit" class="btn btn-sm w-100 fw-bold sell-single-btn"
-                                                        onclick="return confirm('Na pewno sprzedać @item.Name?')">
-                                                    Sprzedaj
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                <!-- IKONA ZAZNACZENIA -->
+                                <div class="item-check position-absolute top-0 end-0 m-2" style="display:none; z-index:10;">
+                                    <i class="bi bi-check-circle-fill text-success fs-4 drop-shadow"></i>
                                 </div>
-                            }
-                        </div>
 
-                        <!-- PASEK MULTI-SELL -->
-                        <form asp-controller="Store" asp-action="SellMultiple" method="post" id="multiSellForm">
-                            <div id="multiSellBar" class="multi-sell-floating-bar" style="display:none;">
-                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                    <span class="text-white fw-bold">
-                                        Zaznaczono: <span id="selectedNum" class="text-primary fs-5 mx-1">0</span>
+                                <div class="card-body pt-4 px-2 pb-0 d-flex flex-column align-items-center">
+                                    <div class="item-icon-container mb-3 d-flex align-items-center justify-content-center">
+                                        @if (!string.IsNullOrWhiteSpace(item.IconPath))
+                                        {
+                                            <img src="@item.IconPath" alt="@item.Name" class="item-image"
+                                                 onerror="this.onerror=null;this.outerHTML='<i class=\'bi bi-box-seam item-icon-fallback\'></i>';"/>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-box-seam item-icon-fallback" title="Brak przypisanej grafiki"></i>
+                                        }
+                                    </div>
+                                    <div class="fw-bold small text-truncate w-100 mb-2 text-light" title="@item.Name">
+                                        @item.Name
+                                    </div>
+                                    <span class="badge w-100"
+                                          style="background-color: @rarityColor; color: #17171C;">
+                                        @rarityName
                                     </span>
-                                    <div class="d-flex gap-2 flex-wrap">
-                                        <button type="button" id="btnSelectAll"
-                                                class="btn btn-sm btn-secondary rounded-pill">Wszystkie</button>
-                                        <button type="button" id="btnDeselectAll"
-                                                class="btn btn-sm btn-secondary rounded-pill">Odznacz</button>
-                                        <button type="submit" class="btn btn-sm btn-danger fw-bold rounded-pill shadow-sm"
-                                                onclick="return confirmMultiSell()">
-                                            Sprzedaj zaznaczone
-                                        </button>
-                                    </div>
                                 </div>
-                            </div>
-                        </form>
-                    }
-                    else
-                    {
-                        <div class="card border-0 shadow-sm empty-inventory-card">
-                            <div class="card-body text-center p-5 text-muted">
-                                <i class="bi bi-box2-heart fs-1 d-block mb-3 opacity-50"></i>
-                                <p class="mb-4">Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę w sklepie!
-                                </p>
-                                <a asp-controller="Store" asp-action="Index" class="btn btn-primary fw-bold rounded-pill px-4">
-                                    Przejdź do sklepu
-                                </a>
+
+                                <!-- UKRYTY PRZYCISK SPRZEDAŻY -->
+                                <div class="sell-overlay position-absolute bottom-0 start-0 w-100 p-2">
+                                    <form asp-controller="Store" asp-action="SellItem" method="post"
+                                          class="single-sell-form m-0">
+                                        <input type="hidden" name="itemId" value="@item.Id"/>
+                                        <button type="submit" class="btn btn-sm w-100 fw-bold sell-single-btn"
+                                                onclick="return confirm('Na pewno sprzedać @item.Name?')">
+                                            Sprzedaj
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     }
                 </div>
 
-                <!-- SEKCJA: OSTATNIE WPISY (Dzienniczek) -->
-                <div class="col-md-5">
-                    <div class="d-flex justify-content-center align-items-center mb-4 border-bottom border-secondary pb-2">
-                        <h4 class="text-light fw-bold mb-0">Ostatnie Wpisy
-                        </h4>
+                <!-- PASEK MULTI-SELL -->
+                <form asp-controller="Store" asp-action="SellMultiple" method="post" id="multiSellForm">
+                    <div id="multiSellBar" class="multi-sell-floating-bar" style="display:none;">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <span class="text-white fw-bold">
+                                Zaznaczono: <span id="selectedNum" class="text-primary fs-5 mx-1">0</span>
+                            </span>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" id="btnSelectAll"
+                                        class="btn btn-sm btn-secondary rounded-pill">
+                                    Wszystkie
+                                </button>
+                                <button type="button" id="btnDeselectAll"
+                                        class="btn btn-sm btn-secondary rounded-pill">
+                                    Odznacz
+                                </button>
+                                <button type="submit" class="btn btn-sm btn-danger fw-bold rounded-pill shadow-sm"
+                                        onclick="return confirmMultiSell()">
+                                    Sprzedaj zaznaczone
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                </form>
+            }
+            else
+            {
+                <div class="card border-0 shadow-sm empty-inventory-card" style="min-height: 305px;">
+                    <div class="card-body text-center p-5 text-muted" style="margin-top: 6px;">
+                        <i class="bi bi-box2-heart fs-1 d-block mb-3 opacity-50"></i>
+                        <p class="mb-4">
+                            Twój ekwipunek jest pusty.<br>Zdobądź punkty i otwórz pierwszą skrzynkę w sklepie!
+                        </p>
+                        <a asp-controller="Store" asp-action="Index" class="btn btn-custom-shop fw-bold rounded-pill px-4">
+                            Przejdź do sklepu
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
 
-                    <div class="card border-0 reports-card h-100 d-flex flex-column" style="background-color: #1b1b22; border: 1px solid rgba(255, 255, 255, 0.03);">
-                        <div class="card-body p-0 d-flex flex-column flex-grow-1">
-                            <ul class="list-group list-group-flush rounded-3 flex-grow-1 d-flex flex-column overflow-auto" style="max-height: 300px;">
-                                @if (reports != null && reports.Any())
-                                {
-                                    foreach (var report in reports)
-                                    {
-                                        <li class="list-group-item report-list-item bg-transparent border-secondary" style="cursor: pointer;">
-                                            <a asp-controller="Admin" asp-action="ReportDetails" asp-route-id="@report.Id" class="text-decoration-none" style="display: block; padding: 1rem;">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <small class="text-muted fw-bold">
-                                                        <i class="bi bi-calendar-event me-2"></i>@report.CreatedAt.ToString("dd.MM.yyyy")
-                                                    </small>
-                                                    <span class="badge border border-secondary text-muted px-2 py-1">@report.ReportStatus.Name</span>
-                                                </div>
-                                                <p class="mb-0 text-light small text-truncate" style="transition: all 0.2s ease;">@report.Content</p>
-                                            </a>
-                                        </li>
-                                    }
-                                }
-                                else
-                                {
-                                    <li class="list-group-item p-5 text-center text-muted border-0 bg-transparent">
-                                        <i class="bi bi-journal-x fs-1 d-block mb-3 opacity-25"></i>
-                                        Brak wpisów w dzienniczku.
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                        <div class="card-footer bg-transparent border-top border-secondary text-center p-3">
-                            <a asp-controller="Patient" asp-action="DailyReport"
-                               class="btn btn-custom-success fw-bold rounded-pill py-2 w-100" style="background-color: #46CC5E; color: #17171C; border: none;">
-                                <i class="bi bi-pencil-square me-2"></i> Dodaj dzisiejszy wpis
-                            </a>
-                        </div>
-                    </div>
+        <!-- SEKCJA: OSTATNIE WPISY (Dzienniczek) -->
+        <div class="col-md-5">
+            <div class="d-flex justify-content-center align-items-center mb-4 border-bottom border-secondary pb-2">
+                <h4 class="text-light fw-bold mb-0">
+                    Ostatnie Wpisy
+                </h4>
+            </div>
+
+            <div class="card border-0 reports-card d-flex flex-column" style="background-color: #1b1b22; border: 1px solid rgba(255, 255, 255, 0.03);">
+                <div class="card-body p-0 d-flex flex-column flex-grow-1">
+                    <ul class="list-group list-group-flush rounded-3 flex-grow-1 d-flex flex-column overflow-auto" style="max-height: 232px;">
+                        @if (reports != null && reports.Any())
+                        {
+                            foreach (var report in reports.Take(3))
+                            {
+                                <li class="list-group-item report-list-item bg-transparent border-secondary" style="cursor: pointer;">
+                                    <a asp-controller="Admin" asp-action="ReportDetails" asp-route-id="@report.Id" class="text-decoration-none" style="display: block; padding: 1rem;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <small class="text-muted fw-bold">
+                                                <i class="bi bi-calendar-event me-2"></i>@report.CreatedAt.ToString("dd.MM.yyyy")
+                                            </small>
+                                            <span class="badge border border-secondary text-muted px-2 py-1">@report.ReportStatus.Name</span>
+                                        </div>
+                                        <p class="mb-0 text-light small text-truncate" style="transition: all 0.2s ease;">@report.Content</p>
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item p-5 text-center text-muted border-0 bg-transparent">
+                                <i class="bi bi-journal-x fs-1 d-block mb-3 opacity-25"></i>
+                                Brak wpisów w dzienniczku.
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent border-top border-secondary text-center p-3">
+                    <a asp-controller="Patient" asp-action="DailyReport"
+                       class="btn btn-custom-success w-100 ">
+                        <i class="bi bi-pencil-square me-2"></i> Dodaj dzisiejszy wpis
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <style>
-            /* Nagłówek Profilu */
-            .profile-header-card {
-                background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
-                border: 1px solid rgba(70, 204, 94, 0.15);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            }
-        
-            .profile-header-glow-left {
-                position: absolute;
-                top: -50px;
-                left: -50px;
-                width: 250px;
-                height: 250px;
-                background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
-                border-radius: 50%;
-                z-index: 0;
-                pointer-events: none;
-            }
-        
-            .profile-header-glow-right {
-                position: absolute;
-                top: -100px;
-                right: -80px;
-                width: 250px;
-                height: 250px;
-                background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
-                border-radius: 50%;
-                z-index: 0;
-                pointer-events: none;
-            }
-        
-            .avatar-wrapper {
-                width: 80px;
-                height: 80px;
-                background: rgba(70, 204, 94, 0.15);
-                border: 2px solid rgba(70, 204, 94, 0.4);
-                box-shadow: 0 0 15px rgba(70, 204, 94, 0.2);
-            }
-        
-            /* Karta Pustego Ekwipunku */
-            .empty-inventory-card {
-                background-color: #1b1b22;
-                border-radius: 16px;
-                background-color: #1b1b22;
-                border: 1px solid rgba(255, 255, 255, 0.03) !important;
-            }
-        
-            /* --- Karty Ekwipunku --- */
-            .inventory-card {
-                background-color: #1b1b22;
-                border: 1px solid rgba(255, 255, 255, 0.05) !important;
-                border-top: 3px solid var(--item-color) !important;
-                border-radius: 12px;
-                transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-                cursor: pointer;
-            }
-        
-            /* Pojemnik na ikonę w karcie */
-            .item-icon-container {
-                height: 60px;
-                width: 100%;
-            }
-        
-            .item-image {
-                width: 45px;
-                height: 45px;
-                object-fit: contain;
-                filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
-            }
-        
-            .item-icon-fallback {
-                font-size: 2.5rem;
-                color: var(--item-color);
-                filter: drop-shadow(0 0 8px var(--item-color));
-            }
-        
-            /* Hover na karcie - Karta świeci kolorem rzadkości */
-            .inventory-card:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--item-color);
-                border-color: var(--item-color) !important;
-                background-color: #1f1f27;
-            }
-        
-            .wallet-points {
-                background: rgba(0, 0, 0, 0.25);
-                border: 1px solid rgba(70, 204, 94, 0.15);
-                min-width: 180px;
-            }
-        
-            /* Overlay przycisku Sprzedaj */
-            .sell-overlay {
-                /* Usunięto przezroczystość, by przycisk miał solidne, ciemne tło przykrywające pustą przestrzeń na dole */
-                background: #1b1b22;
-                opacity: 0;
-                transform: translateY(10px);
-                transition: all 0.2s ease;
-                border-bottom-left-radius: 12px;
-                border-bottom-right-radius: 12px;
-            }
-        
-            .inventory-card:hover .sell-overlay {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        
-            .sell-single-btn {
-                background-color: #DA292E;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                transition: all 0.2s ease;
-            }
-        
-            .sell-single-btn:hover {
-                background-color: #ff3b40;
-                box-shadow: 0 0 10px rgba(218, 41, 46, 0.6);
-            }
-        
-            /* --- Karta Dzienniczka --- */
-            .reports-card {
-                background-color: #1b1b22;
-                border-radius: 16px;
-                border: 1px solid rgba(255, 255, 255, 0.05) !important;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            }
-        
-            .report-list-item {
-                background-color: transparent !important;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-                transition: background-color 0.2s ease;
-            }
-        
-            .report-list-item:hover {
-                background-color: rgba(255, 255, 255, 0.02) !important;
-            }
-        
-            .report-list-item:last-child {
-                border-bottom: none !important;
-            }
-        
-            /* --- Tryb Multi-Sell  --- */
-            .inventory-card.selected {
-                background-color: rgba(70, 204, 94, 0.1) !important;
-                border-color: #46CC5E !important;
-                box-shadow: 0 0 0 2px #46CC5E, inset 0 0 20px rgba(70, 204, 94, 0.2) !important;
-                transform: scale(0.97);
-            }
-        
-            .inventory-card.selected .item-check {
-                display: block !important;
-            }
-        
-            /* Ukrywamy pojedynczy przycisk sprzedazy, gdy cos zaznaczono */
-            body.multi-mode .sell-overlay {
-                display: none !important;
-            }
-        
-            body.multi-mode {
-                padding-bottom: 90px;
-            }
-        
-            /* Pasek na dole ekranu podczas trybu Multi-Sell */
-            .multi-sell-floating-bar {
-                position: fixed;
-                bottom: 30px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: calc(100% - 2rem);
-                max-width: 700px;
-                z-index: 999;
-                background: rgba(23, 23, 28, 0.85);
-                backdrop-filter: blur(12px);
-                -webkit-backdrop-filter: blur(12px);
-                padding: 16px 24px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-                border-radius: 100px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                animation: slideUpFade 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-            }
-        
-            @@keyframes slideUpFade {
-                from {
-                    opacity: 0;
-                    transform: translate(-50%, 20px);
-                }
-        
-                to {
-                    opacity: 1;
-                    transform: translate(-50%, 0);
-                }
-            }
-        </style>
+<style>
+    /* Nagłówek Profilu */
+    .profile-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
 
-        <script>
-            (function () {
-                const cards = document.querySelectorAll('.inventory-card');
-                const form = document.getElementById('multiSellForm');
-                const bar = document.getElementById('multiSellBar');
-                const btnSelectAll = document.getElementById('btnSelectAll');
-                const btnDeselectAll = document.getElementById('btnDeselectAll');
-                const selectedNum = document.getElementById('selectedNum');
+    .btn-custom-success {
+        background: #1B1B22;
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.4);
+        border-radius: 50px;
+        padding: 8px 24px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
 
-                let selected = new Set();
 
-                function updateUI() {
-                    const count = selected.size;
-                    const anySelected = count > 0;
+    .btn-custom-success:hover {
+        background: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+        border-color: #46CC5E;
+    }
 
-                    bar.style.display = anySelected ? '' : 'none';
-                    selectedNum.textContent = count;
-                    document.body.classList.toggle('multi-mode', anySelected);
+    .btn-custom-shop {
+        background: #1B1B22;
+        color: #395feb;
+        border: 1px solid rgba(44, 76, 196, 0.4);
+        border-radius: 50px;
+        padding: 8px 24px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
 
-                    btnSelectAll.style.display = (count === cards.length) ? 'none' : '';
-                    btnDeselectAll.style.display = anySelected ? '' : 'none';
-                }
 
-                function toggleCard(card) {
-                    const id = card.dataset.itemId;
-                    if (selected.has(id)) {
-                        selected.delete(id);
-                        card.classList.remove('selected');
-                    } else {
-                        selected.add(id);
-                        card.classList.add('selected');
-                    }
-                    updateUI();
-                }
+    .btn-custom-shop:hover {
+        background: #395feb;
+        color: #fff;
+        box-shadow: 0 0 15px rgba(57, 95, 235, 0.4);
+        border-color: #395feb;
+    }
 
-                cards.forEach(card => {
-                    card.addEventListener('click', function (e) {
-                        if (e.target.closest('.single-sell-form')) return;
-                        toggleCard(card);
-                    });
-                });
+    .profile-header-glow-left {
+        position: absolute;
+        top: -50px;
+        left: -50px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
 
-                btnSelectAll.addEventListener('click', () => {
-                    cards.forEach(card => {
-                        selected.add(card.dataset.itemId);
-                        card.classList.add('selected');
-                    });
-                    updateUI();
-                });
+    .profile-header-glow-right {
+        position: absolute;
+        top: -100px;
+        right: -80px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
 
-                btnDeselectAll.addEventListener('click', () => {
-                    selected.clear();
-                    cards.forEach(card => card.classList.remove('selected'));
-                    updateUI();
-                });
+    .avatar-wrapper {
+        width: 80px;
+        height: 80px;
+        background: rgba(70, 204, 94, 0.15);
+        border: 2px solid rgba(70, 204, 94, 0.4);
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.2);
+    }
 
-                form.addEventListener('submit', function () {
-                    form.querySelectorAll('input[name="itemIds"]').forEach(el => el.remove());
-                    selected.forEach(id => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'itemIds';
-                        input.value = id;
-                        form.appendChild(input);
-                    });
-                });
+    /* Karta Pustego Ekwipunku */
+    .empty-inventory-card {
+        background-color: #1b1b22;
+        border-radius: 16px;
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
 
-                window.confirmMultiSell = function () {
-                    return confirm(`Na pewno chcesz sprzedać ${selected.size} przedmiotów?`);
-                };
-            })();
-        </script>
+    /* --- Karty Ekwipunku --- */
+    .inventory-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-top: 3px solid var(--item-color) !important;
+        border-radius: 12px;
+        transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+    }
+
+    /* Pojemnik na ikonę w karcie */
+    .item-icon-container {
+        height: 60px;
+        width: 100%;
+    }
+
+    .item-image {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .item-icon-fallback {
+        font-size: 2.5rem;
+        color: var(--item-color);
+        filter: drop-shadow(0 0 8px var(--item-color));
+    }
+
+    /* Hover na karcie - Karta świeci kolorem rzadkości */
+    .inventory-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--item-color);
+        border-color: var(--item-color) !important;
+        background-color: #1f1f27;
+    }
+
+    .wallet-points {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        min-width: 180px;
+    }
+
+    /* Overlay przycisku Sprzedaj */
+    .sell-overlay {
+        background: #1b1b22;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.2s ease;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    .inventory-card:hover .sell-overlay {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .sell-single-btn {
+        background-color: #DA292E;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .sell-single-btn:hover {
+        background-color: #ff3b40;
+        box-shadow: 0 0 10px rgba(218, 41, 46, 0.6);
+    }
+
+    /* --- Karta Dzienniczka --- */
+    .reports-card {
+        background-color: #1b1b22;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .report-list-item {
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .report-list-item:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+
+    .report-list-item:last-child {
+        border-bottom: none !important;
+    }
+
+    /* --- Tryb Multi-Sell  --- */
+    .inventory-card.selected {
+        background-color: rgba(70, 204, 94, 0.1) !important;
+        border-color: #46CC5E !important;
+        box-shadow: 0 0 0 2px #46CC5E, inset 0 0 20px rgba(70, 204, 94, 0.2) !important;
+        transform: scale(0.97);
+    }
+
+    .inventory-card.selected .item-check {
+        display: block !important;
+    }
+
+    /* Ukrywamy pojedynczy przycisk sprzedazy, gdy cos zaznaczono */
+    body.multi-mode .sell-overlay {
+        display: none !important;
+    }
+
+    body.multi-mode {
+        padding-bottom: 90px;
+    }
+
+    /* Pasek na dole ekranu podczas trybu Multi-Sell */
+    .multi-sell-floating-bar {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2rem);
+        max-width: 700px;
+        z-index: 999;
+        background: rgba(23, 23, 28, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 16px 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: slideUpFade 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+
+    @@keyframes slideUpFade {
+        from {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const cards = document.querySelectorAll('.inventory-card');
+        const form = document.getElementById('multiSellForm');
+        const bar = document.getElementById('multiSellBar');
+        const btnSelectAll = document.getElementById('btnSelectAll');
+        const btnDeselectAll = document.getElementById('btnDeselectAll');
+        const selectedNum = document.getElementById('selectedNum');
+
+        let selected = new Set();
+
+        function updateUI() {
+            const count = selected.size;
+            const anySelected = count > 0;
+
+            bar.style.display = anySelected ? '' : 'none';
+            selectedNum.textContent = count;
+            document.body.classList.toggle('multi-mode', anySelected);
+
+            btnSelectAll.style.display = (count === cards.length) ? 'none' : '';
+            btnDeselectAll.style.display = anySelected ? '' : 'none';
+        }
+
+        function toggleCard(card) {
+            const id = card.dataset.itemId;
+            if (selected.has(id)) {
+                selected.delete(id);
+                card.classList.remove('selected');
+            } else {
+                selected.add(id);
+                card.classList.add('selected');
+            }
+            updateUI();
+        }
+
+        cards.forEach(card => {
+            card.addEventListener('click', function (e) {
+                if (e.target.closest('.single-sell-form')) return;
+                toggleCard(card);
+            });
+        });
+
+        btnSelectAll.addEventListener('click', () => {
+            cards.forEach(card => {
+                selected.add(card.dataset.itemId);
+                card.classList.add('selected');
+            });
+            updateUI();
+        });
+
+        btnDeselectAll.addEventListener('click', () => {
+            selected.clear();
+            cards.forEach(card => card.classList.remove('selected'));
+            updateUI();
+        });
+
+        form.addEventListener('submit', function () {
+            form.querySelectorAll('input[name="itemIds"]').forEach(el => el.remove());
+            selected.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'itemIds';
+                input.value = id;
+                form.appendChild(input);
+            });
+        });
+
+        window.confirmMultiSell = function () {
+            return confirm(`Na pewno chcesz sprzedać ${selected.size} przedmiotów?`);
+        };
+    })();
+</script>
