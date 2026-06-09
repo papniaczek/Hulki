@@ -7,251 +7,275 @@
     var groups = ViewBag.Groups as List<Hulki.Web.Models.PatientGroup>;
     var transactions = ViewBag.Transactions as List<Hulki.Web.Models.PointTransaction>;
     bool isLocked = ViewBag.IsLocked == true;
+    string StatusColor(string status) => status switch
+    {
+        "Zatwierdzony" => "#46CC5E",
+        "Odrzucony" => "#dc3545",
+        _ => "#adb5bd"
+    };
+
+    string StatusBg(string status) => status switch
+    {
+        "Zatwierdzony" => "rgba(70,204,94,0.12)",
+        "Odrzucony" => "rgba(220,53,69,0.12)",
+        _ => "rgba(108,117,125,0.12)"
+    };
+
+    string StatusBorder(string status) => status switch
+    {
+        "Zatwierdzony" => "rgba(70,204,94,0.3)",
+        "Odrzucony" => "rgba(220,53,69,0.3)",
+        _ => "rgba(108,117,125,0.3)"
+    };
 }
 
 <div class="container mt-4">
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Profil Pacjenta</h2>
-    <a asp-action="Patients" class="btn btn-light btn-back fw-bold rounded-pill px-2 py-2">
-        <i class="bi bi-arrow-left"></i> Wróć do listy
-    </a>
-</div>
-
-<!-- HEADER -->
-<div class="patient-header-card mb-5 p-4 position-relative overflow-hidden rounded-4">
-    <div class="position-relative z-1 d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div class="d-flex align-items-center gap-4 mb-4 mb-md-0">
-            <div
-                class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0">
-                <i class="bi bi-person-fill text-light" style="font-size: 3rem;"></i>
-            </div>
-            <div>
-                <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">@patient?.FirstName @patient?.LastName</h2>
-                <p class="mb-0 text-muted small">
-                    <i class="bi bi-envelope me-2"></i>@patient?.Email
-                    @if (isLocked)
-                    {
-                        <span class="badge bg-danger ms-2"><i class="bi bi-lock-fill"></i> Konto zablokowane</span>
-                    }
-                </p>
-            </div>
-        </div>
-        <div class="text-md-end text-center wallet-points p-3 rounded-3 shadow-sm">
-            <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">
-                Saldo portfela
-            </h6>
-            <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
-                @(wallet?.Balance ?? 0)
-            </h2>
-        </div>
-    </div>
-    <div class="profile-header-glow-left"></div>
-    <div class="profile-header-glow-right"></div>
-</div>
-
-
-<div class="row g-4">
-    <!-- LEWA KOLUMNA: AKCJE TERAPEUTY -->
-    <div class="col-md-4">
-        <!-- KOREKTA PUNKTÓW -->
-        <div class="detail-card rounded-4 overflow-hidden mb-4">
-            <div class="detail-card-header px-4 py-3">
-                <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
-                    Pacjent
-                </h6>
-            </div>
-
-            <div class="p-4">
-                <form asp-action="AdjustPoints" method="post">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="userId" value="@patient?.Id"/>
-                    <div class="mb-2" style="margin-top: 0px !important">
-                        <label class="form-label small text-muted">Wartość (+ lub -)</label>
-                        <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20"
-                               required/>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label small text-muted">Powód (opcjonalnie)</label>
-                        <input type="text" name="reason" class="form-control"
-                               placeholder="np. Premia za aktywność"/>
-                    </div>
-                    <button type="submit" class="btn btn-custom-success w-100 fw-bold rounded-pill mt-3">
-                        <i class="bi bi-pencil-square"></i> Zastosuj korektę
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- BLOKADA / ODBLOKOWANIE -->
-        <div class="detail-card rounded-4 overflow-hidden mb-4">
-            <div class="detail-card-header px-4 py-3">
-                <h6 class="mb-0 fw-bold text-uppercase p-1">Status konta</h6>
-            </div>
-            <div class="p-4">
-                <p class="small text-muted mb-3">
-                    @if (isLocked)
-                    {
-                        <text>Konto jest aktualnie zablokowane – pacjent nie może się zalogować.</text>
-                    }
-                    else
-                    {
-                        <text>Konto jest aktywne. Możesz je tymczasowo zablokować.</text>
-                    }
-                </p>
-                <form asp-action="ToggleLock" method="post"
-                      onsubmit="return confirm('@(isLocked ? "Odblokować konto pacjenta?" : "Zablokować konto pacjenta?")');">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="userId" value="@patient?.Id"/>
-                    <button type="submit" class="btn @(isLocked ? "btn-success" : "btn-danger") w-100 mt-2 fw-bold rounded-pill">
-                        <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
-                        @(isLocked ? "Odblokuj konto" : "Zablokuj konto")
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- GRUPY TERAPEUTYCZNE -->
-        <div class="detail-card rounded-4 overflow-hidden mb-4">
-            <div class="detail-card-header px-4 py-3">
-                <h6 class="mb-0 fw-bold text-uppercase p-1">Grupy terapeutyczne</h6>
-            </div>
-            <ul class="list-group list-group-flush ">
-                @if (groups != null && groups.Any())
-                {
-                    foreach (var g in groups)
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center list-group-custom">
-                            <div>
-                                <div class="fw-bold small">@g.TherapyGroup?.Name</div>
-                                <div class="text-muted" style="font-size:0.75rem;">@g.TherapyGroup?.TherapyType?.Name</div>
-                            </div>
-                            @if (g.IsApproved)
-                            {
-                                <span class="badge bg-success">Członek</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Oczekuje</span>
-                            }
-                        </li>
-                    }
-                }
-                else
-                {
-                    <li class="list-group-item text-muted small">Pacjent nie należy do żadnej grupy.</li>
-                }
-            </ul>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Profil Pacjenta</h2>
+        <a asp-action="Patients" class="btn btn-light btn-back fw-bold rounded-pill px-2 py-2">
+            <i class="bi bi-arrow-left"></i> Wróć do listy
+        </a>
     </div>
 
-    <!-- PRAWA KOLUMNA: HISTORIA -->
-    <div class="col-md-8">
-        <!-- OSTATNIE WPISY -->
-        <div class="detail-card rounded-4 overflow-hidden mb-4" style="min-height: 321px">
-            <div class="detail-card-header px-4 py-3">
-                <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
-                    Ostatnie wpisy w dzienniczku
-                </h6>
-            </div>
-            <div class="card-body p-0">
-                @if (reports != null && reports.Any())
-                {
-                    <ul class=" list-group list-group-flush">
-                        @foreach (var r in reports.Take(3))
+    <!-- HEADER -->
+    <div class="patient-header-card mb-5 p-4 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-4 mb-4 mb-md-0">
+                <div
+                    class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0">
+                    <i class="bi bi-person-fill text-light" style="font-size: 3rem;"></i>
+                </div>
+                <div>
+                    <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">@patient?.FirstName @patient?.LastName</h2>
+                    <p class="mb-0 text-muted small">
+                        <i class="bi bi-envelope me-2"></i>@patient?.Email
+                        @if (isLocked)
                         {
-                            <a asp-action="ReportDetails" asp-route-id="@r.Id"
-                               class="list-group-item list-group-item-action list-group-custom-2">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <small class="text-muted">
-                                        <i class="bi bi-calendar3 me-1"></i>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm")
-                                    </small>
-                                    <span class="badge bg-secondary">@r.ReportStatus?.Name</span>
-                                </div>
-                                <p class="mb-0 small text-truncate" style="color: white;">@r.Content</p>
-                            </a>
+                            <span class="badge bg-danger ms-2"><i class="bi bi-lock-fill"></i> Konto zablokowane</span>
                         }
-                    </ul>
-                }
-                else
-                {
-                    <div class="p-4 text-center text-muted small">Brak wpisów w dzienniczku.</div>
-                }
+                    </p>
+                </div>
+            </div>
+            <div class="text-md-end text-center wallet-points p-3 rounded-3 shadow-sm">
+                <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">
+                    Saldo portfela
+                </h6>
+                <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
+                    @(wallet?.Balance ?? 0)
+                </h2>
             </div>
         </div>
+        <div class="profile-header-glow-left"></div>
+        <div class="profile-header-glow-right"></div>
+    </div>
 
-        <!-- HISTORIA TRANSAKCJI -->
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="detail-card rounded-4 overflow-hidden mb-2">
+
+    <div class="row g-4">
+        <!-- LEWA KOLUMNA: AKCJE TERAPEUTY -->
+        <div class="col-md-4">
+            <!-- KOREKTA PUNKTÓW -->
+            <div class="detail-card rounded-4 overflow-hidden mb-4">
                 <div class="detail-card-header px-4 py-3">
                     <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
-                        Ostatnie transakcje punktów
+                        Pacjent
                     </h6>
                 </div>
-                <div class="card-body p-0">
-                    @if (transactions != null && transactions.Any())
+
+                <div class="p-4">
+                    <form asp-action="AdjustPoints" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@patient?.Id"/>
+                        <div class="mb-2" style="margin-top: 0px !important">
+                            <label class="form-label small text-muted">Wartość (+ lub -)</label>
+                            <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20"
+                                   required/>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small text-muted">Powód (opcjonalnie)</label>
+                            <input type="text" name="reason" class="form-control"
+                                   placeholder="np. Premia za aktywność"/>
+                        </div>
+                        <button type="submit" class="btn btn-custom-success w-100 fw-bold rounded-pill mt-3">
+                            <i class="bi bi-pencil-square"></i> Zastosuj korektę
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- BLOKADA / ODBLOKOWANIE -->
+            <div class="detail-card rounded-4 overflow-hidden mb-4">
+                <div class="detail-card-header px-4 py-3">
+                    <h6 class="mb-0 fw-bold text-uppercase p-1">Status konta</h6>
+                </div>
+                <div class="p-4">
+                    <p class="small text-muted mb-3">
+                        @if (isLocked)
+                        {
+                            <text>Konto jest aktualnie zablokowane – pacjent nie może się zalogować.</text>
+                        }
+                        else
+                        {
+                            <text>Konto jest aktywne. Możesz je tymczasowo zablokować.</text>
+                        }
+                    </p>
+                    <form asp-action="ToggleLock" method="post"
+                          onsubmit="return confirm('@(isLocked ? "Odblokować konto pacjenta?" : "Zablokować konto pacjenta?")');">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="userId" value="@patient?.Id"/>
+                        <button type="submit" class="btn @(isLocked ? "btn-success" : "btn-danger") w-100 mt-2 fw-bold rounded-pill">
+                            <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
+                            @(isLocked ? "Odblokuj konto" : "Zablokuj konto")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- GRUPY TERAPEUTYCZNE -->
+            <div class="detail-card rounded-4 overflow-hidden mb-4">
+                <div class="detail-card-header px-4 py-3">
+                    <h6 class="mb-0 fw-bold text-uppercase p-1">Grupy terapeutyczne</h6>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @if (groups != null && groups.Any())
                     {
-                        <table class="table table-sm mb-0">
-                            <tbody>
-                            @foreach (var t in transactions.Take(6))
-                            {
-                                <tr class="list-group-custom-2">
-                                    <td class="ps-3 small text-muted" style="width:130px;">
-                                        @t.TransactionDate.ToString("dd.MM.yyyy HH:mm")
-                                    </td>
-                                    <td class="small">@t.Description</td>
-                                    <td class="text-end pe-3 fw-bold @(t.Amount >= 0 ? "text-success" : "text-danger")">
-                                        @(t.Amount >= 0 ? "+" : "")@t.Amount
-                                    </td>
-                                </tr>
-                            }
-                            </tbody>
-                        </table>
+                        foreach (var g in groups)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center list-group-custom">
+                                <div>
+                                    <div class="fw-bold small">@g.TherapyGroup?.Name</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">@g.TherapyGroup?.TherapyType?.Name</div>
+                                </div>
+                                @if (g.IsApproved)
+                                {
+                                    <span class="badge bg-success">Członek</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Oczekuje</span>
+                                }
+                            </li>
+                        }
                     }
                     else
                     {
-                        <div class="p-4 text-center text-muted small">Brak operacji na punktach.</div>
+                        <li class="list-group-item text-muted small" style="background: #1B1B22">Pacjent nie należy do żadnej grupy.</li>
                     }
-                </div>
+                </ul>
             </div>
         </div>
 
-        <!-- EKWIPUNEK -->
-        <div class="card border-0 shadow-sm">
-            <div class="detail-card rounded-4 overflow-hidden mb-4" style="min-height: 135px">
+        <!-- PRAWA KOLUMNA: HISTORIA -->
+        <div class="col-md-8">
+            <!-- OSTATNIE WPISY -->
+            <div class="detail-card rounded-4 overflow-hidden mb-4"  style="min-height: 321px">
                 <div class="detail-card-header px-4 py-3">
                     <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
-                        Ekwipunek pacjenta
+                        Ostatnie wpisy w dzienniczku
                     </h6>
                 </div>
                 <div class="card-body p-0">
-                    @if (inventory != null && inventory.Any())
+                    @if (reports != null && reports.Any())
                     {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var inv in inventory)
+                        <ul class=" list-group list-group-flush">
+                            @foreach (var r in reports.Take(3))
                             {
-                                var rarityColor = inv.RewardItem?.ItemRarity?.HexColor ?? "#adb5bd";
-                                <li class="list-group-item d-flex align-items-center gap-3 list-group-custom"
-                                    style="border-left: 4px solid @rarityColor !important;">
-
-                                    <div class="d-flex align-items-center justify-content-center rounded-3 p-2"
-                                         style="background: rgba(255,255,255,0.02); min-width: 45px;">
-                                        <i class="bi bi-box-seam" style="color:@rarityColor; font-size:1.4rem;"></i>
+                                var status = r.ReportStatus?.Name;
+                                <a asp-action="ReportDetails" asp-route-id="@r.Id"
+                                   class="list-group-item list-group-item-action list-group-custom-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                        </small>
+                                        <span class="badge rounded-pill px-2 py-1" style="background:@StatusBg(status); color:@StatusColor(status); border:1px solid @StatusBorder(status);">@r.ReportStatus.Name</span>
                                     </div>
-
-                                    <div class="text-truncate">
-                                        <div class="fw-bold small text-light text-truncate">@inv.RewardItem?.Name</div>
-                                        <div class="small" style="font-size:0.75rem; color: @rarityColor;">
-                                            @inv.RewardItem?.ItemRarity?.Name
-                                        </div>
-                                    </div>
-                                </li>
+                                    <p class="mb-0 small" style="color: white;">
+                                        @(r.Content?.Length > 90 ? r.Content.Substring(0, 90) + "..." : r.Content)
+                                    </p>
+                                </a>
                             }
                         </ul>
                     }
                     else
                     {
-                        <div class="p-4 text-center text-muted small">Pacjent nie posiada żadnych przedmiotów.</div>
+                        <div class="p-4 text-center text-muted small">Brak wpisów w dzienniczku.</div>
                     }
+                </div>
+            </div>
+
+            <!-- HISTORIA TRANSAKCJI -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="detail-card rounded-4 overflow-hidden mb-2">
+                    <div class="detail-card-header px-4 py-3">
+                        <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                            Ostatnie transakcje punktów
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (transactions != null && transactions.Any())
+                        {
+                            <table class="table table-sm mb-0">
+                                <tbody>
+                                @foreach (var t in transactions.Take(4))
+                                {
+                                    <tr class="list-group-custom-2">
+                                        <td class="ps-3 small text-muted" style="width:130px;">
+                                            @t.TransactionDate.ToString("dd.MM.yyyy HH:mm")
+                                        </td>
+                                        <td class="small">@t.Description</td>
+                                        <td class="text-end pe-3 fw-bold @(t.Amount >= 0 ? "text-success" : "text-danger")">
+                                            @(t.Amount >= 0 ? "+" : "")@t.Amount
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="p-4 text-center text-muted small">Brak operacji na punktach.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- EKWIPUNEK -->
+            <div class="card border-0 shadow-sm">
+                <div class="detail-card rounded-4 overflow-hidden mb-4" style="min-height: 135px">
+                    <div class="detail-card-header px-4 py-3">
+                        <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                            Ekwipunek pacjenta
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (inventory != null && inventory.Any())
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var inv in inventory)
+                                {
+                                    var rarityColor = inv.RewardItem?.ItemRarity?.HexColor ?? "#adb5bd";
+                                    <li class="list-group-item d-flex align-items-center gap-3 list-group-custom"
+                                        style="border-left: 4px solid @rarityColor !important;">
+
+                                        <div class="d-flex align-items-center justify-content-center rounded-3 p-2"
+                                             style="background: rgba(255,255,255,0.02); min-width: 45px;">
+                                            <i class="bi bi-box-seam" style="color:@rarityColor; font-size:1.4rem;"></i>
+                                        </div>
+
+                                        <div class="text-truncate">
+                                            <div class="fw-bold small text-light text-truncate">@inv.RewardItem?.Name</div>
+                                            <div class="small" style="font-size:0.75rem; color: @rarityColor;">
+                                                @inv.RewardItem?.ItemRarity?.Name
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div class="p-4 text-center text-muted small">Pacjent nie posiada żadnych przedmiotów.</div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
@@ -356,4 +380,208 @@
         background: #46CC5E;
         color: #17171C;
     }
+
+    /* --- GLOBALNE WYRÓWNANIE SIATKI --- */
+    @@media (min-width: 768px) {
+        .container>.row {
+            display: grid !important;
+            grid-template-columns: 4fr 8fr !important;
+        }
+
+        .container>.row>.col-md-4,
+        .container>.row>.col-md-8 {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0px !important;
+        }
+
+        /* Karta grup oraz karta ekwipunku rozciągają się, by wyrównać dół obu kolumn */
+        .container>.row>.col-md-4>.detail-card:last-child,
+        .container>.row>.col-md-8>.card:last-child,
+        .container>.row>.col-md-8>.card:last-child>.detail-card {
+            flex-grow: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            margin-bottom: 0 !important;
+        }
+
+        .container>.row>.col-md-4>.detail-card:last-child .list-group,
+        .container>.row>.col-md-8>.card:last-child>.detail-card .card-body {
+            flex-grow: 1 !important;
+        }
+    }
+
+    /* --- KARTA: OSTATNIE WPISY --- */
+    .detail-card[style*="min-height: 321px"] {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 321px !important;
+    }
+
+    .detail-card[style*="min-height: 321px"] .card-body {
+        flex-grow: 1 !important;
+        height: 264px !important;
+        position: relative;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group {
+        display: grid !important;
+        grid-template-rows: repeat(3, 88px) !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2 {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        height: 88px !important;
+        box-sizing: border-box !important;
+        padding: 0 1.5rem !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2::before,
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2::after {
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 88px;
+        display: flex !important;
+        align-items: center;
+        padding-left: 1.5rem;
+        color: rgba(255, 255, 255, 0.15) !important;
+        font-size: 0.85rem;
+        font-style: italic;
+        pointer-events: none;
+        box-sizing: border-box;
+        background: #1b1b22;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2:first-child:nth-last-child(1)::before {
+        content: "Brak wpisu";
+        top: 88px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2:first-child:nth-last-child(1)::after {
+        content: "Brak wpisu";
+        top: 176px;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2:first-child:nth-last-child(2)~.list-group-custom-2:last-child::before {
+        display: none !important;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2:first-child:nth-last-child(2)~.list-group-custom-2:last-child::after {
+        content: "Brak wpisu";
+        top: 176px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .detail-card[style*="min-height: 321px"] .list-group-custom-2:last-child {
+        border-bottom-color: transparent !important;
+    }
+
+    .detail-card[style*="min-height: 321px"] .card-body>.p-4.text-center {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-grow: 1 !important;
+        height: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* --- KARTA: EKWIPUNEK PACJENTA --- */
+    .detail-card .list-group-flush .list-group-item.list-group-custom {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        background: #1b1b22 !important;
+        border: 1px solid rgba(255, 255, 255, 0.03) !important;
+        border-radius: 12px !important;
+        margin: 0 !important;
+        padding: 10px 14px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        transition: transform 0.2s ease, background-color 0.2s ease !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .detail-card .list-group-flush .list-group-item.list-group-custom:hover {
+        background: #202029 !important;
+        transform: scale(1.01);
+    }
+
+    .detail-card .list-group-flush .list-group-item.list-group-custom div[style*="background: rgba(255,255,255,0.02)"] {
+        background: rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        border-radius: 8px !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-card .list-group-flush .list-group-item.list-group-custom i.bi-box-seam {
+        font-size: 1.25rem !important;
+        z-index: 2;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .detail-card .list-group-flush .list-group-item.list-group-custom .text-truncate {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1px !important;
+        overflow: visible !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+
+    .detail-card .list-group-flush .list-group-item.list-group-custom .fw-bold {
+        font-size: 0.85rem !important;
+        letter-spacing: 0.3px;
+        line-height: 1.2 !important;
+        overflow: visible !important;
+        white-space: normal !important;
+    }
+
+    .detail-card .list-group-flush .list-group-item.list-group-custom div[style*="font-size:0.75rem"] {
+        font-size: 0.7rem !important;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        opacity: 0.8;
+    }
+
+    .detail-card[style*="min-height: 135px"] .card-body {
+        padding: 16px !important;
+    }
+
+    .detail-card[style*="min-height: 135px"] .list-group-flush {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)) !important;
+        gap: 12px !important;
+        background: transparent !important;
+        padding: 0 !important;
+    }
+
+    .detail-card[style*="min-height: 135px"] .card-body>.p-4.text-center {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100% !important;
+        min-height: 71px !important;
+        /* Odliczona czysta przestrzeń wewnątrz karty */
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
 </style>

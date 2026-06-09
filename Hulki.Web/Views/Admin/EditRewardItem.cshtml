@@ -5,87 +5,159 @@
     var rarities = ViewBag.Rarities as List<Hulki.Web.Models.ItemRarity> ?? new();
 }
 
-<div class="container mt-4" style="max-width: 720px;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="padding-left: 1.5rem"> Edycja przedmiotu</h2>
-        <a asp-action="ShopItems" class="btn btn-sm btn-custom-back">
-            <i class="bi bi-arrow-left"></i> Wróć do listy
-        </a>
+<div class="container mt-4 mb-5 text-light">
+
+    <div class="edit-header-card mb-4 p-4 p-md-5 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+                <h2 class="text-warning fw-bold mb-1 text-uppercase" style="letter-spacing: 1px;">
+                    Edycja: @Model.Name
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">
+                    Aktualizuj ustawienia przedmiotu w sklepie.
+                </p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <a asp-action="ShopItems" class="btn btn-light fw-bold rounded-pill px-4 text-uppercase custom-btn-nav">
+                    <i class="bi bi-arrow-left me-2"></i>Wróć do listy
+                </a>
+            </div>
+        </div>
+        <div class="edit-glow"></div>
     </div>
 
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="alert alert-danger border-0 shadow-sm">
-            <ul class="mb-0">
-                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    <li>@err.ErrorMessage</li>
-                }
-            </ul>
-        </div>
-    }
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card dark-panel-card rounded-4 border-0">
+                <div class="card-body p-4 p-md-5">
 
-    <div class="card border-0 shadow-sm rounded-3">
-        <div class="card-body p-4">
-            <form asp-action="EditRewardItem" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Id"/>
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">
+                            <ul class="mb-0">
+                                @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@err.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Nazwa</label>
-                    <input type="text" name="name" value="@Model.Name" class="form-control" maxlength="150" required/>
+                    <form asp-action="EditRewardItem" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id"/>
+
+                        <div class="mb-4 position-relative">
+                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Nazwa <span class="text-danger">*</span></label>
+                            <input type="text" name="name" value="@Model.Name" class="form-control custom-input" maxlength="150" required/>
+                        </div>
+
+                        <div class="mb-4 position-relative">
+                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Rzadkość <span class="text-danger">*</span></label>
+                            <select name="itemRarityId" class="form-select custom-input" required>
+                                @foreach (var r in rarities)
+                                {
+                                    if (r.Id == Model.ItemRarityId)
+                                    {
+                                        <option value="@r.Id" selected>@r.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@r.Id">@r.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-4 position-relative">
+                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Opis</label>
+                            <textarea name="description" rows="3" maxlength="1000" class="form-control custom-input">@Model.Description</textarea>
+                        </div>
+
+                        <div class="row g-3 mb-5">
+                            <div class="col-md-4 position-relative">
+                                <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Cena (pkt)</label>
+                                <input type="number" min="0" name="price" value="@Model.Price" class="form-control custom-input"/>
+                            </div>
+                            <div class="col-md-8 position-relative">
+                                <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Ścieżka do ikony</label>
+                                <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300" class="form-control custom-input" placeholder="/images/shop/icon.png"/>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn-warning">
+                                Zapisz zmiany
+                            </button>
+                        </div>
+                    </form>
+
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Rzadkość</label>
-                    <select name="itemRarityId" class="form-select" required>
-                        @foreach (var r in rarities)
-                        {
-                            if (r.Id == Model.ItemRarityId)
-                            {
-                                <option value="@r.Id" selected>@r.Name</option>
-                            }
-                            else
-                            {
-                                <option value="@r.Id">@r.Name</option>
-                            }
-                        }
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Opis</label>
-                    <textarea name="description" rows="3" maxlength="1000" class="form-control">@Model.Description</textarea>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Cena (pkt)</label>
-                        <input type="number" min="0" name="price" value="@Model.Price" class="form-control"/>
-                    </div>
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold">Ścieżka do ikony</label>
-                        <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300" class="form-control" placeholder="/images/shop/icon.png"/>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a asp-action="ShopItems"
-                       class="btn px-4"
-                       style="color: #DA292E; border: 1px solid #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
-                       onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
-                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">
-                        Anuluj
-                    </a>
-                    <button type="submit"
-                            class="btn fw-bold px-4"
-                            style="color: #0d6efd; border: 1px solid #0d6efd; background-color: transparent; transition: all 0.2s ease-in-out;"
-                            onmouseover="this.style.backgroundColor='#0d6efd'; this.style.color='#ffffff';"
-                            onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0d6efd';">
-                        Zapisz zmiany
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .edit-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #111116 100%);
+        border: 1px solid rgba(255, 193, 7, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .edit-glow {
+        position: absolute;
+        top: -100px;
+        right: -50px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 193, 7, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .custom-btn-nav {
+        transition: all 0.2s ease;
+    }
+
+    .custom-btn-nav:hover {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+    }
+
+    .dark-panel-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-top: 3px solid #ffc107 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .custom-input {
+        background-color: #121217 !important;
+        border: 1px solid #3f3f46 !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 0.8rem 1rem !important;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .custom-input:focus {
+        border-color: #ffc107 !important;
+        box-shadow: 0 0 15px rgba(255, 193, 7, 0.25) !important;
+        outline: none !important;
+    }
+
+    .custom-glow-btn-warning {
+        background-color: #ffc107;
+        color: #111116 !important;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .custom-glow-btn-warning:hover {
+        background-color: #ffca2c;
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+        transform: translateY(-2px);
+    }
+</style>

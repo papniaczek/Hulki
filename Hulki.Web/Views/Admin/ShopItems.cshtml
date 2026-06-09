@@ -6,112 +6,107 @@
 }
 
 <div class="container mt-4 text-light">
-<div class="shopitems-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 160px;">
-    <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-        <div class="mb-4 mb-md-0">
-            <h2 class="text-primary fw-bold mb-2 text-uppercase d-flex align-items-center" style="letter-spacing: 1px;">
-                <span style="display:flex; gap: 1rem;">
-                    Zarządzanie Sklepem
-                    <div class="text-md-end d-flex align-items-center">
-                        <button type="button" class="btn btn-custom-success fw-bold rounded-pill px-3 py-2 text-uppercase shadow" data-bs-toggle="modal" data-bs-target="#createItemModal" style="letter-spacing: 1px; font-size: 0.85rem;">
-                            <i class="bi bi-plus-circle me-1"></i> Dodaj przedmiot
-                        </button>
-                    </div>
-                </span>
-            </h2>
-
-            <p class="text-light mb-0 fs-5 fw-light opacity-75">Dodawaj, edytuj i usuwaj przedmioty dostępne w sklepie.</p>
+    <div class="shopitems-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 160px;">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase d-flex align-items-center" style="letter-spacing: 1px;">
+                    <span style="display:flex; gap: 1rem;">
+                        Zarządzanie Sklepem
+                        <div class="text-md-end d-flex align-items-center">
+                            <button type="button" class="btn btn-custom-success fw-bold rounded-pill px-3 py-2 text-uppercase shadow" data-bs-toggle="modal" data-bs-target="#createItemModal" style="letter-spacing: 1px; font-size: 0.85rem;">
+                                <i class="bi bi-plus-circle me-1"></i> Dodaj przedmiot
+                            </button>
+                        </div>
+                    </span>
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">Dodawaj, edytuj i usuwaj przedmioty dostępne w sklepie.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Admin" asp-action="Index" class="btn btn-light fw-bold rounded-pill px-4 text-uppercase custom-btn-nav">
+                    <i class="bi bi-arrow-left me-1"></i> Wróć do panelu
+                </a>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a asp-controller="Admin" asp-action="Index" class="btn btn-light fw-bold rounded-pill px-4 text-uppercase custom-btn-nav">
-                <i class="bi bi-arrow-left me-1"></i> Wróć do panelu
-            </a>
-
-        </div>
+        <div class="shopitems-header-glow"></div>
     </div>
-    <div class="shopitems-header-glow"></div>
-</div>
 
-
-<div class="card border-0 shadow-sm rounded-4 table-card">
-    <div class="card-header border-bottom border-secondary p-4 bg-transparent">
-        <div class="d-flex justify-content-between align-items-center w-100">
+    <div class="card border-0 shadow-sm rounded-4 table-card">
+        <div class="card-header border-bottom border-secondary p-4 d-flex justify-content-between align-items-center" style="background-color: #141418">
             <h5 class="mb-0 fw-bold text-uppercase text-light" style="letter-spacing: 1px;">
                 <i class="bi bi-box-seam text-danger me-2"></i> Lista przedmiotów
             </h5>
             <p class="text-muted small m-0">Łącznie: <strong>@Model.Count()</strong> przedmiotów</p>
         </div>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0 custom-table">
-                <thead>
-                <tr>
-                    <th class="ps-4 py-3 border-secondary" style="width:60px;">Ikona</th>
-                    <th class="py-3 border-secondary">Nazwa</th>
-                    <th class="py-3 border-secondary">Rzadkość</th>
-                    <th class="py-3 text-center border-secondary">Cena</th>
-                    <th class="py-3 border-secondary">Opis</th>
-                    <th class="py-3 text-end pe-4 border-secondary">Akcje</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if (Model.Any())
-                {
-                    foreach (var item in Model)
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 custom-table">
+                    <thead style="background-color: #1B1B22">
+                    <tr class="text-uppercase text-muted small" style="letter-spacing: 1px;">
+                        <th class="ps-4 py-3 border-secondary" style="width:60px;">Ikona</th>
+                        <th class="py-3 border-secondary">Nazwa</th>
+                        <th class="py-3 border-secondary">Rzadkość</th>
+                        <th class="py-3 text-center border-secondary">Cena</th>
+                        <th class="py-3 border-secondary">Opis</th>
+                        <th class="py-3 text-end pe-4 border-secondary">Akcje</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Any())
                     {
-                        var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
+                        foreach (var item in Model)
+                        {
+                            var rarityColor = item.ItemRarity?.HexColor ?? "#adb5bd";
+                            <tr style="height: 70px">
+                                <td class="ps-4 align-middle">
+                                    @if (!string.IsNullOrWhiteSpace(item.IconPath))
+                                    {
+                                        <img src="@item.IconPath" alt="@item.Name"
+                                             style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:2px solid @rarityColor;"
+                                             onerror="this.outerHTML='<i class=\'bi bi-box-seam\' style=\'font-size:1.6rem;color:@rarityColor;\'></i>';"/>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-box-seam" style="font-size:1.6rem;color:@rarityColor; display:flex; justify-content: center; align-items: center"></i>
+                                    }
+                                </td>
+                                <td class="fw-bold align-middle text-light">@item.Name</td>
+                                <td class="align-middle">
+                                    <span class="badge" style="background-color:@rarityColor;">@(item.ItemRarity?.Name ?? "-")</span>
+                                </td>
+                                <td class="text-center align-middle">@item.Price pkt</td>
+                                <td class="text-muted small text-truncate align-middle" style="max-width:280px;">@(item.Description ?? "-")</td>
+                                <td class="text-end pe-4 align-middle">
+                                    <a asp-action="EditRewardItem" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="DeleteRewardItem" method="post" class="d-inline"
+                                          onsubmit="return confirm('Usunąć przedmiot @item.Name? Spowoduje to też usunięcie go z ekwipunków pacjentów.');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
                         <tr>
-                            <td class="ps-4">
-                                @if (!string.IsNullOrWhiteSpace(item.IconPath))
-                                {
-                                    <img src="@item.IconPath" alt="@item.Name"
-                                         style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:2px solid @rarityColor;"
-                                         onerror="this.outerHTML='<i class=\'bi bi-box-seam\' style=\'font-size:1.6rem;color:@rarityColor;\'></i>';"/>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-box-seam" style="font-size:1.6rem;color:@rarityColor;"></i>
-                                }
-                            </td>
-                            <td class="fw-bold align-middle">@item.Name</td>
-                            <td class="align-middle">
-                                <span class="badge" style="background-color:@rarityColor;">@(item.ItemRarity?.Name ?? "-")</span>
-                            </td>
-                            <td class="text-center align-middle">@item.Price pkt</td>
-                            <td class="text-muted small text-truncate align-middle" style="max-width:280px;">@(item.Description ?? "-")</td>
-                            <td class="text-end pe-4 align-middle">
-                                <a asp-action="EditRewardItem" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form asp-action="DeleteRewardItem" method="post" class="d-inline"
-                                      onsubmit="return confirm('Usunąć przedmiot @item.Name? Spowoduje to też usunięcie go z ekwipunków pacjentów.');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.Id"/>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                            <td colspan="6" class="text-center p-5 text-muted fw-bold">
+                                <i class="bi bi-box fs-1 d-block mb-2 opacity-50"></i>
+                                Brak przedmiotów. Dodaj pierwszy, klikając „Dodaj przedmiot".
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center p-5 text-muted">
-                            <i class="bi bi-box fs-3 d-block mb-2"></i>
-                            Brak przedmiotów. Dodaj pierwszy, klikając „Dodaj przedmiot".
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL: DODAJ PRZEDMIOT -->
 <div class="modal fade" id="createItemModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content bg-dark text-light border-secondary shadow-lg">
@@ -208,7 +203,7 @@
     }
 
     .table-card {
-        background-color: #1b1b22;
+        background-color: #1F1F28;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         overflow: hidden;
     }

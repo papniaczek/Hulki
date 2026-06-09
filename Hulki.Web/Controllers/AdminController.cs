@@ -281,6 +281,7 @@ public class AdminController : Controller
         var report = await _context
             .DailyReports.Include(r => r.AppUser)
             .Include(r => r.ReportStatus)
+            .Include(r => r.ReportAttachments)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (report == null)
@@ -294,7 +295,8 @@ public class AdminController : Controller
         {
             report.ReportStatusId = rejectedStatus.Id;
 
-            int pointsToDeduct = 10;
+            bool hasAttachment = report.ReportAttachments != null && report.ReportAttachments.Any();
+            int pointsToDeduct = hasAttachment ? 15 : 10;
 
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w =>
                 w.AppUserId == report.AppUserId
@@ -310,7 +312,9 @@ public class AdminController : Controller
                     {
                         Id = Guid.NewGuid(),
                         Amount = -pointsToDeduct,
-                        Description = "Odrzucenie wpisu w dzienniczku (cofnięcie punktów)",
+                        Description = hasAttachment
+                            ? "Odrzucenie wpisu w dzienniczku z załącznikiem (cofnięcie punktów)"
+                            : "Odrzucenie wpisu w dzienniczku (cofnięcie punktów)",
                         TransactionDate = DateTime.Now,
                         WalletId = wallet.Id,
                     }
