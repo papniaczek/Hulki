@@ -1,6 +1,27 @@
 @{
     ViewData["Title"] = "Panel Dowodzenia";
     var recentReports = ViewBag.RecentReports as List<Hulki.Web.Models.DailyReport>;
+
+    string StatusColor(string status) => status switch
+    {
+        "Zatwierdzony" => "#46CC5E",
+        "Odrzucony" => "#dc3545",
+        _ => "#adb5bd"
+    };
+
+    string StatusBg(string status) => status switch
+    {
+        "Zatwierdzony" => "rgba(70,204,94,0.12)",
+        "Odrzucony" => "rgba(220,53,69,0.12)",
+        _ => "rgba(108,117,125,0.12)"
+    };
+
+    string StatusBorder(string status) => status switch
+    {
+        "Zatwierdzony" => "rgba(70,204,94,0.3)",
+        "Odrzucony" => "rgba(220,53,69,0.3)",
+        _ => "rgba(108,117,125,0.3)"
+    };
 }
 
 <div class="container mt-4 mb-5">
@@ -88,11 +109,17 @@
                     {
                         foreach (var report in recentReports)
                         {
-                            <tr style="cursor: pointer;" onclick="window.location.href='@Url.Action("ReportDetails", new { id = report.Id })'">
+                            var status = report.ReportStatus?.Name;
+
+                            <tr style="cursor: pointer;"
+                                onclick='window.location.href="@Url.Action("ReportDetails", new { id = report.Id })"'>
                                 <td class="ps-4 align-middle text-muted small fw-bold">@report.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
                                 <td class="align-middle fw-bold text-light">@report.AppUser?.FirstName @report.AppUser?.LastName</td>
                                 <td class="align-middle">
-                                    <span class="badge bg-secondary border border-light bg-opacity-25 rounded-pill px-3 py-2">@report.ReportStatus?.Name</span>
+                                    <span class="badge rounded-pill px-2 py-1"
+                                          style="background:@StatusBg(status); color:@StatusColor(status); border:1px solid @StatusBorder(status); font-size: 0.8rem">
+                                        @status
+                                    </span>
                                 </td>
                                 <td class="align-middle text-truncate text-muted" style="max-width: 350px;">
                                     @report.Content

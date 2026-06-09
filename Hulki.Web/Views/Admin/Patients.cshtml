@@ -43,96 +43,104 @@
         }
     </style>
 
-    <form method="get" asp-action="Patients" class="mb-4">
-        <div class="d-flex gap-2">
-
-            <div class="input-group custom-search-group">
-                <span class="input-group-text bg-dark border-secondary text-light">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" name="search" value="@search"
-                       class="form-control bg-dark border-secondary text-light"
-                       placeholder="Szukaj po imieniu, nazwisku lub adresie e-mail..."/>
-            </div>
-
-            <button type="submit" class="btn btn-primary rounded">Szukaj</button>
-
-            @if (!string.IsNullOrWhiteSpace(search))
-            {
-                <a class="btn btn-outline-secondary rounded" asp-action="Patients">Wyczyść</a>
-            }
-        </div>
-    </form>
-
     <!-- LICZNIK -->
-    <p class="text-muted small">Łącznie: <strong>@Model.Count()</strong> pacjentów.</p>
 
     <div class="card border-0 shadow-sm rounded-3">
-        <div class="card-body p-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.25)">
-            <table class="table table-hover align-middle mb-0">
-                <thead style="--bs-table-bg: #1D2124; color: #ffffff;">
-                <tr>
-                    <th class="ps-4 py-3">Pacjent</th>
-                    <th class="py-3">E-mail</th>
-                    <th class="py-3 text-center">Saldo</th>
-                    <th class="py-3 text-center">Wpisy</th>
-                    <th class="py-3 text-center" >Status konta</th>
-                    <th class="py-3 text-end"style="padding-right: 3.5rem;">Akcje</th>
-                </tr>
-                </thead>
-                <tbody>
-                @if (Model.Any())
-                {
-                    foreach (var p in Model)
-                    {
-                        var balance = wallets.TryGetValue(p.Id, out var b) ? b : 0;
-                        var reportCount = reportCounts.TryGetValue(p.Id, out var c) ? c : 0;
-                        var isLocked = p.LockoutEnd.HasValue && p.LockoutEnd.Value > DateTimeOffset.Now;
+        <div class="card-header border-bottom border-secondary p-4 bg-transparent">
+            <div class="d-flex justify-content-between align-items-center w-100">
 
+                <!-- LEWA STRONA -->
+                <h5 class="mb-0 fw-bold text-uppercase text-light" style="letter-spacing: 1px;">
+                    <i class="bi bi-people text-danger me-2"></i> Lista pacjentów
+                </h5>
+
+                <!-- PRAWA STRONA -->
+                <form method="get" asp-action="Patients" id="searchForm">
+                    <div class="input-group custom-search-group" style="max-width: 300px;">
+                        <span class="input-group-text bg-dark border-secondary text-light">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input type="text"
+                               name="search"
+                               value="@search"
+                               id="searchInput"
+                               class="form-control bg-dark border-secondary text-light"
+                               placeholder="Wyszukaj pacjenta..."
+                               autofocus/>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 custom-table">
+                    <thead>
+                    <tr>
+                        <th class="ps-4 py-3 border-secondary">Pacjent</th>
+                        <th class="py-3 border-secondary">E-mail</th>
+                        <th class="py-3 text-center border-secondary">Saldo</th>
+                        <th class="py-3 text-center border-secondary">Wpisy</th>
+                        <th class="py-3 text-center border-secondary">Status konta</th>
+                        <th class="py-3 text-end border-secondary"style="padding-right: 3.5rem;">Akcje</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var p in Model)
+                        {
+                            var balance = wallets.TryGetValue(p.Id, out var b) ? b : 0;
+                            var reportCount = reportCounts.TryGetValue(p.Id, out var c) ? c : 0;
+                            var isLocked = p.LockoutEnd.HasValue && p.LockoutEnd.Value > DateTimeOffset.Now;
+
+                            <tr>
+                                <td class="ps-4 fw-bold align-middle">
+                                    <i class="bi bi-person-circle text-primary me-2"></i>
+                                    @p.FirstName @p.LastName
+                                </td>
+                                <td class="text-muted small align-middle">@p.Email</td>
+                                <td class="text-center align-middle">
+                                    <span class="badge bg-success rounded-pill px-3">@balance pkt</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    <span class="badge bg-info rounded-pill px-3">@reportCount</span>
+                                </td>
+                                <td class="text-center align-middle">
+                                    @if (isLocked)
+                                    {
+                                        <span class="badge bg-danger">Zablokowane</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Aktywne</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="PatientDetails" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Szczegóły
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
                         <tr>
-                            <td class="ps-4 fw-bold">
-                                <i class="bi bi-person-circle text-primary me-2"></i>
-                                @p.FirstName @p.LastName
-                            </td>
-                            <td class="text-muted small">@p.Email</td>
-                            <td class="text-center">
-                                <span class="badge bg-success rounded-pill px-3">@balance pkt</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-info rounded-pill px-3">@reportCount</span>
-                            </td>
-                            <td class="text-center">
-                                @if (isLocked)
-                                {
-                                    <span class="badge bg-danger">Zablokowane</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success">Aktywne</span>
-                                }
-                            </td>
-                            <td class="text-end pe-4">
-                                <a asp-action="PatientDetails" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i> Szczegóły
-                                </a>
+                            <td colspan="6" class="text-center p-5 text-muted">
+                                <i class="bi bi-emoji-frown fs-3 d-block mb-2"></i>
+                                Nie znaleziono pacjentów spełniających kryteria.
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6" class="text-center p-5 text-muted">
-                            <i class="bi bi-emoji-frown fs-3 d-block mb-2"></i>
-                            Nie znaleziono pacjentów spełniających kryteria.
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
 
 <style>
     .patients-header-card {
@@ -167,4 +175,47 @@
     .custom-btn-nav:hover {
         box-shadow: 0 0 20px rgba(70, 204, 94, 0.5) !important;
     }
+
+
+    .table-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        overflow: hidden;
+    }
+
+    .custom-table {
+        background-color: transparent !important;
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: rgba(255, 255, 255, 0.03);
+    }
+
+    .custom-table td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
 </style>
+
+<script>
+    let timeout = null;
+
+    const input = document.getElementById("searchInput");
+
+    input.addEventListener("input", function () {
+        clearTimeout(timeout);
+
+        timeout = setTimeout(() => {
+            sessionStorage.setItem("keepFocus", "1");
+            this.form.submit();
+        }, 300);
+    });
+
+    window.addEventListener("load", () => {
+        if (sessionStorage.getItem("keepFocus") === "1") {
+            const el = document.getElementById("searchInput");
+            if (el) {
+                el.focus();
+                el.setSelectionRange(el.value.length, el.value.length);
+            }
+            sessionStorage.removeItem("keepFocus");
+        }
+    });
+</script>
