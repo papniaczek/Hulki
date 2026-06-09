@@ -3,6 +3,26 @@
     var user = ViewBag.User as AppUser;
     var inventory = ViewBag.Inventory as List<RewardItem>;
     var reports = ViewBag.Reports as List<DailyReport>;
+    string StatusColor(string status) => status switch
+    {
+        "Zatwierdzony" => "#46CC5E",
+        "Odrzucony" => "#dc3545",
+        _ => "#adb5bd"
+    };
+
+    string StatusBg(string status) => status switch
+    {
+        "Zatwierdzony" => "rgba(70,204,94,0.12)",
+        "Odrzucony" => "rgba(220,53,69,0.12)",
+        _ => "rgba(108,117,125,0.12)"
+    };
+
+    string StatusBorder(string status) => status switch
+    {
+        "Zatwierdzony" => "rgba(70,204,94,0.3)",
+        "Odrzucony" => "rgba(220,53,69,0.3)",
+        _ => "rgba(108,117,125,0.3)"
+    };
 }
 
 <div class="container mt-4">
@@ -163,13 +183,16 @@
                         {
                             foreach (var report in reports.Take(3))
                             {
+                                var status = report.ReportStatus?.Name;
+
                                 <li class="list-group-item report-list-item bg-transparent border-secondary" style="cursor: pointer;">
                                     <a asp-controller="Admin" asp-action="ReportDetails" asp-route-id="@report.Id" class="text-decoration-none" style="display: block; padding: 1rem;">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <small class="text-muted fw-bold">
                                                 <i class="bi bi-calendar-event me-2"></i>@report.CreatedAt.ToString("dd.MM.yyyy")
                                             </small>
-                                            <span class="badge border border-secondary text-muted px-2 py-1">@report.ReportStatus.Name</span>
+                                            @* tutaj cosik *@
+                                            <span class="badge rounded-pill px-2 py-1" style="background:@StatusBg(status); color:@StatusColor(status); border:1px solid @StatusBorder(status);">@report.ReportStatus.Name</span>
                                         </div>
                                         <p class="mb-0 text-light small text-truncate" style="transition: all 0.2s ease;">@report.Content</p>
                                     </a>

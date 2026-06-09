@@ -40,7 +40,8 @@
                 <a asp-controller="TherapyGroup" asp-action="Index" class="btn btn-groups fw-bold rounded-pill text-uppercase custom-btn-nav">Grupy</a>
             </div>
         </div>
-        <div class="admin-glow"></div>
+        <div class="profile-header-glow-left"></div>
+        <div class="profile-header-glow-right"></div>
     </div>
 
     <div class="row mb-4 g-4">
@@ -88,7 +89,7 @@
     </div>
 
     <div class="card border-0 shadow-sm rounded-4 table-card">
-        <div class="card-header border-bottom border-secondary p-4 bg-transparent d-flex justify-content-between align-items-center">
+        <div class="card-header border-bottom border-secondary p-4 d-flex justify-content-between align-items-center" style="background-color: #141418">
             <h5 class="mb-0 fw-bold text-uppercase text-light" style="letter-spacing: 1px;">
                 <i class="bi bi-activity text-danger me-2"></i> Ostatnia aktywność pacjentów
             </h5>
@@ -96,7 +97,7 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-dark table-hover mb-0 custom-table">
-                    <thead>
+                    <thead style="background-color: #1B1B22">
                     <tr class="text-uppercase text-muted small" style="letter-spacing: 1px;">
                         <th class="ps-4 py-3 border-secondary">Data wpisu</th>
                         <th class="py-3 border-secondary">Pacjent</th>
@@ -189,13 +190,25 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .admin-glow {
+    .profile-header-glow-left {
         position: absolute;
         top: -50px;
-        left: 50px;
+        left: -50px;
         width: 250px;
         height: 250px;
-        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .profile-header-glow-right {
+        position: absolute;
+        top: -100px;
+        right: -80px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
         border-radius: 50%;
         z-index: 0;
         pointer-events: none;
@@ -246,7 +259,7 @@
     }
 
     .table-card {
-        background-color: #1b1b22;
+        background-color: #1F1F28;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         overflow: hidden;
     }
