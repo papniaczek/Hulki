@@ -153,6 +153,7 @@
 
                                             @if (isTherap)
                                             {
+                                                @if (User.IsInRole("Admin"))
                                                 <button type="submit"
                                                         class="btn btn-sm btn-therapist-revoke rounded-pill px-3"
                                                         title="Odbierz rolę terapeuty">
@@ -161,6 +162,7 @@
                                             }
                                             else
                                             {
+                                                @if (User.IsInRole("Admin"))
                                                 <button type="submit"
                                                         class="btn btn-sm btn-therapist-grant rounded-pill px-3"
                                                         title="Nadaj rolę terapeuty">

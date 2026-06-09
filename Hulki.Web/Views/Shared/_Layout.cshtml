@@ -133,7 +133,7 @@
                                         statystyki
                                     </a>
                                 </li>
-                                @if (User.IsInRole("Admin"))
+                                @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
                                 {
                                     <li>
                                         <a class="dropdown-item custom-therapist-link" asp-controller="Admin"
