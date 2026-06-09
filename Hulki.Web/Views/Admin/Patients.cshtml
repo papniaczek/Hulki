@@ -4,6 +4,7 @@
     ViewData["Title"] = "Lista Pacjentów";
     var wallets = ViewBag.Wallets as Dictionary<string, int> ?? new();
     var reportCounts = ViewBag.ReportCounts as Dictionary<string, int> ?? new();
+    var isTherapist = ViewBag.IsTherapist as Dictionary<string, bool> ?? new();
     var search = ViewBag.Search as string;
 }
 
@@ -24,6 +25,21 @@
         </div>
         <div class="patients-header-glow"></div>
     </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success rounded-3 border-0 mb-4"
+             style="background: rgba(70,204,94,.12); border-left: 3px solid #46CC5E !important; color: #46CC5E;">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger rounded-3 border-0 mb-4"
+             style="background: rgba(224,92,92,.12); border-left: 3px solid #e05c5c !important; color: #e05c5c;">
+            <i class="bi bi-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+        </div>
+    }
 
     <div class="card border-0 shadow-sm rounded-4 table-card">
         <div class="card-header border-bottom border-secondary p-4 d-flex justify-content-between align-items-center" style="background-color: #141418">
@@ -46,6 +62,7 @@
                 </div>
             </form>
         </div>
+
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-dark table-hover mb-0 custom-table">
@@ -53,10 +70,11 @@
                     <tr class="text-uppercase text-muted small" style="letter-spacing: 1px;">
                         <th class="ps-4 py-3 border-secondary">Pacjent</th>
                         <th class="py-3 border-secondary">E-mail</th>
+                        <th class="py-3 text-center border-secondary">Rola</th>
                         <th class="py-3 text-center border-secondary">Saldo</th>
                         <th class="py-3 text-center border-secondary">Wpisy</th>
                         <th class="py-3 text-center border-secondary">Status konta</th>
-                        <th class="py-3 text-end border-secondary" style="padding-right: 3.5rem;">Akcje</th>
+                        <th class="py-3 text-end border-secondary pe-4">Akcje</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -67,20 +85,42 @@
                             var balance = wallets.TryGetValue(p.Id, out var b) ? b : 0;
                             var reportCount = reportCounts.TryGetValue(p.Id, out var c) ? c : 0;
                             var isLocked = p.LockoutEnd.HasValue && p.LockoutEnd.Value > DateTimeOffset.Now;
+                            var isTherap = isTherapist.TryGetValue(p.Id, out var t) && t;
 
-                            <tr style="cursor: pointer;"
+                            <tr style="cursor:pointer;"
                                 onclick='window.location.href="@Url.Action("PatientDetails", new { id = p.Id })"'>
+
                                 <td class="ps-4 fw-bold align-middle text-light">
                                     <i class="bi bi-person-circle text-primary me-2"></i>
                                     @p.FirstName @p.LastName
                                 </td>
+
                                 <td class="text-muted small align-middle">@p.Email</td>
+
+                                @* KOLUMNA ROLI *@
+                                <td class="text-center align-middle">
+                                    @if (isTherap)
+                                    {
+                                        <span class="role-badge role-therapist">
+                                            <i class="bi bi-briefcase-fill me-1"></i>Terapeuta
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="role-badge role-patient">
+                                            <i class="bi bi-person-fill me-1"></i>Pacjent
+                                        </span>
+                                    }
+                                </td>
+
                                 <td class="text-center align-middle">
                                     <span class="badge bg-success rounded-pill px-3">@balance pkt</span>
                                 </td>
+
                                 <td class="text-center align-middle">
                                     <span class="badge bg-info rounded-pill px-3">@reportCount</span>
                                 </td>
+
                                 <td class="text-center align-middle">
                                     @if (isLocked)
                                     {
@@ -91,10 +131,45 @@
                                         <span class="badge bg-success">Aktywne</span>
                                     }
                                 </td>
-                                <td class="text-end pe-4 align-middle" style="padding-right: 3.5rem;">
-                                    <a asp-action="PatientDetails" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> Szczegóły
-                                    </a>
+
+                                @* AKCJE *@
+                                <td class="text-end pe-4 align-middle" onclick="event.stopPropagation()">
+                                    <div class="d-flex justify-content-end align-items-center gap-2">
+
+                                        @* Przycisk: Szczegóły *@
+                                        <a asp-action="PatientDetails" asp-route-id="@p.Id"
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                            <i class="bi bi-eye me-1"></i>Szczegóły
+                                        </a>
+
+                                        @* Przycisk: Nadaj / Odbierz rolę Terapeuty *@
+                                        <form method="post"
+                                              asp-action="ToggleTherapist"
+                                              asp-controller="Admin"
+                                              onsubmit="return confirmToggle(this, '@p.FirstName @p.LastName', @(isTherap ? "true" : "false"))">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="userId" value="@p.Id"/>
+                                            <input type="hidden" name="returnUrl" value="@Url.Action("Patients", new { search })"/>
+
+                                            @if (isTherap)
+                                            {
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-therapist-revoke rounded-pill px-3"
+                                                        title="Odbierz rolę terapeuty">
+                                                    <i class="bi bi-person-dash me-1"></i>Odbierz rolę
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-therapist-grant rounded-pill px-3"
+                                                        title="Nadaj rolę terapeuty">
+                                                    <i class="bi bi-person-check me-1"></i>Ustaw terapeutą
+                                                </button>
+                                            }
+                                        </form>
+
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -102,7 +177,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-center p-5 text-muted fw-bold">
+                            <td colspan="7" class="text-center p-5 text-muted fw-bold">
                                 <i class="bi bi-emoji-frown fs-1 d-block mb-2 opacity-50"></i>
                                 Nie znaleziono pacjentów spełniających kryteria.
                             </td>
@@ -169,18 +244,78 @@
 
     .custom-search-group:focus-within .input-group-text,
     .custom-search-group:focus-within .form-control {
-        border-color: #ffffffff !important;
+        border-color: #fff !important;
+    }
+
+    /* Badge roli */
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .role-therapist {
+        background: rgba(70, 204, 94, .12);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, .3);
+    }
+
+    .role-patient {
+        background: rgba(136, 136, 170, .1);
+        color: #8888aa;
+        border: 1px solid rgba(136, 136, 170, .2);
+    }
+
+    /* Przyciski roli */
+    .btn-therapist-grant {
+        background: transparent;
+        border: 1px solid rgba(70, 204, 94, .4);
+        color: #46CC5E;
+        font-size: 12px;
+        transition: all .2s;
+    }
+
+    .btn-therapist-grant:hover {
+        background: rgba(70, 204, 94, .15);
+        border-color: #46CC5E;
+        color: #46CC5E;
+        box-shadow: 0 0 12px rgba(70, 204, 94, .3);
+    }
+
+    .btn-therapist-revoke {
+        background: transparent;
+        border: 1px solid rgba(224, 92, 92, .4);
+        color: #e05c5c;
+        font-size: 12px;
+        transition: all .2s;
+    }
+
+    .btn-therapist-revoke:hover {
+        background: rgba(224, 92, 92, .12);
+        border-color: #e05c5c;
+        color: #e05c5c;
+        box-shadow: 0 0 12px rgba(224, 92, 92, .3);
     }
 </style>
 
 <script>
+    // Potwierdzenie zmiany roli
+    function confirmToggle(form, name, isCurrentlyTherapist) {
+        const action = isCurrentlyTherapist === 'true'
+            ? `Czy na pewno chcesz odebrać rolę terapeuty użytkownikowi ${name}?`
+            : `Czy na pewno chcesz nadać rolę terapeuty użytkownikowi ${name}?`;
+        return confirm(action);
+    }
+
+    // Live search
     let timeout = null;
-
     const input = document.getElementById("searchInput");
-
     input.addEventListener("input", function () {
         clearTimeout(timeout);
-
         timeout = setTimeout(() => {
             sessionStorage.setItem("keepFocus", "1");
             this.form.submit();
@@ -190,10 +325,7 @@
     window.addEventListener("load", () => {
         if (sessionStorage.getItem("keepFocus") === "1") {
             const el = document.getElementById("searchInput");
-            if (el) {
-                el.focus();
-                el.setSelectionRange(el.value.length, el.value.length);
-            }
+            if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
             sessionStorage.removeItem("keepFocus");
         }
     });

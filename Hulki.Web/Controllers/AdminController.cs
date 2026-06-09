@@ -17,10 +17,13 @@ public class AdminController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<AppUser> _userManager;
 
-    public AdminController(ApplicationDbContext context, UserManager<AppUser> userManager)
+    private readonly RoleManager<IdentityRole> _roleManager;
+
+    public AdminController(ApplicationDbContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _context = context;
         _userManager = userManager;
+        _roleManager = roleManager; 
     }
 
     // --- DASHBOARD ---
@@ -58,42 +61,50 @@ public class AdminController : Controller
 
     // 1. LISTA PACJENTÓW
     [HttpGet]
-    public async Task<IActionResult> Patients(string? search)
+public async Task<IActionResult> Patients(string? search)
+{
+    var admins = await _userManager.GetUsersInRoleAsync("Admin");
+    var adminIds = admins.Select(a => a.Id).ToHashSet();
+ 
+    var query = _context.Users.AsQueryable().Where(u => !adminIds.Contains(u.Id));
+ 
+    if (!string.IsNullOrWhiteSpace(search))
     {
-        var admins = await _userManager.GetUsersInRoleAsync("Admin");
-        var adminIds = admins.Select(a => a.Id).ToHashSet();
-
-        var query = _context.Users.AsQueryable().Where(u => !adminIds.Contains(u.Id));
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var term = search.Trim().ToLower();
-            query = query.Where(u =>
-                (u.FirstName != null && u.FirstName.ToLower().Contains(term))
-                || (u.LastName != null && u.LastName.ToLower().Contains(term))
-                || (u.Email != null && u.Email.ToLower().Contains(term))
-            );
-        }
-
-        var patients = await query.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToListAsync();
-
-        var patientIds = patients.Select(p => p.Id).ToList();
-        var wallets = await _context
-            .Wallets.Where(w => patientIds.Contains(w.AppUserId))
-            .ToDictionaryAsync(w => w.AppUserId, w => w.Balance);
-
-        var reportCounts = await _context
-            .DailyReports.Where(r => patientIds.Contains(r.AppUserId))
-            .GroupBy(r => r.AppUserId)
-            .Select(g => new { UserId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.UserId, x => x.Count);
-
-        ViewBag.Wallets = wallets;
-        ViewBag.ReportCounts = reportCounts;
-        ViewBag.Search = search;
-
-        return View(patients);
+        var term = search.Trim().ToLower();
+        query = query.Where(u =>
+            (u.FirstName != null && u.FirstName.ToLower().Contains(term))
+            || (u.LastName  != null && u.LastName.ToLower().Contains(term))
+            || (u.Email     != null && u.Email.ToLower().Contains(term))
+        );
     }
+ 
+    var patients = await query.OrderBy(u => u.LastName).ThenBy(u => u.FirstName).ToListAsync();
+ 
+    var patientIds = patients.Select(p => p.Id).ToList();
+ 
+    var wallets = await _context.Wallets
+        .Where(w => patientIds.Contains(w.AppUserId))
+        .ToDictionaryAsync(w => w.AppUserId, w => w.Balance);
+ 
+    var reportCounts = await _context.DailyReports
+        .Where(r => patientIds.Contains(r.AppUserId))
+        .GroupBy(r => r.AppUserId)
+        .Select(g => new { UserId = g.Key, Count = g.Count() })
+        .ToDictionaryAsync(x => x.UserId, x => x.Count);
+ 
+    // NOWOŚĆ: sprawdzamy, którzy użytkownicy mają rolę Terapeuta
+    var therapists   = await _userManager.GetUsersInRoleAsync("Terapeuta");
+    var therapistIds = therapists.Select(t => t.Id).ToHashSet();
+    // Słownik userId → bool przekazany do widoku
+    var isTherapist  = patientIds.ToDictionary(id => id, id => therapistIds.Contains(id));
+ 
+    ViewBag.Wallets      = wallets;
+    ViewBag.ReportCounts = reportCounts;
+    ViewBag.Search       = search;
+    ViewBag.IsTherapist  = isTherapist;   // <-- jedyna nowa linia ViewBag
+ 
+    return View(patients);
+}
 
     // 2. SZCZEGÓŁY PACJENTA
     [HttpGet]
@@ -328,6 +339,48 @@ public class AdminController : Controller
 
         return RedirectToAction("ReportDetails", new { id = id });
     }
+
+    /// <summary>
+/// POST /Admin/ToggleTherapist
+/// Nadaje lub odbiera rolę Terapeuta wskazanemu użytkownikowi.
+/// Rola "Terapeuta" jest tworzona automatycznie jeśli nie istnieje.
+/// </summary>
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> ToggleTherapist(string userId, string? returnUrl)
+{
+    var user = await _userManager.FindByIdAsync(userId);
+    if (user == null)
+        return NotFound();
+ 
+    // Admina nie można uczynić terapeutą (i odwrotnie)
+    if (await _userManager.IsInRoleAsync(user, "Admin"))
+    {
+        TempData["ErrorMessage"] = "Nie można zmieniać roli konta administratora.";
+        return Redirect(returnUrl ?? Url.Action(nameof(Patients))!);
+    }
+ 
+    const string role = "Terapeuta";
+ 
+    // Utwórz rolę jeśli nie istnieje (nie trzeba jej dodawać do Program.cs)
+    if (!await _roleManager.RoleExistsAsync(role))
+        await _roleManager.CreateAsync(new IdentityRole(role));
+ 
+    if (await _userManager.IsInRoleAsync(user, role))
+    {
+        await _userManager.RemoveFromRoleAsync(user, role);
+        TempData["SuccessMessage"] =
+            $"{user.FirstName} {user.LastName} nie jest już terapeutą.";
+    }
+    else
+    {
+        await _userManager.AddToRoleAsync(user, role);
+        TempData["SuccessMessage"] =
+            $"{user.FirstName} {user.LastName} otrzymał(a) rolę terapeuty.";
+    }
+ 
+    return Redirect(returnUrl ?? Url.Action(nameof(Patients))!);
+}
 
     // ====================================================================
     // ZARZĄDZANIE PRZEDMIOTAMI W SKLEPIE
