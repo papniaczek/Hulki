@@ -135,5 +135,82 @@ public static class StoreDataSeeder
 
         if (polluted.Count > 0)
             await context.SaveChangesAsync();
+        // 1. Słownik nastrojów
+    if (!context.MoodTypes.Any())
+    {
+        context.MoodTypes.AddRange(
+            new MoodType { Name = "Świetny" },
+            new MoodType { Name = "Stabilny" },
+            new MoodType { Name = "Lękowy" },
+            new MoodType { Name = "Depresyjny" }
+        );
+        await context.SaveChangesAsync();
+    }
+
+    // 2. Statusy konsultacji
+    if (!context.ConsultationStatuses.Any())
+    {
+        context.ConsultationStatuses.AddRange(
+            new ConsultationStatus { Name = "Zaplanowana" },
+            new ConsultationStatus { Name = "Zakończona" },
+            new ConsultationStatus { Name = "Odwołana" }
+        );
+        await context.SaveChangesAsync();
+    }
+
+    // 3. Przykładowa ankieta
+    if (!context.Surveys.Any())
+    {
+        var survey = new Survey { Id = Guid.NewGuid(), Title = "Ankieta samopoczucia po sesji" };
+        context.Surveys.Add(survey);
+        await context.SaveChangesAsync();
+
+        context.SurveyQuestions.Add(new SurveyQuestion { 
+            Id = Guid.NewGuid(), 
+            SurveyId = survey.Id, 
+            Text = "Jak oceniasz dzisiejsze postępy w skali 1-5?" 
+        });
+        await context.SaveChangesAsync();
+    }
+
+
+        // 1. Słownik nastrojów
+        if (!context.MoodTypes.Any())
+        {
+            context.MoodTypes.AddRange(
+                new MoodType { Name = "Świetny" },
+                new MoodType { Name = "Stabilny" },
+                new MoodType { Name = "Lękowy" },
+                new MoodType { Name = "Depresyjny" }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // 2. Statusy konsultacji
+        if (!context.ConsultationStatuses.Any())
+        {
+            context.ConsultationStatuses.AddRange(
+                new ConsultationStatus { Name = "Zaplanowana" },
+                new ConsultationStatus { Name = "Zakończona" },
+                new ConsultationStatus { Name = "Odwołana" }
+            );
+            await context.SaveChangesAsync();
+        }
+
+        // 3. Przykładowa ankieta
+        if (!context.Surveys.Any())
+        {
+            var survey = new Survey { Id = Guid.NewGuid(), Title = "Ankieta samopoczucia po sesji" };
+            context.Surveys.Add(survey);
+            await context.SaveChangesAsync();
+
+            context.SurveyQuestions.Add(new SurveyQuestion
+            {
+                Id = Guid.NewGuid(),
+                SurveyId = survey.Id,
+                Text = "Jak oceniasz dzisiejsze postępy w skali 1-5?"
+            });
+            await context.SaveChangesAsync();
+        }
     }
 }

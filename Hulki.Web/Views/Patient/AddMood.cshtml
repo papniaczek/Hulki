@@ -1,0 +1,133 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Dodaj nastrój";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="custom-card-container p-4 p-md-5 position-relative overflow-hidden rounded-4">
+                <div class="position-relative z-1">
+                    <h2 class="text-center mb-2 text-primary fw-bold text-uppercase" style="letter-spacing: 1px;">
+                        <i class="bi bi-journal-heart me-2"></i>Dzienniczek Nastroju
+                    </h2>
+                    <p class="text-center text-light opacity-75 mb-4">
+                        Wybierz nastrój, który najlepiej do ciebie pasuje!
+                    </p>
+                    <form asp-action="AddMood" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-info fw-bold text-uppercase small"style="letter-spacing: 0.5px">Wybierz nastrój:</label>
+                            <select name="moodTypeId" class="form-select custom-input" required>
+                                <option value="">-- Wybierz swój nastrój --</option>
+                        
+                                @foreach (var type in (List<Hulki.Web.Models.MoodType>)ViewBag.MoodTypes)
+                                {
+                                    <option value="@type.Id">@type.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <a asp-action="Index"
+                               class="btn btn-custom-back text-muted w-50 me-2">
+                                Wróć
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-custom-success w-50 ms-2 fw-bold">
+                                Zapisz nastrój
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="custom-card-glow"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .dark-panel-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .btn-custom-success {
+        background: #1B1B22;
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.4);
+        border-radius: 50px;
+        padding: 8px 24px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+
+
+    .btn-custom-success:hover {
+        background: #46CC5E !important;
+        color: #17171C !important;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.4) !important;
+        border-color: #46CC5E !important;
+    }
+
+    .btn-custom-back {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.7);
+        border-radius: 50px;
+        padding: 8px 24px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.25s ease;
+    }
+
+    .btn-custom-back:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .custom-input {
+        background-color: #121217 !important;
+        border: 1px solid #3f3f46 !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 0.8rem 1rem !important;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .custom-input:focus {
+        border-color: #46CC5E !important;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.25) !important;
+        outline: none !important;
+    }
+
+
+    .custom-card-container {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .custom-card-glow {
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+</style>

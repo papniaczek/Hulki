@@ -161,7 +161,12 @@ public class AdminController : Controller
         ViewBag.Groups = groups;
         ViewBag.Transactions = transactions;
         ViewBag.IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now;
-
+        ViewBag.MoodLogs = await _context.MoodLogs
+            .Include(m => m.MoodType)
+            .Where(m => m.AppUserId == id)
+            .OrderByDescending(m => m.Date)
+            .Take(5)
+            .ToListAsync();
         return View();
     }
 

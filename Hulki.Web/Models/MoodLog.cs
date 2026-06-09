@@ -1,3 +1,5 @@
+namespace Hulki.Web.Models;
+
 public class MoodLog
 {
     public Guid Id { get; set; }

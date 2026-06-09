@@ -122,8 +122,38 @@ namespace Hulki.Web.Controllers;
             return View();
         }
 
-        // 1. WYŚWIETLANIE FORMULARZA
-        [HttpGet]
+    // W PatientController.cs
+    [HttpGet]
+    public async Task<IActionResult> AddMood()
+    {
+        // Pobieramy typy nastrojów, żeby wyświetlić je w dropdownie
+        ViewBag.MoodTypes = await _context.MoodTypes.ToListAsync();
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddMood(int moodTypeId)
+    {
+        var userId = _userManager.GetUserId(User); // Pobieramy ID zalogowanego pacjenta
+
+        var log = new MoodLog
+        {
+            Id = Guid.NewGuid(),
+            AppUserId = userId,
+            Date = DateTime.Now,
+            MoodTypeId = moodTypeId
+        };
+
+        _context.MoodLogs.Add(log);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Twój nastrój został zapisany!";
+        return RedirectToAction("Index"); // Wracamy do panelu głównego pacjenta
+    }
+
+    // 1. WYŚWIETLANIE FORMULARZA
+    [HttpGet]
         public async Task<IActionResult> DailyReport()
         {
             var user = await _userManager.GetUserAsync(User);

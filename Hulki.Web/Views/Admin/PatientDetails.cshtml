@@ -202,6 +202,37 @@
                 </div>
             </div>
 
+            <div class="detail-card rounded-4 overflow-hidden mb-4">
+                <div class="detail-card-header px-4 py-3">
+                    <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                        Ostatnie nastroje pacjenta
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (ViewBag.MoodLogs != null && ((List<Hulki.Web.Models.MoodLog>)ViewBag.MoodLogs).Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var log in (List<Hulki.Web.Models.MoodLog>)ViewBag.MoodLogs)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center list-group-custom-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-emoji-smile me-3" style="color: #46CC5E; font-size: 1.2rem;"></i>
+                                        <span class="fw-bold text-light">@log.MoodType.Name</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>@log.Date.ToString("dd.MM.yyyy")
+                                    </small>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted small">Pacjent nie dodał jeszcze wpisu o nastroju.</div>
+                    }
+                </div>
+            </div>
+
             <!-- HISTORIA TRANSAKCJI -->
             <div class="card border-0 shadow-sm mb-3">
                 <div class="detail-card rounded-4 overflow-hidden mb-2">

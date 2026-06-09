@@ -1,3 +1,5 @@
+namespace Hulki.Web.Models;
+
 public class MoodType
 {
     public int Id { get; set; }
