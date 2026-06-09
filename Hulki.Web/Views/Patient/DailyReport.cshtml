@@ -14,7 +14,7 @@
                     </h2>
                     <p class="text-center text-light opacity-75 mb-4">
                         Opisz jak minął Ci dzień. Każdy szczery wpis to <strong class="text-primary">+10 punktów</strong>,
-                        <i class="bi bi-star-fill text-warning"></i> za załącznik <strong>dodatkowe +5</strong>!
+                        za załącznik <strong class="text-warning">dodatkowe +5</strong>!
                     </p>
 
                     @if (alreadyReported)
@@ -141,14 +141,21 @@
     }
 
     .custom-glow-btn {
+        background: #17171C;
         transition: all 0.3s ease;
+        border-color: #46CC5E;
     }
 
     .custom-glow-btn:hover {
         background: #46CC5E;
         color: #17171C !important;
         box-shadow: 0 0 15px rgba(70, 204, 94, 0.6);
-        transform: scale(1.02);
+    }
+    .custom-glow-btn i{
+        transition: 0.2s;
+    }
+    .custom-glow-btn:hover i{
+        color: black !important;
     }
 </style>
 

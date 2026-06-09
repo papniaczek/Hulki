@@ -35,9 +35,9 @@
                 <p class="text-light mb-0 fs-5 fw-light opacity-75">Masz pełen wgląd w działanie kliniki.</p>
             </div>
             <div class="d-flex flex-wrap gap-2 mt-3 mt-md-0">
-                <a asp-action="Patients" class="btn btn-outline-info fw-bold rounded-pill text-uppercase custom-btn-nav">Lista pacjentów</a>
-                <a asp-action="ShopItems" class="btn btn-outline-warning fw-bold rounded-pill text-uppercase custom-btn-nav">Sklep</a>
-                <a asp-controller="TherapyGroup" asp-action="Index" class="btn btn-outline-success fw-bold rounded-pill text-uppercase custom-btn-nav">Grupy</a>
+                <a asp-action="Patients" class="btn btn-list-patients fw-bold rounded-pill text-uppercase custom-btn-nav">Lista pacjentów</a>
+                <a asp-action="ShopItems" class="btn btn-shop fw-bold rounded-pill text-uppercase custom-btn-nav">Sklep</a>
+                <a asp-controller="TherapyGroup" asp-action="Index" class="btn btn-groups fw-bold rounded-pill text-uppercase custom-btn-nav">Grupy</a>
             </div>
         </div>
         <div class="admin-glow"></div>
@@ -144,6 +144,45 @@
 </div>
 
 <style>
+    .btn-list-patients {
+        border: 1px solid #0dcaf0 !important;
+        box-shadow: none;
+    }
+
+    .btn-list-patients:hover,
+    .btn-list-patients:active,
+    .btn-list-patients:focus {
+        background-color: #0dcaf0 !important;
+        color: #18181E !important;
+        box-shadow: 0 0 5px #0dcaf0;
+    }
+
+    .btn-shop {
+        border: 1px solid #46CC5E !important;
+        box-shadow: none;
+    }
+
+    .btn-shop:hover,
+    .btn-shop:active,
+    .btn-shop:focus {
+        background-color: #46CC5E !important;
+        color: #18181E !important;
+        box-shadow: 0 0 5px #46CC5E;
+    }
+
+    .btn-groups {
+        border: 1px solid #FFC107 !important;
+        box-shadow: none;
+    }
+
+    .btn-groups:hover,
+    .btn-groups:active,
+    .btn-groups:focus {
+        background-color: #FFC107 !important;
+        color: #18181E !important;
+        box-shadow: 0 0 5px #FFC107;
+    }
+
     .admin-header-card {
         background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
         border: 1px solid rgba(70, 204, 94, 0.15);
