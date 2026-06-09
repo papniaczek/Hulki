@@ -46,24 +46,23 @@
     <!-- ALERTY -->
 
     <!-- HEADER -->
-    <div class="report-header-card mb-4 p-4 p-md-5 position-relative overflow-hidden rounded-4">
-        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div class="report-header-card mb-5 p-4 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row align-items-md-center justify-content-between">
 
-            <div class="d-flex align-items-center gap-4">
-                <div class="report-avatar">
-                    <i class="bi bi-journal-check text-success fs-2"></i>
+            <div class="d-flex align-items-center gap-4 mb-4 mb-md-0">
+                <div class="rounded-circle report-avatar d-flex align-items-center justify-content-center flex-shrink-0">
+                    <i class="bi bi-journal-check text-light"style="font-size: 2.3rem;"></i>
                 </div>
                 <div>
                     <h2 class="fw-bold text-light mb-1">
                         Wpis z dnia @Model.CreatedAt.ToString("dd.MM.yyyy")
                     </h2>
                     <p class="text-muted mb-0 small">
-                        <i class="bi bi-clock me-1 text-success"></i>
+                        <i class="bi bi-clock me-1 text-muted"></i>
                         Godzina: @Model.CreatedAt.ToString("HH:mm:ss")
                     </p>
                 </div>
             </div>
-
             <div class="d-flex align-items-center gap-3">
                 <span class="badge rounded-pill px-3 py-2 fs-6"
                       style="background:@statusBg; color:@statusColor; border:1px solid @statusBorder;">
@@ -72,13 +71,14 @@
                 </span>
 
                 <a asp-action="PatientDetails" asp-route-id="@Model.AppUserId"
-                   class="btn btn-back fw-bold rounded-pill px-4 py-2">
-                    <i class="bi bi-arrow-left me-1"></i> Profil
+                   class="btn btn-light btn-back fw-bold rounded-pill px-4 py-2">
+                    <i class="bi bi-arrow-left me-1"></i> Powrót
                 </a>
             </div>
         </div>
 
-        <div class="header-glow"></div>
+        <div class="header-glow-left"></div>
+        <div class="header-glow-right"></div>
     </div>
 
     <div class="row g-4">
@@ -244,25 +244,36 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .header-glow {
+    .header-glow-left {
         position: absolute;
         top: -50px;
-        right: -50px;
+        left: -50px;
         width: 250px;
         height: 250px;
-        background: radial-gradient(circle, rgba(70, 204, 94, 0.08) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
         border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .header-glow-right {
+        position: absolute;
+        top: -100px;
+        right: -80px;
+        width: 250px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
     }
 
     .report-avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 18px;
-        background: rgba(70, 204, 94, 0.08);
-        border: 1px solid rgba(70, 204, 94, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background: rgba(70, 204, 94, 0.15);
+        border: 2px solid rgba(70, 204, 94, 0.4);
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.2);
     }
 
     .mini-avatar {
@@ -305,14 +316,11 @@
     }
 
     .btn-back {
-        background: rgba(255, 255, 255, 0.05);
-        color: #adb5bd;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
     }
 
     .btn-back:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+        box-shadow: 0 0 20px rgba(70, 204, 94, 0.5) !important;
     }
 
     .btn-custom-success {

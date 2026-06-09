@@ -10,193 +10,191 @@
 }
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Profil Pacjenta</h2>
-        <a asp-action="Patients" class="btn btn-sm btn-custom-back">
-            <i class="bi bi-arrow-left"></i> Wróć do listy
-        </a>
-    </div>
-
-    <!-- HEADER -->
-    <div class="patient-header-card mb-5 p-4 position-relative overflow-hidden rounded-4">
-        <div class="position-relative z-1 d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-4 mb-4 mb-md-0">
-                <div
-                    class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0">
-                    <i class="bi bi-person-fill text-light" style="font-size: 3rem;"></i>
-                </div>
-                <div>
-                    <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">@patient?.FirstName @patient?.LastName</h2>
-                    <p class="mb-0 text-muted small">
-                        <i class="bi bi-envelope me-2"></i>@patient?.Email
-                        @if (isLocked)
-                        {
-                            <span class="badge bg-danger ms-2"><i class="bi bi-lock-fill"></i> Konto zablokowane</span>
-                        }
-                    </p>
-                </div>
-            </div>
-            <div class="text-md-end text-center wallet-points p-3 rounded-3 shadow-sm">
-                <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">Saldo portfela
-                </h6>
-                <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
-                    @(wallet?.Balance ?? 0)
-                </h2>
-            </div>
-        </div>
-        <div class="profile-header-glow-left"></div>
-        <div class="profile-header-glow-right"></div>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Profil Pacjenta</h2>
+    <a asp-action="Patients" class="btn btn-light btn-back fw-bold rounded-pill px-2 py-2">
+        <i class="bi bi-arrow-left"></i> Wróć do listy
+    </a>
 </div>
-    
-    <div class="row g-4">
-        <!-- LEWA KOLUMNA: AKCJE TERAPEUTY -->
-        <div class="col-md-4">
-            <!-- KOREKTA PUNKTÓW -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-dark-subtle border-bottom"
-                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <h6 class="mb-0 fw-bold"> Korekta punktów</h6>
-                </div>
-                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <form asp-action="AdjustPoints" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="userId" value="@patient?.Id"/>
-                        <div class="mb-2">
-                            <label class="form-label small text-muted">Wartość (+ lub -)</label>
-                            <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20"
-                                   required/>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small text-muted">Powód (opcjonalnie)</label>
-                            <input type="text" name="reason" class="form-control"
-                                   placeholder="np. Premia za aktywność"/>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 mt-2">
-                            <i class="bi bi-pencil-square"></i> Zastosuj korektę
-                        </button>
-                    </form>
-                </div>
+
+<!-- HEADER -->
+<div class="patient-header-card mb-5 p-4 position-relative overflow-hidden rounded-4">
+    <div class="position-relative z-1 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-4 mb-4 mb-md-0">
+            <div
+                class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0">
+                <i class="bi bi-person-fill text-light" style="font-size: 3rem;"></i>
+            </div>
+            <div>
+                <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">@patient?.FirstName @patient?.LastName</h2>
+                <p class="mb-0 text-muted small">
+                    <i class="bi bi-envelope me-2"></i>@patient?.Email
+                    @if (isLocked)
+                    {
+                        <span class="badge bg-danger ms-2"><i class="bi bi-lock-fill"></i> Konto zablokowane</span>
+                    }
+                </p>
+            </div>
+        </div>
+        <div class="text-md-end text-center wallet-points p-3 rounded-3 shadow-sm">
+            <h6 class="text-uppercase text-muted fw-bold mb-1 text-center" style="letter-spacing: 1px;">
+                Saldo portfela
+            </h6>
+            <h2 class="text-success fw-bold mb-0 d-flex align-items-center justify-content-center">
+                @(wallet?.Balance ?? 0)
+            </h2>
+        </div>
+    </div>
+    <div class="profile-header-glow-left"></div>
+    <div class="profile-header-glow-right"></div>
+</div>
+
+
+<div class="row g-4">
+    <!-- LEWA KOLUMNA: AKCJE TERAPEUTY -->
+    <div class="col-md-4">
+        <!-- KOREKTA PUNKTÓW -->
+        <div class="detail-card rounded-4 overflow-hidden mb-4">
+            <div class="detail-card-header px-4 py-3">
+                <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                    Pacjent
+                </h6>
             </div>
 
-            <!-- BLOKADA / ODBLOKOWANIE -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-black bg-opacity-25 border-bottom"
-                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <h6 class="mb-0 fw-bold">Status konta</h6>
-                </div>
-                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <p class="small text-muted mb-3">
-                        @if (isLocked)
-                        {
-                            <text>Konto jest aktualnie zablokowane – pacjent nie może się zalogować.</text>
-                        }
-                        else
-                        {
-                            <text>Konto jest aktywne. Możesz je tymczasowo zablokować.</text>
-                        }
-                    </p>
-                    <form asp-action="ToggleLock" method="post"
-                          onsubmit="return confirm('@(isLocked ? "Odblokować konto pacjenta?" : "Zablokować konto pacjenta?")');">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="userId" value="@patient?.Id"/>
-                        <button type="submit" class="btn @(isLocked ? "btn-success" : "btn-danger") w-100">
-                            <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
-                            @(isLocked ? "Odblokuj konto" : "Zablokuj konto")
-                        </button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- GRUPY TERAPEUTYCZNE -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-black bg-opacity-25 border-bottom"
-                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <h6 class="mb-0 fw-bold"> Grupy terapeutyczne</h6>
-                </div>
-                <ul class="list-group list-group-flush" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    @if (groups != null && groups.Any())
-                    {
-                        foreach (var g in groups)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-bold small">@g.TherapyGroup?.Name</div>
-                                    <div class="text-muted" style="font-size:0.75rem;">@g.TherapyGroup?.TherapyType?.Name</div>
-                                </div>
-                                @if (g.IsApproved)
-                                {
-                                    <span class="badge bg-success">Członek</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Oczekuje</span>
-                                }
-                            </li>
-                        }
-                    }
-                    else
-                    {
-                        <li class="list-group-item text-muted small">Pacjent nie należy do żadnej grupy.</li>
-                    }
-                </ul>
+            <div class="p-4">
+                <form asp-action="AdjustPoints" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="userId" value="@patient?.Id"/>
+                    <div class="mb-2" style="margin-top: 0px !important">
+                        <label class="form-label small text-muted">Wartość (+ lub -)</label>
+                        <input type="number" name="amount" class="form-control" placeholder="np. 50 lub -20"
+                               required/>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small text-muted">Powód (opcjonalnie)</label>
+                        <input type="text" name="reason" class="form-control"
+                               placeholder="np. Premia za aktywność"/>
+                    </div>
+                    <button type="submit" class="btn btn-custom-success w-100 fw-bold rounded-pill mt-3">
+                        <i class="bi bi-pencil-square"></i> Zastosuj korektę
+                    </button>
+                </form>
             </div>
         </div>
 
-        <!-- PRAWA KOLUMNA: HISTORIA -->
-        <div class="col-md-8">
-            <!-- OSTATNIE WPISY -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-black bg-opacity-25 border-bottom"
-                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <h6 class=" mb-0 fw-bold">
-                        Ostatnie wpisy w
-                        dzienniczku
-                    </h6>
-                </div>
-                <div class="card-body p-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    @if (reports != null && reports.Any())
+        <!-- BLOKADA / ODBLOKOWANIE -->
+        <div class="detail-card rounded-4 overflow-hidden mb-4">
+            <div class="detail-card-header px-4 py-3">
+                <h6 class="mb-0 fw-bold text-uppercase p-1">Status konta</h6>
+            </div>
+            <div class="p-4">
+                <p class="small text-muted mb-3">
+                    @if (isLocked)
                     {
-                        <ul class=" list-group list-group-flush">
-                            @foreach (var r in reports.Take(3))
-                            {
-                                <a asp-action="ReportDetails" asp-route-id="@r.Id"
-                                   class="list-group-item list-group-item-action">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <small class="text-muted">
-                                            <i class="bi bi-calendar3 me-1"></i>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm")
-                                        </small>
-                                        <span class="badge bg-secondary">@r.ReportStatus?.Name</span>
-                                    </div>
-                                    <p class="mb-0 small text-truncate" style="color: white;">@r.Content</p>
-                                </a>
-                            }
-                        </ul>
+                        <text>Konto jest aktualnie zablokowane – pacjent nie może się zalogować.</text>
                     }
                     else
                     {
-                        <div class="p-4 text-center text-muted small">Brak wpisów w dzienniczku.</div>
+                        <text>Konto jest aktywne. Możesz je tymczasowo zablokować.</text>
                     }
-                </div>
+                </p>
+                <form asp-action="ToggleLock" method="post"
+                      onsubmit="return confirm('@(isLocked ? "Odblokować konto pacjenta?" : "Zablokować konto pacjenta?")');">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="userId" value="@patient?.Id"/>
+                    <button type="submit" class="btn @(isLocked ? "btn-success" : "btn-danger") w-100 mt-2 fw-bold rounded-pill">
+                        <i class="bi @(isLocked ? "bi-unlock-fill" : "bi-lock-fill")"></i>
+                        @(isLocked ? "Odblokuj konto" : "Zablokuj konto")
+                    </button>
+                </form>
             </div>
+        </div>
 
-            <!-- HISTORIA TRANSAKCJI -->
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-black bg-opacity-25 border-bottom"
-                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <h6 class="mb-0 fw-bold">
-                        Ostatnie transakcje
-                        punktów
+        <!-- GRUPY TERAPEUTYCZNE -->
+        <div class="detail-card rounded-4 overflow-hidden mb-4">
+            <div class="detail-card-header px-4 py-3">
+                <h6 class="mb-0 fw-bold text-uppercase p-1">Grupy terapeutyczne</h6>
+            </div>
+            <ul class="list-group list-group-flush ">
+                @if (groups != null && groups.Any())
+                {
+                    foreach (var g in groups)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center list-group-custom">
+                            <div>
+                                <div class="fw-bold small">@g.TherapyGroup?.Name</div>
+                                <div class="text-muted" style="font-size:0.75rem;">@g.TherapyGroup?.TherapyType?.Name</div>
+                            </div>
+                            @if (g.IsApproved)
+                            {
+                                <span class="badge bg-success">Członek</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Oczekuje</span>
+                            }
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="list-group-item text-muted small">Pacjent nie należy do żadnej grupy.</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <!-- PRAWA KOLUMNA: HISTORIA -->
+    <div class="col-md-8">
+        <!-- OSTATNIE WPISY -->
+        <div class="detail-card rounded-4 overflow-hidden mb-4" style="min-height: 321px">
+            <div class="detail-card-header px-4 py-3">
+                <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                    Ostatnie wpisy w dzienniczku
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                @if (reports != null && reports.Any())
+                {
+                    <ul class=" list-group list-group-flush">
+                        @foreach (var r in reports.Take(3))
+                        {
+                            <a asp-action="ReportDetails" asp-route-id="@r.Id"
+                               class="list-group-item list-group-item-action list-group-custom-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3 me-1"></i>@r.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    </small>
+                                    <span class="badge bg-secondary">@r.ReportStatus?.Name</span>
+                                </div>
+                                <p class="mb-0 small text-truncate" style="color: white;">@r.Content</p>
+                            </a>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted small">Brak wpisów w dzienniczku.</div>
+                }
+            </div>
+        </div>
+
+        <!-- HISTORIA TRANSAKCJI -->
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="detail-card rounded-4 overflow-hidden mb-2">
+                <div class="detail-card-header px-4 py-3">
+                    <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                        Ostatnie transakcje punktów
                     </h6>
                 </div>
-                <div class="card-body p-0" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
+                <div class="card-body p-0">
                     @if (transactions != null && transactions.Any())
                     {
                         <table class="table table-sm mb-0">
                             <tbody>
                             @foreach (var t in transactions.Take(6))
                             {
-                                <tr>
+                                <tr class="list-group-custom-2">
                                     <td class="ps-3 small text-muted" style="width:130px;">
                                         @t.TransactionDate.ToString("dd.MM.yyyy HH:mm")
                                     </td>
@@ -215,49 +213,63 @@
                     }
                 </div>
             </div>
+        </div>
 
-            <!-- EKWIPUNEK -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-black bg-opacity-25 border-bottom d-flex justify-content-between align-items-center"
-                     style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
-                    <h6 class="mb-0 fw-bold">Ekwipunek pacjenta</h6>
+        <!-- EKWIPUNEK -->
+        <div class="card border-0 shadow-sm">
+            <div class="detail-card rounded-4 overflow-hidden mb-4" style="min-height: 135px">
+                <div class="detail-card-header px-4 py-3">
+                    <h6 class="mb-0 fw-bold text-uppercase p-1" style="letter-spacing:1px;font-size:1rem;">
+                        Ekwipunek pacjenta
+                    </h6>
                 </div>
-                <div class="card-body" style="box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.55);">
+                <div class="card-body p-0">
                     @if (inventory != null && inventory.Any())
                     {
-                        <div class="row g-2">
+                        <ul class="list-group list-group-flush">
                             @foreach (var inv in inventory)
                             {
                                 var rarityColor = inv.RewardItem?.ItemRarity?.HexColor ?? "#adb5bd";
-                                <div class="col-6 col-md-4">
-                                    <div class="border rounded p-2 d-flex align-items-center gap-2"
-                                         style="border-left: 4px solid @rarityColor !important;">
-                                        <i class="bi bi-box-seam" style="color:@rarityColor; font-size:1.5rem;"></i>
-                                        <div class="text-truncate small">
-                                            <div class="fw-bold text-truncate">@inv.RewardItem?.Name</div>
-                                            <div class="text-muted" style="font-size:0.7rem;">
-                                                @inv.RewardItem?.ItemRarity?.Name
-                                            </div>
+                                <li class="list-group-item d-flex align-items-center gap-3 list-group-custom"
+                                    style="border-left: 4px solid @rarityColor !important;">
+
+                                    <div class="d-flex align-items-center justify-content-center rounded-3 p-2"
+                                         style="background: rgba(255,255,255,0.02); min-width: 45px;">
+                                        <i class="bi bi-box-seam" style="color:@rarityColor; font-size:1.4rem;"></i>
+                                    </div>
+
+                                    <div class="text-truncate">
+                                        <div class="fw-bold small text-light text-truncate">@inv.RewardItem?.Name</div>
+                                        <div class="small" style="font-size:0.75rem; color: @rarityColor;">
+                                            @inv.RewardItem?.ItemRarity?.Name
                                         </div>
                                     </div>
-                                </div>
+                                </li>
                             }
-                        </div>
+                        </ul>
                     }
                     else
                     {
-                        <p class="text-muted small mb-0 text-center">Pacjent nie posiada żadnych przedmiotów.</p>
+                        <div class="p-4 text-center text-muted small">Pacjent nie posiada żadnych przedmiotów.</div>
                     }
                 </div>
             </div>
         </div>
     </div>
-
+</div>
 <style>
     .patient-header-card {
         background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
         border: 1px solid rgba(70, 204, 94, 0.15);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-back {
+        transition: all 0.2s ease;
+    }
+
+    .btn-back:hover {
+        box-shadow: 0 0 20px rgba(70, 204, 94, 0.5) !important;
     }
 
     .btn {
@@ -304,5 +316,44 @@
         background: rgba(0, 0, 0, 0.25);
         border: 1px solid rgba(70, 204, 94, 0.15);
         min-width: 180px;
+    }
+
+    .detail-card {
+        background: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .list-group-custom {
+        background: #1b1b22 !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .list-group-custom-2,
+    .list-group-custom-2 td {
+        background: #1b1b22 !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .list-group-custom-2:hover,
+    .list-group-custom-2:hover td {
+        background: #202029 !important;
+    }
+
+    .detail-card-header {
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-custom-success {
+        background: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+    }
+
+    .btn-custom-success:hover {
+        background: #46CC5E;
+        color: #17171C;
     }
 </style>
