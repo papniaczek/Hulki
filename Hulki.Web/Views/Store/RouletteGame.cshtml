@@ -15,13 +15,37 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .roulette-header-glow {
+    .roulette-header-glow-left {
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 250px;
+        top: -70px;
+        left: -50px;
+        width: 450px;
         height: 250px;
-        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 80%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .roulette-header-glow-right {
+        position: absolute;
+        top: -70px;
+        right: -80px;
+        width: 450px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 80%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .roulette-header-glow-center {
+        position: absolute;
+        top: -70px;
+        right: 300px;
+        width: 700px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 81, 0.15) 0%, transparent 80%);
         border-radius: 50%;
         z-index: 0;
         pointer-events: none;
@@ -96,7 +120,6 @@
 
     .btn-success:hover {
         box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
-        transform: translateY(-2px);
     }
 
     #retry-btn {
@@ -106,9 +129,11 @@
 
 <div class="container mt-5 text-center text-light">
     <div class="roulette-header">
-        <div class="roulette-header-glow"></div>
-        <h2 class="text-light">Otwieranie Skrzyni</h2>
-        <p class="text-muted">Zobaczmy, co przygotował dla Ciebie los!</p>
+        <div class="roulette-header-glow-left"></div>
+        <div class="roulette-header-glow-center"></div>
+        <div class="roulette-header-glow-right"></div>
+        <h2 class="text-light" style="text-shadow: 0 2px 8px rgba(0, 0, 0, 1)">Otwieranie Skrzyni</h2>
+        <p class="text-muted" style="text-shadow: 0 2px 8px rgba(0, 0, 0, 1)">Zobaczmy, co przygotował dla Ciebie los!</p>
     </div>
 
     <div class="roulette-container shadow-lg">

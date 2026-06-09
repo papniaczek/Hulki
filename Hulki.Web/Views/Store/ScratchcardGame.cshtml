@@ -15,17 +15,30 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
-    .scratch-header-glow {
+    .scratch-header-glow-left {
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 250px;
+        top: -70px;
+        left: -50px;
+        width: 350px;
         height: 250px;
-        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
         border-radius: 50%;
         z-index: 0;
         pointer-events: none;
     }
+
+    .scratch-header-glow-right {
+        position: absolute;
+        top: -70px;
+        right: -80px;
+        width: 350px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
 
     .scratch-header h2 {
         position: relative;
@@ -41,52 +54,57 @@
         margin: 10px 0 0 0;
     }
 
-    .scratch-container { 
-        position: relative; 
-        width: 350px; 
-        height: 250px; 
-        margin: 0 auto; 
-        border-radius: 10px; 
-        overflow: hidden; 
+    .scratch-container {
+        position: relative;
+        width: 350px;
+        height: 250px;
+        margin: 0 auto;
+        border-radius: 10px;
+        overflow: hidden;
         border: 1px solid rgba(70, 204, 94, 0.2);
         box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15);
     }
-    
-    .scratch-result { 
-        position: absolute; 
-        width: 100%; 
-        height: 100%; 
-        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%); 
-        color: white; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        flex-direction: column; 
-        z-index: 1; 
+
+    .scratch-result {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 1;
     }
-    
-    .scratch-cover { 
-        position: absolute; 
-        width: 100%; 
-        height: 100%; 
-        background: repeating-linear-gradient(45deg, rgba(70, 204, 94, 0.3), rgba(70, 204, 94, 0.3) 10px, rgba(70, 204, 94, 0.2) 10px, rgba(70, 204, 94, 0.2) 20px); 
-        z-index: 2; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        color: #46CC5E; 
-        font-weight: bold; 
-        font-size: 1.5rem; 
-        cursor: pointer; 
-        transition: opacity 1.5s ease-out; 
+
+
+    .scratch-cover {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(45deg, rgb(70, 204, 94), rgb(70, 204, 94) 10px, rgb(70, 204, 94) 10px, rgb(70, 204, 94) 20px);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #17171C;
+        font-weight: bold;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: opacity 1.5s ease-out;
     }
-    
-    .scratch-cover.scratched { opacity: 0; pointer-events: none; }
+
+    .scratch-cover.scratched {
+        opacity: 0;
+        pointer-events: none;
+    }
 </style>
 
 <div class="container mt-5 text-center text-light">
     <div class="scratch-header">
-        <div class="scratch-header-glow"></div>
+        <div class="scratch-header-glow-left"></div>
+        <div class="scratch-header-glow-right"></div>
         <h2 class="text-light">Szczęśliwa Zdrapka</h2>
         <p class="text-muted">Kliknij w szare pole, aby odkryć nagrodę!</p>
     </div>
@@ -112,7 +130,9 @@
         
         <!-- Szare pole zdrapki -->
         <div class="scratch-cover" id="cover-layer" onclick="scratchIt()">
-            <i class="bi bi-magic me-2"></i> KLIKNIJ, ABY ZDRAPAĆ
+            <i class="bi bi-stars me-2"></i>
+            KLIKNIJ, ABY ZDRAPAĆ
+            <i class="bi bi-stars ms-2"></i>
         </div>
     </div>
 
