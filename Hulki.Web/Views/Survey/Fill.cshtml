@@ -1,30 +1,235 @@
 @model Hulki.Web.Models.Survey
 
 @{
-    ViewData["Title"] = "Wypełnij Ankietę";
+    ViewData["Title"] = "Wypełnij ankietę";
+    var totalQuestions = Model.Questions.Count;
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm col-md-8 mx-auto">
-        <div class="card-header bg-dark text-white">
-            <h5 class="mb-0">@Model.Title</h5>
-        </div>
-        <div class="card-body">
-            <form asp-action="Submit" method="post">
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-7">
+
+            <a asp-action="Index" class="back-link text-decoration-none d-inline-flex align-items-center gap-2 mb-4">
+                <i class="bi bi-arrow-left"></i>
+                <span class="small text-uppercase fw-bold" style="letter-spacing: 1px;">Powrót do listy</span>
+            </a>
+
+            <div class="fill-header-card rounded-4 p-4 mb-4 position-relative overflow-hidden">
+                <div class="position-relative z-1">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="survey-icon-wrap flex-shrink-0">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold text-light mb-0">@Model.Title</h3>
+                            <p class="text-muted small mb-0 mt-1">
+                                <i class="bi bi-list-check me-1"></i>@totalQuestions pytań otwartych
+                                &middot; Odpowiedz własnymi słowami
+                            </p>
+                        </div>
+                    </div>
+                    <div class="progress-track mt-3">
+                        <div class="progress-fill" id="fillProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <span class="text-muted" style="font-size: 0.72rem;">Postęp wypełniania</span>
+                        <span class="text-primary fw-bold" style="font-size: 0.72rem;" id="fillProgressLabel">0 / @totalQuestions</span>
+                    </div>
+                </div>
+                <div class="fill-header-glow"></div>
+            </div>
+
+            <form asp-action="Submit" method="post" id="surveyForm">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="surveyId" value="@Model.Id"/>
 
-                @foreach (var question in Model.Questions)
-                {
-                    <div class="mb-4 bg-light p-3 rounded border">
-                        <label class="form-label fw-bold">
-                            <i class="bi bi-question-circle"></i> @question.Text
-                        </label>
-                        <textarea name="answers[@question.Id]" class="form-control" rows="2" required></textarea>
-                    </div>
-                }
+                <div class="d-flex flex-column gap-3">
+                    @{ int qIndex = 0; }
+                    @foreach (var question in Model.Questions)
+                    {
+                        qIndex++;
+                        <div class="question-card rounded-4 p-4" data-index="@qIndex">
+                            <div class="d-flex align-items-start gap-3">
+                                <span class="q-badge flex-shrink-0">@qIndex</span>
+                                <div class="w-100">
+                                    <p class="text-light fw-semibold mb-3">@question.Text</p>
+                                    <textarea name="answers[@question.Id]"
+                                              class="form-control dark-input answer-field"
+                                              rows="3"
+                                              required
+                                              placeholder="Twoja odpowiedź..."
+                                              oninput="updateProgress()"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
 
-                <button type="submit" class="btn btn-primary w-100">Prześlij odpowiedzi</button>
+                <div class="d-flex justify-content-between align-items-center mt-5 pt-3">
+                    <a asp-action="Index" class="btn btn-ghost-cancel rounded-pill px-4">
+                        <i class="bi bi-x me-1"></i>Anuluj
+                    </a>
+                    <button type="submit" class="btn btn-custom-success fw-bold rounded-pill px-5 text-uppercase" style="letter-spacing: 1px;">
+                        <i class="bi bi-send me-2"></i>Prześlij odpowiedzi
+                    </button>
+                </div>
             </form>
+
         </div>
     </div>
 </div>
+
+<style>
+    .back-link {
+        color: rgba(255, 255, 255, 0.45);
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #46CC5E;
+    }
+
+    .fill-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .fill-header-glow {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .survey-icon-wrap {
+        width: 48px;
+        height: 48px;
+        background: rgba(70, 204, 94, 0.1);
+        border: 1px solid rgba(70, 204, 94, 0.2);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: #46CC5E;
+    }
+
+    .progress-track {
+        height: 5px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #46CC5E, #7FE593);
+        border-radius: 99px;
+        transition: width 0.4s ease;
+    }
+
+    /* === QUESTION CARDS === */
+    .question-card {
+        background: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 3px solid rgba(70, 204, 94, 0.2);
+        transition: border-left-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .question-card.answered {
+        border-left-color: #46CC5E;
+        box-shadow: 0 4px 16px rgba(70, 204, 94, 0.06);
+    }
+
+    .q-badge {
+        width: 32px;
+        height: 32px;
+        background: rgba(70, 204, 94, 0.1);
+        border: 1px solid rgba(70, 204, 94, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #46CC5E;
+        margin-top: 2px;
+    }
+
+    .dark-input {
+        background-color: #13131a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #f0f0f0 !important;
+        border-radius: 10px !important;
+        resize: vertical;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dark-input:focus {
+        border-color: rgba(70, 204, 94, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(70, 204, 94, 0.1) !important;
+        outline: none !important;
+    }
+
+    .dark-input::placeholder {
+        color: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+    }
+
+    .btn-ghost-cancel {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.4);
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost-cancel:hover {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.06);
+    }
+</style>
+
+<script>
+    const totalQ = @totalQuestions;
+
+    function updateProgress() {
+        const fields = document.querySelectorAll('.answer-field');
+        let filled = 0;
+        fields.forEach((f, i) => {
+            const card = document.querySelectorAll('.question-card')[i];
+            if (f.value.trim().length > 0) {
+                filled++;
+                card.classList.add('answered');
+            } else {
+                card.classList.remove('answered');
+            }
+        });
+        const pct = totalQ > 0 ? Math.round(filled / totalQ * 100) : 0;
+        document.getElementById('fillProgress').style.width = pct + '%';
+        document.getElementById('fillProgressLabel').textContent = filled + ' / ' + totalQ;
+    }
+
+    // Run on load to handle browser autofill
+    document.addEventListener('DOMContentLoaded', updateProgress);
+</script>

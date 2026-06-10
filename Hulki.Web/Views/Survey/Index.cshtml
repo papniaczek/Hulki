@@ -7,60 +7,297 @@
     string userId = ViewBag.UserId;
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-ui-radios"></i> Kwestionariusze i Ankiety</h2>
-        @if (isTherapist)
-        {
-            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Utwórz nową ankietę</a>
-        }
+<div class="container mt-4 mb-5">
+
+    <div class="survey-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-ui-radios me-2"></i>Kwestionariusze
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">
+                    @if (isTherapist)
+                    {
+                        <span>Twórz ankiety i przeglądaj odpowiedzi pacjentów.</span>
+                    }
+                    else
+                    {
+                        <span>Wypełnij kwestionariusze przygotowane przez Twojego terapeutę.</span>
+                    }
+                </p>
+            </div>
+            <div class="d-flex gap-3 mt-3 mt-md-0 align-items-center">
+                <div class="survey-counter p-3 rounded-3 text-center">
+                    <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px;">Ankiety</div>
+                    <div class="fs-3 fw-bold text-primary">@Model.Count()</div>
+                </div>
+                @if (isTherapist)
+                {
+                    <a asp-action="Create" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.85rem;">
+                        <i class="bi bi-plus-lg me-2"></i>Nowa ankieta
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="survey-header-glow"></div>
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
+    @if (!Model.Any())
     {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        <div class="empty-state text-center py-5 rounded-4">
+            <div class="empty-icon mb-3">
+                <i class="bi bi-ui-radios"></i>
+            </div>
+            <h5 class="fw-bold text-light mb-2">Brak kwestionariuszy</h5>
+            <p class="text-muted mb-0">
+                @if (isTherapist)
+                {
+                    <span>Utwórz pierwszą ankietę klikając przycisk powyżej.</span>
+                }
+                else
+                {
+                    <span>Twój terapeuta nie przygotował jeszcze żadnych ankiet.</span>
+                }
+            </p>
+        </div>
     }
-    @if (TempData["ErrorMessage"] != null)
+    else
     {
-        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-    }
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var survey in Model)
+            {
+                var alreadySubmitted = !isTherapist && await SurveyService.HasUserSubmittedAsync(survey.Id, userId);
+                var submissionCount = survey.Submissions?.Count ?? 0;
 
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        @foreach (var survey in Model)
-        {
-            var alreadySubmitted = !isTherapist && await SurveyService.HasUserSubmittedAsync(survey.Id, userId);
+                <div class="col">
+                    <div class="survey-card rounded-4 p-4 h-100 d-flex flex-column justify-content-between @(alreadySubmitted ? "survey-card--done" : "")">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="survey-icon-wrap">
+                                    <i class="bi bi-clipboard2-pulse"></i>
+                                </div>
+                                @if (alreadySubmitted)
+                                {
+                                    <span class="badge status-badge status-done px-3 py-2 rounded-pill">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Wypełniono
+                                    </span>
+                                }
+                                else if (isTherapist)
+                                {
+                                    <span class="badge status-badge status-active px-3 py-2 rounded-pill">
+                                        <i class="bi bi-activity me-1"></i>Aktywna
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge status-badge status-pending px-3 py-2 rounded-pill">
+                                        <i class="bi bi-hourglass-split me-1"></i>Oczekuje
+                                    </span>
+                                }
+                            </div>
 
-            <div class="col">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold">@survey.Title</h5>
-                        <p class="card-text text-muted">Liczba pytań: @survey.Questions.Count</p>
-                        @if (isTherapist)
-                        {
-                            <p class="card-text text-primary">
-                                <small>Wypełnień: @survey.Submissions.Count</small>
-                            </p>
-                        }
-                    </div>
-                    <div class="card-footer bg-white border-top-0 d-flex justify-content-end">
-                        @if (isTherapist)
-                        {
-                            <a asp-action="Results" asp-route-id="@survey.Id" class="btn btn-sm btn-outline-dark">Zobacz wyniki</a>
-                        }
-                        else
-                        {
-                            if (alreadySubmitted)
+                            <h5 class="fw-bold text-light mb-2">@survey.Title</h5>
+
+                            <div class="d-flex gap-3 mt-3">
+                                <div class="survey-stat">
+                                    <span class="survey-stat-number">@survey.Questions.Count</span>
+                                    <span class="survey-stat-label">pytań</span>
+                                </div>
+                                @if (isTherapist)
+                                {
+                                    <div class="survey-stat">
+                                        <span class="survey-stat-number text-primary">@submissionCount</span>
+                                        <span class="survey-stat-label">wypełnień</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top border-secondary d-flex justify-content-end">
+                            @if (isTherapist)
                             {
-                                <button class="btn btn-sm btn-success" disabled><i class="bi bi-check-lg"></i> Wypełniono</button>
+                                <a asp-action="Results" asp-route-id="@survey.Id" class="btn btn-ghost-details rounded-pill px-4 py-2">
+                                    <i class="bi bi-bar-chart-steps me-2"></i>Zobacz wyniki
+                                </a>
+                            }
+                            else if (alreadySubmitted)
+                            {
+                                <button class="btn btn-done rounded-pill px-4 py-2" disabled>
+                                    <i class="bi bi-check2-circle me-2"></i>Już wypełniono
+                                </button>
                             }
                             else
                             {
-                                <a asp-action="Fill" asp-route-id="@survey.Id" class="btn btn-sm btn-primary">Wypełnij ankietę</a>
+                                <a asp-action="Fill" asp-route-id="@survey.Id" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2">
+                                    <i class="bi bi-pencil-square me-2"></i>Wypełnij ankietę
+                                </a>
                             }
-                        }
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
 </div>
+
+<style>
+    .survey-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .survey-header-glow {
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.09) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .survey-counter {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        min-width: 90px;
+    }
+
+    /* === CARDS === */
+    .survey-card {
+        background: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-top: 3px solid rgba(70, 204, 94, 0.4);
+        transition: all 0.25s ease;
+    }
+
+    .survey-card:hover {
+        background: #1f1f27;
+        border-top-color: #46CC5E;
+        box-shadow: 0 8px 24px rgba(70, 204, 94, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .survey-card--done {
+        opacity: 0.7;
+        border-top-color: rgba(13, 110, 253, 0.3);
+    }
+
+    .survey-card--done:hover {
+        opacity: 1;
+        border-top-color: rgba(13, 110, 253, 0.6);
+        box-shadow: 0 8px 24px rgba(13, 110, 253, 0.08);
+    }
+
+    .survey-icon-wrap {
+        width: 42px;
+        height: 42px;
+        background: rgba(70, 204, 94, 0.1);
+        border: 1px solid rgba(70, 204, 94, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #46CC5E;
+    }
+
+    /* === STATS === */
+    .survey-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .survey-stat-number {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .survey-stat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255, 255, 255, 0.35);
+        font-weight: 600;
+    }
+
+    /* === BADGES === */
+    .status-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .status-done {
+        background: rgba(13, 110, 253, 0.12);
+        color: #6ea8fe;
+        border: 1px solid rgba(13, 110, 253, 0.3);
+    }
+
+    .status-active {
+        background: rgba(70, 204, 94, 0.12);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+    }
+
+    .status-pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    /* === BUTTONS === */
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+    }
+
+    .btn-ghost-details {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost-details:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-done {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6ea8fe;
+        background: rgba(13, 110, 253, 0.08);
+        border: 1px solid rgba(13, 110, 253, 0.2);
+        opacity: 0.7;
+        cursor: default;
+    }
+
+    /* === EMPTY === */
+    .empty-state {
+        background: #1b1b22;
+        border: 1px dashed rgba(70, 204, 94, 0.2);
+    }
+
+    .empty-icon {
+        font-size: 3.5rem;
+        color: rgba(70, 204, 94, 0.25);
+    }
+</style>

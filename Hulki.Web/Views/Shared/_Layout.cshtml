@@ -27,12 +27,12 @@
             pointer-events: none;
             transition: opacity 0.35s ease, transform 0.35s ease;
         }
-
+    
         #flash-message.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-
+    
         .flash-bubble {
             display: inline-flex;
             align-items: center;
@@ -47,11 +47,11 @@
             font-weight: 500;
             line-height: 1.3;
         }
-
+    
         .flash-bubble.success {
             border-color: rgba(70, 204, 94, 0.45);
         }
-
+    
         .flash-bubble.error {
             border-color: rgba(218, 41, 46, 0.45);
         }
@@ -134,7 +134,7 @@
                         var displayName = currentUser?.FirstName ?? User.Identity.Name;
 
                         <li class="nav-item dropdown">
-                            
+
                             <a class="nav-link dropdown-toggle text-light fw-bold" href="#" id="profileDropdown"
                                role="button" data-bs-toggle="dropdown">
                                 <span class="nav-user-name text-primary">@displayName</span>
@@ -151,7 +151,17 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item" asp-controller="Consultation" asp-action="Index">
-                                        <i class="bi bi-calendar-heart me-2 text-primary"></i>Moje konsultacje
+                                        Moje konsultacje
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="TherapyGoal" asp-action="Index">
+                                        Cele terapeutyczne
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Survey" asp-action="Index">
+                                        Kwestionariusze
                                     </a>
                                 </li>
 
@@ -174,7 +184,6 @@
                                 </li>
                             </ul>
                         </li>
-                        
                     }
                     else
                     {
@@ -361,14 +370,14 @@
 
                         const li = document.createElement('li');
                         li.innerHTML = `
-                        <a class="dropdown-item text-wrap border-bottom p-3 ${isUnread}"
-                           href="#" onclick="markAsRead('${n.id}', this); return false;">
-                            <small class="text-muted d-block mb-1">
-                                ${new Date(n.createdAt).toLocaleString()}
-                            </small>
-                            ${n.content}
-                        </a>
-                    `;
+                            <a class="dropdown-item text-wrap border-bottom p-3 ${isUnread}"
+                               href="#" onclick="markAsRead('${n.id}', this); return false;">
+                                <small class="text-muted d-block mb-1">
+                                    ${new Date(n.createdAt).toLocaleString()}
+                                </small>
+                                ${n.content}
+                            </a>
+                        `;
                         list.appendChild(li);
                     });
                 });

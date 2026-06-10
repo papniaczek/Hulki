@@ -3,40 +3,88 @@
 @{
     var survey = ViewBag.Survey as Hulki.Web.Models.Survey;
     ViewData["Title"] = "Wyniki: " + survey?.Title;
+    var submissions = Model.ToList();
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <h2><i class="bi bi-bar-chart-steps"></i> Wyniki: @survey?.Title</h2>
-        <a asp-action="Index" class="btn btn-outline-secondary">Powrót</a>
+<div class="container mt-4 mb-5">
+
+    <a asp-action="Index" class="back-link text-decoration-none d-inline-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-arrow-left"></i>
+        <span class="small text-uppercase fw-bold" style="letter-spacing: 1px;">Powrót do listy</span>
+    </a>
+
+    <div class="results-header-card rounded-4 p-4 p-md-5 mb-5 position-relative overflow-hidden">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div>
+                <h3 class="fw-bold text-primary mb-1 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-bar-chart-steps me-2"></i>Wyniki ankiety
+                </h3>
+                <h4 class="fw-bold text-light mb-0">@survey?.Title</h4>
+                <p class="text-muted small mt-2 mb-0">
+                    <i class="bi bi-list-check me-1"></i>@(survey?.Questions.Count ?? 0) pytań
+                    &middot; <i class="bi bi-people me-1"></i>@submissions.Count wypełnień
+                </p>
+            </div>
+        </div>
+        <div class="results-header-glow"></div>
     </div>
 
-    @if (!Model.Any())
+    @if (!submissions.Any())
     {
-        <div class="alert alert-info">Nikt jeszcze nie wypełnił tego kwestionariusza.</div>
+        <div class="empty-state text-center py-5 rounded-4">
+            <div class="empty-icon mb-3">
+                <i class="bi bi-inbox"></i>
+            </div>
+            <h5 class="fw-bold text-light mb-2">Brak odpowiedzi</h5>
+            <p class="text-muted mb-0">Nikt jeszcze nie wypełnił tego kwestionariusza.</p>
+        </div>
     }
     else
     {
-        <div class="accordion" id="resultsAccordion">
-            @foreach (var submission in Model)
+        <div class="d-flex flex-column gap-3">
+            @foreach (var (submission, idx) in submissions.Select((s, i) => (s, i + 1)))
             {
-                <div class="accordion-item mb-3 shadow-sm border">
-                    <h2 class="accordion-header" id="heading-@submission.Id">
-                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@submission.Id">
-                            <i class="bi bi-person-circle me-2 text-primary"></i>
-                            <strong>@submission.AppUser.FirstName @submission.AppUser.LastName</strong>
-                            <span class="ms-auto text-muted small me-3">Złożono: @submission.SubmittedAt.ToString("dd.MM.yyyy HH:mm")</span>
-                        </button>
-                    </h2>
-                    <div id="collapse-@submission.Id" class="accordion-collapse collapse" data-bs-parent="#resultsAccordion">
-                        <div class="accordion-body">
-                            @foreach (var answer in submission.Answers)
-                            {
-                                <div class="mb-3">
-                                    <p class="mb-1 text-muted fw-bold">Pytanie: @answer.Question.Text</p>
-                                    <p class="p-2 border rounded bg-white">@answer.AnswerText</p>
+                <div class="submission-card rounded-4 overflow-hidden">
+                    {{!-- ACCORDION HEADER --}}
+                    <button class="submission-header w-100 d-flex align-items-center justify-content-between p-4 gap-3"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#sub-@submission.Id"
+                            aria-expanded="false">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="respondent-avatar flex-shrink-0">
+                                @submission.AppUser.FirstName[0]@submission.AppUser.LastName[0]
+                            </div>
+                            <div class="text-start">
+                                <div class="fw-bold text-light">
+                                    @submission.AppUser.FirstName @submission.AppUser.LastName
                                 </div>
-                            }
+                                <div class="text-muted small">
+                                    <i class="bi bi-clock me-1"></i>@submission.SubmittedAt.ToString("dd.MM.yyyy, HH:mm")
+                                    &middot; @submission.Answers.Count odpowiedzi
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="respondent-num text-muted">#@idx</span>
+                            <i class="bi bi-chevron-down chevron-icon"></i>
+                        </div>
+                    </button>
+
+                    {{!-- ACCORDION BODY --}}
+                    <div class="collapse" id="sub-@submission.Id">
+                        <div class="submission-body p-4 pt-0">
+                            <div class="d-flex flex-column gap-3 mt-2">
+                                @foreach (var answer in submission.Answers)
+                                {
+                                    <div class="answer-block rounded-3 p-3">
+                                        <div class="field-label mb-2">
+                                            <i class="bi bi-question-circle me-1"></i>@answer.Question?.Text
+                                        </div>
+                                        <div class="answer-text">@answer.AnswerText</div>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -44,3 +92,128 @@
         </div>
     }
 </div>
+
+<style>
+    .back-link {
+        color: rgba(255, 255, 255, 0.45);
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #46CC5E;
+    }
+
+    .results-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .results-header-glow {
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    /* === SUBMISSION CARDS === */
+    .submission-card {
+        background: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: border-color 0.2s ease;
+    }
+
+    .submission-card:hover {
+        border-color: rgba(70, 204, 94, 0.2);
+    }
+
+    .submission-header {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .submission-header:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .submission-header[aria-expanded="true"] {
+        background: rgba(70, 204, 94, 0.04);
+        border-bottom: 1px solid rgba(70, 204, 94, 0.1);
+    }
+
+    .submission-header[aria-expanded="true"] .chevron-icon {
+        transform: rotate(180deg);
+    }
+
+    .chevron-icon {
+        color: rgba(255, 255, 255, 0.3);
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .respondent-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(70, 204, 94, 0.12);
+        border: 1px solid rgba(70, 204, 94, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #46CC5E;
+        text-transform: uppercase;
+    }
+
+    .respondent-num {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    /* === ANSWERS === */
+    .submission-body {
+        background: rgba(0, 0, 0, 0.15);
+    }
+
+    .answer-block {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 3px solid rgba(70, 204, 94, 0.3);
+    }
+
+    .field-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        display: block;
+    }
+
+    .answer-text {
+        color: #d0d0d8;
+        font-size: 0.92rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    /* === EMPTY === */
+    .empty-state {
+        background: #1b1b22;
+        border: 1px dashed rgba(70, 204, 94, 0.2);
+    }
+
+    .empty-icon {
+        font-size: 3.5rem;
+        color: rgba(70, 204, 94, 0.25);
+    }
+</style>
