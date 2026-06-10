@@ -299,6 +299,7 @@ public class StoreController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddRewardItem(string name, int itemRarityId, string? description, int price, string? iconPath)
     {
         if (!string.IsNullOrWhiteSpace(name))

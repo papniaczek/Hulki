@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Hulki.Web.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialFinal : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -317,6 +317,7 @@ namespace Hulki.Web.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deadline = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsCompleted = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -643,7 +644,6 @@ namespace Hulki.Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VisitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConsultationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MedicalHistory = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Diagnosis = table.Column<string>(type: "nvarchar(max)", nullable: false),

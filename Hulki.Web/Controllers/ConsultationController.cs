@@ -17,17 +17,20 @@ public class ConsultationController : Controller
     private readonly UserManager<AppUser> _userManager;
     private readonly ApplicationDbContext _context;
     private readonly INotificationService _notificationService;
+    private readonly IPdfReportService _pdfReportService;
 
     public ConsultationController(
         IConsultationService consultationService,
         UserManager<AppUser> userManager,
         ApplicationDbContext context,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IPdfReportService pdfReportService)
     {
         _consultationService = consultationService;
         _userManager = userManager;
         _context = context;
         _notificationService = notificationService;
+        _pdfReportService = pdfReportService;
     }
 
     public async Task<IActionResult> Index()
@@ -239,5 +242,41 @@ public class ConsultationController : Controller
             : "Wizyta została odwołana.";
 
         return RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>
+    /// Generuje raport PDF dla pojedynczej konsultacji
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> DownloadPdf(Guid id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Unauthorized();
+
+        var consultation = await _context.Consultations
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (consultation == null)
+        {
+            TempData["ErrorMessage"] = "Nie znaleziono konsultacji.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Sprawdzenie uprawnień - użytkownik musi być pacjentem lub terapeutą tej konsultacji
+        if (consultation.PatientId != user.Id && consultation.TherapistId != user.Id)
+            return Forbid();
+
+        try
+        {
+            var pdfBytes = await _pdfReportService.GenerateConsultationReportAsync(id);
+            
+            var fileName = $"Konsultacja_{consultation.StartTime:yyyyMMdd}.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"Błąd podczas generowania PDF: {ex.Message}";
+            return RedirectToAction(nameof(Details), new { id });
+        }
     }
 }

@@ -924,6 +924,9 @@ namespace Hulki.Web.Migrations
                     b.Property<DateTime>("Deadline")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
@@ -1038,9 +1041,6 @@ namespace Hulki.Web.Migrations
                     b.Property<string>("Recommendations")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("VisitId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

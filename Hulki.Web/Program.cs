@@ -37,8 +37,7 @@ builder.Services.AddHttpClient(QuoteService.QuotesClientName, client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
     client.DefaultRequestHeaders.Add("User-Agent", "Hulki.Web/1.0");
 });
-// Tłumacz EN -> PL, żeby cytaty wyświetlały się po polsku. MyMemory działa bez klucza
-// (limit 5000 znaków/dzień anonimowo, 50 000 po podaniu e-maila).
+// Tłumacz EN -> PL, żeby cytaty wyświetlały się po polsku. 
 builder.Services.AddHttpClient(QuoteService.TranslationClientName, client =>
 {
     client.BaseAddress = new Uri("https://api.mymemory.translated.net/");
@@ -52,6 +51,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITherapyGoalService, TherapyGoalService>();
 builder.Services.AddScoped<IBadgeService, BadgeService>();
 builder.Services.AddScoped<ISurveyService, SurveyService>();
+builder.Services.AddScoped<IPdfReportService, PdfReportService>();
 var app = builder.Build();
 
 // SEEDING ADMINA

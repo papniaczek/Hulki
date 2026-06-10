@@ -35,6 +35,23 @@
                 <a asp-action="AddMood" class="btn btn-custom-success-2 fw-bold rounded-pill px-4 custom-glow-btn-2 text-uppercase">
                     <i class="bi bi-emoji-smile me-2"></i> Mój nastrój
                 </a>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-custom-success-2 dropdown-toggle fw-bold rounded-pill" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Pobierz PDF
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" asp-controller="Patient" asp-action="DownloadDailyReportsPdf">
+                                <i class="bi bi-journal-text me-2"></i>Raporty dzienne (wszystkie)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" asp-controller="Patient" asp-action="DownloadProgressReportPdf">
+                                <i class="bi bi-graph-up me-2"></i>Raport postępów
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="dashboard-glow"></div>

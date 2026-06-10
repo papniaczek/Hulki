@@ -212,10 +212,11 @@ public static class StoreDataSeeder
             });
             await context.SaveChangesAsync();
         }
-        // 4. Pacjenci kroki
+        // 4. System odznak achievementów
         if (!context.AchievementBadges.Any())
         {
             context.AchievementBadges.AddRange(
+                // Cele terapeutyczne
                 new AchievementBadge
                 {
                     Id = Guid.NewGuid(),
@@ -228,11 +229,147 @@ public static class StoreDataSeeder
                 new AchievementBadge
                 {
                     Id = Guid.NewGuid(),
+                    Name = "Mistrz motywacji",
+                    Description = "Ukończono 3 cele terapeutyczne.",
+                    IconPath = "bi-award-fill",
+                    ConditionType = "GoalsCompleted",
+                    ConditionValue = 3
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
                     Name = "Weteran",
                     Description = "Ukończono 5 celów terapeutycznych.",
                     IconPath = "bi-trophy-fill",
                     ConditionType = "GoalsCompleted",
                     ConditionValue = 5
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Legenda postępu",
+                    Description = "Ukończono 10 celów terapeutycznych.",
+                    IconPath = "bi-gem",
+                    ConditionType = "GoalsCompleted",
+                    ConditionValue = 10
+                },
+                
+                // Raporty dzienne
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Dziennikarz",
+                    Description = "Napisano 7 raportów dziennych.",
+                    IconPath = "bi-journal-text",
+                    ConditionType = "ReportsCreated",
+                    ConditionValue = 7
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kronikarz",
+                    Description = "Napisano 30 raportów dziennych.",
+                    IconPath = "bi-book-fill",
+                    ConditionType = "ReportsCreated",
+                    ConditionValue = 30
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Artysta słowa",
+                    Description = "Napisano 50 raportów dziennych.",
+                    IconPath = "bi-pen-fill",
+                    ConditionType = "ReportsCreated",
+                    ConditionValue = 50
+                },
+                
+                // Konsultacje
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Otwarte serce",
+                    Description = "Uczestniczono w 1 konsultacji.",
+                    IconPath = "bi-heart-fill",
+                    ConditionType = "ConsultationsCompleted",
+                    ConditionValue = 1
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Aktywny uczestnik",
+                    Description = "Uczestniczono w 5 konsultacjach.",
+                    IconPath = "bi-chat-heart-fill",
+                    ConditionType = "ConsultationsCompleted",
+                    ConditionValue = 5
+                },
+                
+                // Punkty
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kolekcjoner",
+                    Description = "Zgromadzono 100 punktów.",
+                    IconPath = "bi-coin",
+                    ConditionType = "PointsEarned",
+                    ConditionValue = 100
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Bogacz",
+                    Description = "Zgromadzono 500 punktów.",
+                    IconPath = "bi-wallet2",
+                    ConditionType = "PointsEarned",
+                    ConditionValue = 500
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Milioner",
+                    Description = "Zgromadzono 1000 punktów.",
+                    IconPath = "bi-bank",
+                    ConditionType = "PointsEarned",
+                    ConditionValue = 1000
+                },
+                
+                // Forum
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Nowicjusz forum",
+                    Description = "Napisano 5 postów na forum.",
+                    IconPath = "bi-chat-left-text-fill",
+                    ConditionType = "ForumPosts",
+                    ConditionValue = 5
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Społeczność",
+                    Description = "Napisano 20 postów na forum.",
+                    IconPath = "bi-people-fill",
+                    ConditionType = "ForumPosts",
+                    ConditionValue = 20
+                },
+                
+                // Logowanie
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Regularność",
+                    Description = "Zalogowano się 7 dni z rzędu.",
+                    IconPath = "bi-calendar-check-fill",
+                    ConditionType = "DaysStreak",
+                    ConditionValue = 7
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Nieustępliwy",
+                    Description = "Zalogowano się 30 dni z rzędu.",
+                    IconPath = "bi-fire",
+                    ConditionType = "DaysStreak",
+                    ConditionValue = 30
                 }
             );
             await context.SaveChangesAsync();

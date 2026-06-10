@@ -37,9 +37,23 @@ namespace Hulki.Web.Services
 
         public async Task CheckAndAwardBadgesAsync(string userId)
         {
-            // 1. Pobierz statystyki użytkownika (np. ile celów ukończył)
+            // 1. Pobierz statystyki użytkownika
             int completedGoals = await _context.TherapyGoals
                 .CountAsync(g => g.AppUserId == userId && g.IsCompleted);
+            
+            int reportsCreated = await _context.DailyReports
+                .CountAsync(r => r.AppUserId == userId);
+            
+            int consultationsCompleted = await _context.Consultations
+                .CountAsync(c => (c.PatientId == userId || c.TherapistId == userId) 
+                                  && c.Status.Name == "Zakończona");
+            
+            var wallet = await _context.Wallets
+                .FirstOrDefaultAsync(w => w.AppUserId == userId);
+            int pointsEarned = wallet?.Balance ?? 0;
+            
+            int forumPosts = await _context.ForumPosts
+                .CountAsync(p => p.AppUserId == userId);
 
             // 2. Pobierz odznaki, których użytkownik JESZCZE NIE MA
             var earnedBadgeIds = await _context.UserBadges
@@ -58,9 +72,35 @@ namespace Hulki.Web.Services
             {
                 bool conditionsMet = false;
 
-                if (badge.ConditionType == "GoalsCompleted" && completedGoals >= badge.ConditionValue)
+                switch (badge.ConditionType)
                 {
-                    conditionsMet = true;
+                    case "GoalsCompleted":
+                        conditionsMet = completedGoals >= badge.ConditionValue;
+                        break;
+                    case "ReportsCreated":
+                        conditionsMet = reportsCreated >= badge.ConditionValue;
+                        break;
+                    case "ConsultationsCompleted":
+                        conditionsMet = consultationsCompleted >= badge.ConditionValue;
+                        break;
+                    case "PointsEarned":
+                        conditionsMet = pointsEarned >= badge.ConditionValue;
+                        break;
+                    case "ForumPosts":
+                        conditionsMet = forumPosts >= badge.ConditionValue;
+                        break;
+                    case "DaysStreak":
+                        // Dla uproszczenia sprawdzamy tylko ilość dni z raportami
+                        var reportDates = await _context.DailyReports
+                            .Where(r => r.AppUserId == userId)
+                            .Select(r => r.CreatedAt.Date)
+                            .Distinct()
+                            .OrderByDescending(d => d)
+                            .ToListAsync();
+                        
+                        int streak = CalculateDayStreak(reportDates);
+                        conditionsMet = streak >= badge.ConditionValue;
+                        break;
                 }
 
                 if (conditionsMet)
@@ -74,7 +114,7 @@ namespace Hulki.Web.Services
                     });
 
                     await _notificationService.SendNotificationAsync(userId,
-                        $"Odblokowano nową odznakę: {badge.Name}! Sprawdź swój profil.");
+                        $"🏆 Odblokowano nową odznakę: {badge.Name}! {badge.Description}");
 
                     anyAwarded = true;
                 }
@@ -84,6 +124,26 @@ namespace Hulki.Web.Services
             {
                 await _context.SaveChangesAsync();
             }
+        }
+        
+        private int CalculateDayStreak(List<DateTime> orderedDates)
+        {
+            if (orderedDates.Count == 0) return 0;
+            
+            int streak = 1;
+            for (int i = 0; i < orderedDates.Count - 1; i++)
+            {
+                var diff = (orderedDates[i] - orderedDates[i + 1]).Days;
+                if (diff == 1)
+                {
+                    streak++;
+                }
+                else
+                {
+                    break; // Przerwa w streak
+                }
+            }
+            return streak;
         }
     }
 }

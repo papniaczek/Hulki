@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hulki.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260610023556_InitialFinal")]
-    partial class InitialFinal
+    [Migration("20260610135200_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -927,6 +927,9 @@ namespace Hulki.Web.Migrations
                     b.Property<DateTime>("Deadline")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
@@ -1041,9 +1044,6 @@ namespace Hulki.Web.Migrations
                     b.Property<string>("Recommendations")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("VisitId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

@@ -5,7 +5,6 @@ namespace Hulki.Web.Models  // <-- Zmień to tutaj!
     public class VisitDetails
     {
         public int Id { get; set; } 
-        public Guid VisitId { get; set; }
         public Guid ConsultationId { get; set; }
         public string MedicalHistory { get; set; }
         public string Diagnosis { get; set; }

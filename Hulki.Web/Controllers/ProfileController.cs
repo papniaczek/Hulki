@@ -60,42 +60,17 @@ public class ProfileController : Controller
 
         return View();
     }
-
+#if DEBUG
     [HttpGet]
     public async Task<IActionResult> DebugBadges()
     {
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Unauthorized();
 
-        // 1. Awaryjne wstrzyknięcie odznak do bazy, jeśli ich tam nie ma
-        if (!await _context.AchievementBadges.AnyAsync())
-        {
-            _context.AchievementBadges.AddRange(
-                new AchievementBadge
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Pierwszy krok",
-                    Description = "Ukończono pierwszy cel terapeutyczny.",
-                    IconPath = "bi-star-fill",
-                    ConditionType = "GoalsCompleted",
-                    ConditionValue = 1
-                },
-                new AchievementBadge
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Weteran",
-                    Description = "Ukończono 5 celów terapeutycznych.",
-                    IconPath = "bi-trophy-fill",
-                    ConditionType = "GoalsCompleted",
-                    ConditionValue = 5
-                }
-            );
-            await _context.SaveChangesAsync();
-        }
-
-        // 2. Twarde wymuszenie przeliczenia osiągnięć dla zalogowanego pacjenta
+        // Przeliczenie osiągnięć dla zalogowanego pacjenta
         await _badgeService.CheckAndAwardBadgesAsync(user.Id);
 
         return RedirectToAction(nameof(Index));
     }
+    #endif
 }
