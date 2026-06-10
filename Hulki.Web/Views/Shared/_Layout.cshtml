@@ -149,6 +149,12 @@
                                         statystyki
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Consultation" asp-action="Index">
+                                        <i class="bi bi-calendar-heart me-2 text-primary"></i>Moje konsultacje
+                                    </a>
+                                </li>
+
                                 @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
                                 {
                                     <li>

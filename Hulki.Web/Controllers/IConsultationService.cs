@@ -12,4 +12,5 @@ public interface IConsultationService
     // --- DOPISZ TE DWIE METODY ---
     Task<Consultation> GetConsultationByIdAsync(Guid id);
     Task UpdateConsultationAsync(Consultation consultation);
+    Task<IEnumerable<Consultation>> GetUserConsultationsAsync(string userId);
 }

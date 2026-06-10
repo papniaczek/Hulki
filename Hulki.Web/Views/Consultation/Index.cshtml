@@ -5,105 +5,404 @@
 @{
     ViewData["Title"] = "Moje Konsultacje";
     var currentUser = await UserManager.GetUserAsync(User);
-    // Sprawdzamy, czy zalogowany użytkownik jest terapeutą (możesz też użyć User.IsInRole("Therapist") jeśli masz role)
     bool isTherapist = currentUser?.IsTherapist ?? false;
+    var upcoming = Model.Where(c => c.StatusId == 1).OrderBy(c => c.StartTime).ToList();
+    var past = Model.Where(c => c.StatusId != 1).OrderByDescending(c => c.StartTime).ToList();
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-calendar3"></i> Moje Konsultacje Indywidualne</h2>
-        @if (!isTherapist)
-        {
-            <a asp-action="Create" class="btn btn-success">
-                <i class="bi bi-calendar-plus"></i> Umów nową konsultację
-            </a>
-        }
+<div class="container mt-4 mb-5">
+
+    <div class="consult-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-calendar-heart me-2"></i>Konsultacje Indywidualne
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">
+                    @if (isTherapist)
+                    {
+                        <span>Przeglądaj i zarządzaj wizytami swoich pacjentów.</span>
+                    }
+                    else
+                    {
+                        <span>Twoje zaplanowane i zakończone sesje terapeutyczne.</span>
+                    }
+                </p>
+            </div>
+
+            <div class="d-flex gap-3 flex-column flex-md-row align-items-md-center mt-3 mt-md-0">
+                <div class="consult-counter p-3 rounded-3 shadow-sm text-center">
+                    <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px;">Zaplanowane</div>
+                    <div class="fs-3 fw-bold text-primary">@upcoming.Count</div>
+                </div>
+                @if (!isTherapist)
+                {
+                    <a asp-action="Create" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase shadow" style="letter-spacing: 1px; font-size: 0.85rem;">
+                        <i class="bi bi-calendar-plus me-2"></i>Umów wizytę
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Create" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase shadow" style="letter-spacing: 1px; font-size: 0.85rem;">
+                        <i class="bi bi-calendar-plus me-2"></i>Nowa wizyta
+                    </a>
+                }
+            </div>
+        </div>
+        <div class="consult-header-glow"></div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info text-center" role="alert">
-            <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
-            Nie masz jeszcze zaplanowanych żadnych konsultacji.
+        <div class="empty-state text-center py-5 rounded-4">
+            <div class="empty-icon mb-4">
+                <i class="bi bi-calendar-x"></i>
+            </div>
+            <h4 class="fw-bold text-light mb-2">Brak konsultacji</h4>
+            <p class="text-muted mb-4">Nie masz jeszcze żadnych zaplanowanych wizyt.</p>
+            @if (!isTherapist)
+            {
+                <a asp-action="Create" class="btn btn-custom-success fw-bold rounded-pill px-5 py-2 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-calendar-plus me-2"></i>Umów pierwszą wizytę
+                </a>
+            }
         </div>
     }
     else
     {
-        <div class="card shadow-sm">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-dark">
-                    <tr>
-                        <th>Data i godzina</th>
-                        <th>@((isTherapist) ? "Pacjent" : "Terapeuta")</th>
-                        <th>Notatki / Powód</th>
-                        <th>Status</th>
-                        <th class="text-end">Akcje</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var item in Model)
+        {
+            {
+                
+            }
+        }
+        @if (upcoming.Any())
+        {
+            <div class="mb-5">
+                <h5 class="text-uppercase fw-bold text-primary mb-3" style="letter-spacing: 1px;">
+                    <i class="bi bi-clock me-2"></i>Nadchodzące
+                </h5>
+                <div class="row g-3">
+                    @foreach (var item in upcoming)
                     {
-                        string statusClass = item.StatusId switch
-                        {
-                            1 => "bg-warning text-dark", // Zaplanowana
-                            2 => "bg-success", // Zakończona
-                            3 => "bg-danger", // Odwołana
-                            _ => "bg-secondary"
-                        };
-
-                        <tr>
-                            <td>
-                                <strong class="d-block">@item.StartTime.ToString("dd.MM.yyyy")</strong>
-                                <small class="text-muted">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</small>
-                            </td>
-                            <td>
-                                @if (isTherapist)
-                                {
-                                    <span>@item.Patient?.UserName</span>
-                                }
-                                else
-                                {
-                                    <span>@item.Therapist?.UserName</span>
-                                }
-                            </td>
-                            <td>
-                                <span class="text-truncate d-inline-block" style="max-width: 250px;" title="@item.Notes">
-                                    @(string.IsNullOrEmpty(item.Notes) ? "Brak uwag" : item.Notes)
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge @statusClass">@item.Status?.Name</span>
-                            </td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Szczegóły">
-                                        <i class="bi bi-eye"></i> Szczegóły
+                        <div class="col-12">
+                            <div class="consult-card consult-card--upcoming rounded-4 p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="consult-date-badge d-flex flex-column align-items-center justify-content-center">
+                                        <span class="month">@item.StartTime.ToString("MMM").ToUpper()</span>
+                                        <span class="day">@item.StartTime.ToString("dd")</span>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-light fs-5 mb-1">
+                                            @item.StartTime.ToString("HH:mm") &ndash; @item.EndTime.ToString("HH:mm")
+                                        </div>
+                                        <div class="text-muted small mb-1">
+                                            <i class="bi bi-person me-1"></i>
+                                            @if (isTherapist)
+                                            {
+                                                @(item.Patient?.FirstName + " " + item.Patient?.LastName)
+                                            }
+                                            else
+                                            {
+                                                @(item.Therapist?.FirstName + " " + item.Therapist?.LastName)
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(item.Notes))
+                                        {
+                                            <div class="text-muted small fst-italic">
+                                                <i class="bi bi-chat-left-text me-1"></i>@item.Notes
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="badge status-badge status-planned px-3 py-2 rounded-pill">
+                                        <i class="bi bi-clock me-1"></i>Zaplanowana
+                                    </span>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-ghost-details rounded-pill px-3 py-2">
+                                        <i class="bi bi-eye me-1"></i>Szczegóły
                                     </a>
-                                    @if (isTherapist && item.StatusId == 1)
+                                    @if (isTherapist)
                                     {
-                                        <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                        <form asp-action="ChangeStatus" method="post" class="d-inline m-0">
                                             <input type="hidden" name="id" value="@item.Id"/>
                                             <input type="hidden" name="statusId" value="2"/>
-                                            <button type="submit" class="btn btn-outline-success" title="Oznacz jako zakończoną">
-                                                <i class="bi bi-check-circle"></i>
+                                            <button type="submit" class="btn btn-ghost-success rounded-pill px-3 py-2" title="Oznacz jako zakończoną">
+                                                <i class="bi bi-check-circle me-1"></i>Zakończ
                                             </button>
                                         </form>
-                                        <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                        <form asp-action="ChangeStatus" method="post" class="d-inline m-0">
                                             <input type="hidden" name="id" value="@item.Id"/>
                                             <input type="hidden" name="statusId" value="3"/>
-                                            <button type="submit" class="btn btn-outline-danger" title="Odwołaj">
-                                                <i class="bi bi-x-circle"></i>
+                                            <button type="submit" class="btn btn-ghost-danger rounded-pill px-3 py-2" title="Odwołaj wizytę">
+                                                <i class="bi bi-x-circle me-1"></i>Odwołaj
                                             </button>
                                         </form>
                                     }
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     }
-                    </tbody>
-                </table>
+                </div>
             </div>
-        </div>
+        }
+
+        {
+            {
+                
+            }
+        }
+        @if (past.Any())
+        {
+            <div>
+                <h5 class="text-uppercase fw-bold text-muted mb-3" style="letter-spacing: 1px;">
+                    <i class="bi bi-archive me-2"></i>Historia
+                </h5>
+                <div class="row g-3">
+                    @foreach (var item in past)
+                    {
+                        string statusClass = item.StatusId switch
+                        {
+                            2 => "status-done",
+                            3 => "status-cancelled",
+                            _ => "status-unknown"
+                        };
+                        string statusLabel = item.StatusId switch
+                        {
+                            2 => "Zakończona",
+                            3 => "Odwołana",
+                            _ => item.Status?.Name ?? "?"
+                        };
+                        string statusIcon = item.StatusId switch
+                        {
+                            2 => "bi-check-circle-fill",
+                            3 => "bi-x-circle-fill",
+                            _ => "bi-question-circle"
+                        };
+
+                        <div class="col-12">
+                            <div class="consult-card consult-card--past rounded-4 p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="consult-date-badge consult-date-badge--muted d-flex flex-column align-items-center justify-content-center">
+                                        <span class="month">@item.StartTime.ToString("MMM").ToUpper()</span>
+                                        <span class="day">@item.StartTime.ToString("dd")</span>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-light mb-1">
+                                            @item.StartTime.ToString("HH:mm") &ndash; @item.EndTime.ToString("HH:mm")
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-person me-1"></i>
+                                            @if (isTherapist)
+                                            {
+                                                @(item.Patient?.FirstName + " " + item.Patient?.LastName)
+                                            }
+                                            else
+                                            {
+                                                @(item.Therapist?.FirstName + " " + item.Therapist?.LastName)
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="badge status-badge @statusClass px-3 py-2 rounded-pill">
+                                        <i class="bi @statusIcon me-1"></i>@statusLabel
+                                    </span>
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-ghost-details rounded-pill px-3 py-2">
+                                        <i class="bi bi-eye me-1"></i>Szczegóły
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     }
 </div>
+
+<style>
+    /* === HEADER === */
+    .consult-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .consult-header-glow {
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.09) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .consult-counter {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        min-width: 110px;
+    }
+
+    /* === CARDS === */
+    .consult-card {
+        background-color: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.25s ease;
+    }
+
+    .consult-card--upcoming {
+        border-left: 3px solid rgba(70, 204, 94, 0.5) !important;
+    }
+
+    .consult-card--upcoming:hover {
+        background-color: #1f1f27;
+        border-color: rgba(70, 204, 94, 0.35) !important;
+        border-left-color: #46CC5E !important;
+        box-shadow: 0 6px 20px rgba(70, 204, 94, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .consult-card--past {
+        opacity: 0.75;
+    }
+
+    .consult-card--past:hover {
+        opacity: 1;
+        background-color: #1e1e25;
+        transform: translateY(-1px);
+    }
+
+    /* === DATE BADGE === */
+    .consult-date-badge {
+        min-width: 56px;
+        min-height: 64px;
+        background: rgba(70, 204, 94, 0.1);
+        border: 1px solid rgba(70, 204, 94, 0.25);
+        border-radius: 14px;
+        padding: 6px 10px;
+        flex-shrink: 0;
+    }
+
+    .consult-date-badge .month {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #46CC5E;
+        text-transform: uppercase;
+    }
+
+    .consult-date-badge .day {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1.1;
+    }
+
+    .consult-date-badge--muted {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .consult-date-badge--muted .month {
+        color: #6c757d;
+    }
+
+    /* === STATUS BADGES === */
+    .status-badge {
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .status-planned {
+        background: rgba(70, 204, 94, 0.12);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+    }
+
+    .status-done {
+        background: rgba(13, 110, 253, 0.12);
+        color: #6ea8fe;
+        border: 1px solid rgba(13, 110, 253, 0.3);
+    }
+
+    .status-cancelled {
+        background: rgba(218, 41, 46, 0.12);
+        color: #f87171;
+        border: 1px solid rgba(218, 41, 46, 0.3);
+    }
+
+    /* === GHOST BUTTONS === */
+    .btn-ghost-details {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost-details:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-ghost-success {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #46CC5E;
+        background: rgba(70, 204, 94, 0.08);
+        border: 1px solid rgba(70, 204, 94, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost-success:hover {
+        background: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 12px rgba(70, 204, 94, 0.35);
+    }
+
+    .btn-ghost-danger {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #f87171;
+        background: rgba(218, 41, 46, 0.08);
+        border: 1px solid rgba(218, 41, 46, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost-danger:hover {
+        background: #DA292E;
+        color: #fff;
+        box-shadow: 0 0 12px rgba(218, 41, 46, 0.35);
+    }
+
+    /* === NEW CONSULT BUTTON === */
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+    }
+
+    /* === EMPTY STATE === */
+    .empty-state {
+        background: #1b1b22;
+        border: 1px dashed rgba(70, 204, 94, 0.2);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: rgba(70, 204, 94, 0.3);
+    }
+</style>

@@ -16,10 +16,11 @@ public class ConsultationController : Controller
     private readonly IConsultationService _consultationService;
     private readonly UserManager<AppUser> _userManager;
     private readonly ApplicationDbContext _context;
+
     public ConsultationController(
-    IConsultationService consultationService,
-    UserManager<AppUser> userManager,
-    ApplicationDbContext context)
+        IConsultationService consultationService,
+        UserManager<AppUser> userManager,
+        ApplicationDbContext context)
     {
         _consultationService = consultationService;
         _userManager = userManager;
@@ -31,7 +32,8 @@ public class ConsultationController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return NotFound();
 
-        var consultations = await _consultationService.GetPatientConsultationsAsync(user.Id);
+        // GetUserConsultationsAsync zwraca wizyty gdzie user jest pacjentem LUB terapeutą
+        var consultations = await _consultationService.GetUserConsultationsAsync(user.Id);
         return View(consultations);
     }
 
@@ -43,42 +45,32 @@ public class ConsultationController : Controller
 
         if (user.IsTherapist)
         {
+            // Terapeuta wybiera pacjenta — szukamy po polu IsTherapist == false
             var patients = await _userManager.Users
                 .Where(u => !u.IsTherapist)
                 .ToListAsync();
 
             ViewBag.TargetUsers = new SelectList(
-    patients.Select(u => new
-    {
-        u.Id,
-        FullName = u.FirstName + " " + u.LastName
-    }),
-    "Id",
-    "FullName"
-);
+                patients.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }),
+                "Id", "FullName");
             ViewBag.RoleLabel = "Wybierz Pacjenta";
         }
         else
         {
+            // Pacjent wybiera terapeutę — szukamy po polu IsTherapist == true
+            // UWAGA: GetUsersInRoleAsync("Terapeuta") też działa, ale IsTherapist jest bardziej niezawodne
             var therapists = await _userManager.Users
                 .Where(u => u.IsTherapist)
                 .ToListAsync();
 
             ViewBag.TargetUsers = new SelectList(
-    therapists.Select(u => new
-    {
-        u.Id,
-        FullName = u.FirstName + " " + u.LastName
-    }),
-    "Id",
-    "FullName"
-);
+                therapists.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }),
+                "Id", "FullName");
             ViewBag.RoleLabel = "Wybierz Terapeutę";
         }
 
         return View(new CreateConsultationDto());
     }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -91,9 +83,7 @@ public class ConsultationController : Controller
             ModelState.AddModelError("", "Czas zakończenia musi być po rozpoczęciu.");
 
         if (!ModelState.IsValid)
-        {
-            return await Create(); // prościej i bez duplikacji
-        }
+            return await Create();
 
         var consultation = new Consultation
         {
@@ -116,31 +106,27 @@ public class ConsultationController : Controller
         }
 
         await _consultationService.CreateConsultationAsync(consultation);
+        TempData["SuccessMessage"] = "Wizyta została zaplanowana.";
         return RedirectToAction(nameof(Index));
     }
+
     [HttpGet]
     public async Task<IActionResult> Details(Guid id)
     {
         var user = await _userManager.GetUserAsync(User);
-        
         if (user == null) return NotFound();
 
-        // Pobieramy konsultację z serwisu (musi zawierać dołączone Details)
         var consultation = await _context.Consultations
-    .Include(c => c.Patient)
-    .Include(c => c.Therapist)
-    .Include(c => c.Details)
-    .FirstOrDefaultAsync(c => c.Id == id);
+            .Include(c => c.Patient)
+            .Include(c => c.Therapist)
+            .Include(c => c.Details)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
         if (consultation == null) return NotFound("Nie znaleziono takiej konsultacji.");
 
-        // Zabezpieczenie: Tylko przypisany pacjent lub terapeuta może zobaczyć szczegóły
         if (consultation.PatientId != user.Id && consultation.TherapistId != user.Id)
-        {
             return Forbid();
-        }
 
-        // Jeśli konsultacja nie ma jeszcze utworzonego obiektu szczegółów, 
-        // tworzymy pusty obiekt, żeby widok nie wywalił NullReferenceException
         if (consultation.Details == null)
         {
             consultation.Details = new VisitDetails
@@ -153,28 +139,22 @@ public class ConsultationController : Controller
             };
         }
 
-        // Przekazujemy również rolę użytkownika, by w widoku ukryć "InternalNotes" (notatki lekarskie) przed pacjentem
         ViewBag.IsTherapist = user.IsTherapist;
-
         return View(consultation);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    // Usunięto wadliwy atrybut [Authorize(Roles = "Therapist")]
     public async Task<IActionResult> SaveDetails(Guid consultationId, VisitDetails detailsFromForm)
     {
         var user = await _userManager.GetUserAsync(User);
-        // Ta linijka w zupełności wystarczy do zabezpieczenia akcji:
         if (user == null || !user.IsTherapist) return Forbid();
 
         var consultation = await _consultationService.GetConsultationByIdAsync(consultationId);
         if (consultation == null) return NotFound();
 
         if (consultation.Details == null)
-        {
             consultation.Details = new VisitDetails { ConsultationId = consultationId };
-        }
 
         consultation.Details.MedicalHistory = detailsFromForm.MedicalHistory;
         consultation.Details.Diagnosis = detailsFromForm.Diagnosis;
@@ -182,9 +162,54 @@ public class ConsultationController : Controller
         consultation.Details.InternalNotes = detailsFromForm.InternalNotes;
 
         await _consultationService.UpdateConsultationAsync(consultation);
-
+        TempData["SuccessMessage"] = "Karta wizyty została zapisana.";
         return RedirectToAction(nameof(Details), new { id = consultationId });
     }
 
-}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeStatus(Guid id, int statusId)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return NotFound();
 
+        if (!user.IsTherapist)
+        {
+            TempData["ErrorMessage"] = "Brak uprawnień do zmiany statusu wizyty.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var consultation = await _context.Consultations
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (consultation == null)
+        {
+            TempData["ErrorMessage"] = "Nie znaleziono wizyty.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (consultation.TherapistId != user.Id)
+            return Forbid();
+
+        if (consultation.StatusId != 1)
+        {
+            TempData["ErrorMessage"] = "Można zmieniać status tylko zaplanowanych wizyt.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (statusId != 2 && statusId != 3)
+        {
+            TempData["ErrorMessage"] = "Nieprawidłowy status.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        consultation.StatusId = statusId;
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = statusId == 2
+            ? "Wizyta została oznaczona jako zakończona."
+            : "Wizyta została odwołana.";
+
+        return RedirectToAction(nameof(Index));
+    }
+}

@@ -1,132 +1,488 @@
 @model IEnumerable<Hulki.Web.Models.TherapyGoal>
 
 @{
-    ViewData["Title"] = "Moje Cele Terapeutyczne";
+    ViewData["Title"] = "Cele Terapeutyczne";
+    var active = Model.Where(g => !g.IsCompleted).OrderBy(g => g.Deadline).ToList();
+    var completed = Model.Where(g => g.IsCompleted).ToList();
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4"><i class="bi bi-bullseye"></i> Cele Terapeutyczne</h2>
+<div class="container mt-4 mb-5">
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-    }
-
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Wyznacz nowy cel</h5>
+    <div class="goal-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4">
+        <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-4 mb-md-0">
+                <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
+                    <i class="bi bi-bullseye me-2"></i>Cele Terapeutyczne
+                </h2>
+                <p class="text-light mb-0 fs-5 fw-light opacity-75">
+                    Wyznaczaj cele, zaliczaj kroki, śledź postępy w terapii.
+                </p>
+            </div>
+            <div class="d-flex gap-3 mt-3 mt-md-0">
+                <div class="goal-counter p-3 rounded-3 text-center">
+                    <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px;">W toku</div>
+                    <div class="fs-3 fw-bold text-primary">@active.Count</div>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Create" method="post">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nazwa celu</label>
-                            <input type="text" name="title" class="form-control" placeholder="np. Ukończenie terapii kroków" required />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Ostateczny termin</label>
-                            <input type="date" name="deadline" class="form-control" required />
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Kamienie milowe (kroki do celu)</label>
-                            <div id="milestonesContainer">
-                                <input type="text" name="milestones" class="form-control mb-2" placeholder="Krok 1..." required />
-                                <input type="text" name="milestones" class="form-control mb-2" placeholder="Krok 2..." />
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-1" onclick="addMilestoneField()">
-                                <i class="bi bi-plus-circle"></i> Dodaj kolejny krok
-                            </button>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-success w-100">Zapisz cel</button>
-                    </form>
+                <div class="goal-counter p-3 rounded-3 text-center">
+                    <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px;">Ukończone</div>
+                    <div class="fs-3 fw-bold text-success">@completed.Count</div>
                 </div>
             </div>
         </div>
+        <div class="goal-header-glow"></div>
+    </div>
 
-        <div class="col-md-8">
+    <div class="row g-4">
+
+        <div class="col-12 col-lg-4">
+            <div class="goal-form-card rounded-4 p-4">
+                <h5 class="fw-bold text-uppercase mb-4 pb-3 border-bottom border-secondary" style="letter-spacing: 1px;">
+                    <i class="bi bi-plus-circle me-2 text-primary"></i>Nowy cel
+                </h5>
+
+                <form asp-action="Create" method="post" id="goalForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="field-label"><i class="bi bi-flag me-1"></i>Nazwa celu</label>
+                        <input type="text" name="title" class="form-control dark-input"
+                               placeholder="np. Ukończenie terapii kroków" required/>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="field-label"><i class="bi bi-calendar-event me-1"></i>Termin</label>
+                        <input type="date" name="deadline" class="form-control dark-input" required/>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="field-label"><i class="bi bi-list-check me-1"></i>Kroki milowe</label>
+                        <div id="milestonesContainer" class="d-flex flex-column gap-2">
+                            <div class="milestone-input-row d-flex align-items-center gap-2">
+                                <input type="text" name="milestones" class="form-control dark-input"
+                                       placeholder="Krok 1..." required/>
+                                <button type="button" class="btn btn-remove-milestone" onclick="removeMilestone(this)" title="Usuń">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                            <div class="milestone-input-row d-flex align-items-center gap-2">
+                                <input type="text" name="milestones" class="form-control dark-input"
+                                       placeholder="Krok 2..."/>
+                                <button type="button" class="btn btn-remove-milestone" onclick="removeMilestone(this)" title="Usuń">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-add-milestone w-100 mt-2 rounded-3" onclick="addMilestoneField()">
+                            <i class="bi bi-plus me-1"></i>Dodaj krok
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn btn-custom-success fw-bold rounded-pill w-100 text-uppercase py-2" style="letter-spacing: 1px;">
+                        <i class="bi bi-check2-circle me-2"></i>Zapisz cel
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+
             @if (!Model.Any())
             {
-                <div class="alert alert-info">Nie wyznaczono jeszcze żadnych celów terapeutycznych.</div>
+                <div class="empty-state text-center py-5 rounded-4">
+                    <div class="empty-icon mb-3">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <h5 class="fw-bold text-light mb-2">Brak celów</h5>
+                    <p class="text-muted">Wyznacz swój pierwszy cel terapeutyczny korzystając z formularza.</p>
+                </div>
             }
             else
             {
-                <div class="row row-cols-1 g-4">
-                    @foreach (var goal in Model)
+                {
                     {
-                        var totalMilestones = goal.Milestones.Count;
-                        var completedMilestones = goal.Milestones.Count(m => m.IsCompleted);
-                        var progress = totalMilestones > 0 ? (int)Math.Round((double)completedMilestones / totalMilestones * 100) : 0;
-                        var cardBorder = goal.IsCompleted ? "border-success" : "";
-                        var headerBg = goal.IsCompleted ? "bg-success text-white" : "bg-light";
+                    }
+                }
+                @if (active.Any())
+                {
+                    <h6 class="text-uppercase fw-bold text-primary mb-3" style="letter-spacing: 1px;">
+                        <i class="bi bi-arrow-right-circle me-2"></i>W toku
+                    </h6>
+                    <div class="d-flex flex-column gap-3 mb-5">
+                        @foreach (var goal in active)
+                        {
+                            var total = goal.Milestones.Count;
+                            var done = goal.Milestones.Count(m => m.IsCompleted);
+                            var pct = total > 0 ? (int)Math.Round((double)done / total * 100) : 0;
+                            var daysLeft = (goal.Deadline.Date - DateTime.Today).TotalDays;
+                            var deadlineClass = daysLeft < 0 ? "text-danger" : daysLeft <= 3 ? "text-warning" : "text-muted";
 
-                        <div class="col">
-                            <div class="card shadow-sm @cardBorder">
-                                <div class="card-header d-flex justify-content-between align-items-center @headerBg">
-                                    <h5 class="mb-0">
-                                        @if (goal.IsCompleted) { <i class="bi bi-check-circle-fill me-2"></i> }
-                                        @goal.Title
-                                    </h5>
-                                    <form asp-action="Delete" asp-route-id="@goal.Id" method="post" onsubmit="return confirm('Na pewno usunąć ten cel?');">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></button>
-                                    </form>
+                            <div class="goal-card rounded-4 p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h5 class="fw-bold text-light mb-1">@goal.Title</h5>
+                                        <span class="small @deadlineClass">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            @if (daysLeft < 0)
+                                            {
+                                                <span>Termin minął @goal.Deadline.ToString("dd.MM.yyyy")</span>
+                                            }
+                                            else if (daysLeft == 0)
+                                            {
+                                                <span>Termin dziś!</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Termin: @goal.Deadline.ToString("dd.MM.yyyy") (@((int)daysLeft) dni)</span>
+                                            }
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="pct-badge">@pct%</span>
+                                        <form asp-action="Delete" asp-route-id="@goal.Id" method="post"
+                                              onsubmit="return confirm('Na pewno usunąć ten cel?');" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-remove-goal" title="Usuń cel">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <small class="text-muted">Termin: @goal.Deadline.ToString("dd.MM.yyyy")</small>
-                                        <small class="fw-bold @(progress == 100 ? "text-success" : "")">@progress%</small>
-                                    </div>
-                                    <div class="progress mb-4" style="height: 10px;">
-                                        <div class="progress-bar @(progress == 100 ? "bg-success" : "")" role="progressbar" style="width: @progress%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
 
-                                    <ul class="list-group list-group-flush">
-                                        @foreach (var milestone in goal.Milestones.OrderBy(m => m.IsCompleted))
+                                <div class="progress-track mb-4">
+                                    <div class="progress-fill" style="width: @pct%"></div>
+                                </div>
+
+                                @if (goal.Milestones.Any())
+                                {
+                                    <ul class="milestone-list">
+                                        @foreach (var m in goal.Milestones.OrderBy(m => m.IsCompleted))
                                         {
-                                            <li class="list-group-item d-flex align-items-center px-0 border-0">
-                                                <form asp-action="ToggleMilestone" method="post" class="m-0 p-0 w-100 d-flex align-items-center">
-                                                    <input type="hidden" name="milestoneId" value="@milestone.Id" />
-                                                    <button type="submit" class="btn btn-link p-0 me-3 text-decoration-none text-dark">
-                                                        @if (milestone.IsCompleted)
+                                            <li class="milestone-item @(m.IsCompleted ? "milestone-done" : "")">
+                                                <form asp-action="ToggleMilestone" method="post" class="m-0 d-flex align-items-center w-100 gap-3">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="milestoneId" value="@m.Id"/>
+                                                    <button type="submit" class="btn milestone-toggle p-0 flex-shrink-0">
+                                                        @if (m.IsCompleted)
                                                         {
-                                                            <i class="bi bi-check-square-fill text-success fs-5"></i>
+                                                            <i class="bi bi-check-circle-fill text-success fs-5"></i>
                                                         }
                                                         else
                                                         {
-                                                            <i class="bi bi-square text-secondary fs-5"></i>
+                                                            <i class="bi bi-circle text-secondary fs-5"></i>
                                                         }
                                                     </button>
-                                                    <span class="@(milestone.IsCompleted ? "text-decoration-line-through text-muted" : "")">
-                                                        @milestone.Description
+                                                    <span class="@(m.IsCompleted ? "text-decoration-line-through text-muted" : "text-light")">
+                                                        @m.Description
                                                     </span>
                                                 </form>
                                             </li>
                                         }
                                     </ul>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                
+                {
+                }
+                @if (completed.Any())
+                {
+                    <h6 class="text-uppercase fw-bold text-muted mb-3" style="letter-spacing: 1px;">
+                        <i class="bi bi-trophy me-2 text-warning"></i>Ukończone
+                    </h6>
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var goal in completed)
+                        {
+                            <div class="goal-card goal-card--done rounded-4 p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="fw-bold text-success mb-1">
+                                            <i class="bi bi-check-circle-fill me-2"></i>@goal.Title
+                                        </h5>
+                                        <span class="small text-muted">
+                                            Termin był: @goal.Deadline.ToString("dd.MM.yyyy") &middot; @goal.Milestones.Count kroków
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="pct-badge pct-badge--done">100%</span>
+                                        <form asp-action="Delete" asp-route-id="@goal.Id" method="post"
+                                              onsubmit="return confirm('Na pewno usunąć ten cel?');" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-remove-goal" title="Usuń cel">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                </div>
+                        }
+                    </div>
+                }
             }
         </div>
     </div>
 </div>
 
+<style>
+    /* === HEADER === */
+    .goal-header-card {
+        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .goal-header-glow {
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(70, 204, 94, 0.09) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .goal-counter {
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        min-width: 90px;
+    }
+
+    /* === FORM CARD === */
+    .goal-form-card {
+        background: #1b1b22;
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        position: sticky;
+        top: 1rem;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.4);
+        margin-bottom: 7px;
+    }
+
+    .dark-input {
+        background-color: #13131a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #f0f0f0 !important;
+        border-radius: 10px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dark-input:focus {
+        border-color: rgba(70, 204, 94, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(70, 204, 94, 0.1) !important;
+        outline: none !important;
+    }
+
+    .dark-input::placeholder {
+        color: rgba(255, 255, 255, 0.18);
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.5);
+        cursor: pointer;
+    }
+
+    .btn-add-milestone {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: rgba(70, 204, 94, 0.7);
+        background: rgba(70, 204, 94, 0.05);
+        border: 1px dashed rgba(70, 204, 94, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .btn-add-milestone:hover {
+        color: #46CC5E;
+        background: rgba(70, 204, 94, 0.1);
+        border-color: rgba(70, 204, 94, 0.5);
+    }
+
+    .btn-remove-milestone {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        flex-shrink: 0;
+        color: rgba(255, 255, 255, 0.2);
+        background: transparent;
+        border: none;
+        font-size: 1rem;
+        line-height: 1;
+        transition: color 0.2s ease;
+    }
+
+    .btn-remove-milestone:hover {
+        color: #f87171;
+    }
+
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+    }
+
+    /* === GOAL CARDS === */
+    .goal-card {
+        background: #1b1b22;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 3px solid rgba(70, 204, 94, 0.4);
+        transition: all 0.25s ease;
+    }
+
+    .goal-card:hover {
+        background: #1f1f27;
+        border-color: rgba(70, 204, 94, 0.3);
+        border-left-color: #46CC5E;
+        box-shadow: 0 6px 20px rgba(70, 204, 94, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .goal-card--done {
+        border-left-color: rgba(70, 204, 94, 0.2);
+        opacity: 0.7;
+    }
+
+    .goal-card--done:hover {
+        opacity: 1;
+        border-left-color: rgba(70, 204, 94, 0.5);
+    }
+
+    /* === PROGRESS === */
+    .progress-track {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #46CC5E, #7FE593);
+        border-radius: 99px;
+        transition: width 0.5s ease;
+    }
+
+    .pct-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #46CC5E;
+        background: rgba(70, 204, 94, 0.1);
+        border: 1px solid rgba(70, 204, 94, 0.25);
+        border-radius: 99px;
+        padding: 2px 10px;
+    }
+
+    .pct-badge--done {
+        color: #6ea8fe;
+        background: rgba(13, 110, 253, 0.1);
+        border-color: rgba(13, 110, 253, 0.25);
+    }
+
+    /* === MILESTONES === */
+    .milestone-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .milestone-item {
+        padding: 8px 10px;
+        border-radius: 8px;
+        transition: background 0.15s ease;
+    }
+
+    .milestone-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .milestone-item.milestone-done {
+        opacity: 0.55;
+    }
+
+    .milestone-toggle {
+        background: none;
+        border: none;
+        line-height: 1;
+        transition: transform 0.15s ease;
+    }
+
+    .milestone-toggle:hover {
+        transform: scale(1.15);
+    }
+
+    /* === DELETE BUTTON === */
+    .btn-remove-goal {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        color: rgba(255, 255, 255, 0.2);
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove-goal:hover {
+        color: #f87171;
+        background: rgba(218, 41, 46, 0.1);
+        border-color: rgba(218, 41, 46, 0.3);
+    }
+
+    /* === EMPTY STATE === */
+    .empty-state {
+        background: #1b1b22;
+        border: 1px dashed rgba(70, 204, 94, 0.2);
+    }
+
+    .empty-icon {
+        font-size: 3.5rem;
+        color: rgba(70, 204, 94, 0.25);
+    }
+</style>
+
 <script>
+    let milestoneCount = 2;
+
     function addMilestoneField() {
+        milestoneCount++;
         const container = document.getElementById('milestonesContainer');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.name = 'milestones';
-        input.className = 'form-control mb-2';
-        input.placeholder = 'Kolejny krok...';
-        container.appendChild(input);
+        const row = document.createElement('div');
+        row.className = 'milestone-input-row d-flex align-items-center gap-2';
+        row.innerHTML = `
+            <input type="text" name="milestones" class="form-control dark-input"
+                   placeholder="Krok ${milestoneCount}..." />
+            <button type="button" class="btn btn-remove-milestone" onclick="removeMilestone(this)" title="Usuń">
+                <i class="bi bi-x"></i>
+            </button>`;
+        container.appendChild(row);
+        row.querySelector('input').focus();
+    }
+
+    function removeMilestone(btn) {
+        const container = document.getElementById('milestonesContainer');
+        if (container.querySelectorAll('.milestone-input-row').length <= 1) return;
+        btn.closest('.milestone-input-row').remove();
     }
 </script>

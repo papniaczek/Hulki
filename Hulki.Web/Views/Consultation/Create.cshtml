@@ -4,58 +4,167 @@
     ViewData["Title"] = "Umów konsultację";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h3 class="card-title mb-0"><i class="bi bi-calendar-plus"></i> Nowa Konsultacja</h3>
+        <div class="col-12 col-md-8 col-lg-6">
+
+            <a asp-action="Index" class="back-link text-decoration-none d-inline-flex align-items-center gap-2 mb-4">
+                <i class="bi bi-arrow-left"></i>
+                <span class="small text-uppercase fw-bold" style="letter-spacing: 1px;">Powrót do listy</span>
+            </a>
+
+            <div class="create-card rounded-4 p-4 p-md-5">
+
+                <div class="mb-4 pb-3 border-bottom border-secondary">
+                    <h3 class="fw-bold text-primary mb-1 text-uppercase" style="letter-spacing: 1px;">
+                        Nowa Konsultacja
+                    </h3>
+                    <p class="text-muted small mb-0">Wypełnij formularz, aby zaplanować sesję terapeutyczną.</p>
                 </div>
-                <div class="card-body">
-                    <form asp-action="Create" method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <div class="mb-3">
-                            <label asp-for="TargetUserId" class="form-label fw-bold">@ViewBag.RoleLabel</label>
-                            <select asp-for="TargetUserId" asp-items="@ViewBag.TargetUsers" class="form-select">
-                                <option value="">-- Wybierz osobę --</option>
-                            </select>
-                            <span asp-validation-for="TargetUserId" class="text-danger"></span>
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small rounded-3 mb-4"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="TargetUserId" class="field-label">
+                            <i class="bi bi-person-circle me-1"></i>@ViewBag.RoleLabel
+                        </label>
+                        <select asp-for="TargetUserId" asp-items="@ViewBag.TargetUsers" class="form-select dark-select">
+                            <option value="">-- Wybierz osobę --</option>
+                        </select>
+                        <span asp-validation-for="TargetUserId" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-sm-6">
+                            <label asp-for="StartTime" class="field-label">
+                                <i class="bi bi-play-circle me-1"></i>Czas rozpoczęcia
+                            </label>
+                            <input name="StartTime"
+                                   type="datetime-local"
+                                   class="form-control dark-input"
+                                   value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")"/>
+                            <span asp-validation-for="StartTime" class="text-danger small mt-1 d-block"></span>
                         </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="StartTime" class="form-label fw-bold">Czas rozpoczęcia</label>
-
-                                <input name="StartTime"
-                                       type="datetime-local"
-                                       class="form-control"
-                                       value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")"/>
-
-                                <span asp-validation-for="StartTime" class="text-danger"></span>
-                            </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="EndTime" class="form-label fw-bold">Czas zakończenia</label>
-
+                        <div class="col-12 col-sm-6">
+                            <label asp-for="EndTime" class="field-label">
+                                <i class="bi bi-stop-circle me-1"></i>Czas zakończenia
+                            </label>
                             <input name="EndTime"
                                    type="datetime-local"
-                                   class="form-control"
+                                   class="form-control dark-input"
                                    value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")"/>
-
-                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                            <span asp-validation-for="EndTime" class="text-danger small mt-1 d-block"></span>
                         </div>
+                    </div>
 
-                        <div class="d-flex justify-content-between mt-4">
-                            <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
-                            <button type="submit" class="btn btn-success px-4">Zapisz</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="mb-4">
+                        <label class="field-label">
+                            <i class="bi bi-chat-left-text me-1"></i>Powód / Notatka <span class="text-muted fw-normal">(opcjonalnie)</span>
+                        </label>
+                        <textarea name="Notes" class="form-control dark-input" rows="3"
+                                  placeholder="np. Kontynuacja poprzedniej sesji, omówienie wyników..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary">
+                        <a asp-action="Index" class="btn btn-ghost-cancel rounded-pill px-4">
+                            <i class="bi bi-x me-1"></i>Anuluj
+                        </a>
+                        <button type="submit" class="btn btn-custom-success fw-bold rounded-pill px-5 text-uppercase" style="letter-spacing: 1px;">
+                            <i class="bi bi-calendar-check me-2"></i>Zaplanuj
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .back-link {
+        color: rgba(255, 255, 255, 0.45);
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #46CC5E;
+    }
+
+    .create-card {
+        background: #1b1b22;
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.55);
+        margin-bottom: 8px;
+    }
+
+    .dark-input,
+    .dark-select {
+        background-color: #13131a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #f0f0f0 !important;
+        border-radius: 10px !important;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dark-input:focus,
+    .dark-select:focus {
+        border-color: rgba(70, 204, 94, 0.5) !important;
+        box-shadow: 0 0 0 3px rgba(70, 204, 94, 0.1) !important;
+        outline: none !important;
+    }
+
+    .dark-input::placeholder {
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    .dark-select option {
+        background-color: #1b1b22;
+        color: #f0f0f0;
+    }
+
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.6);
+        cursor: pointer;
+    }
+
+    .btn-custom-success {
+        background-color: rgba(70, 204, 94, 0.10);
+        color: #46CC5E;
+        border: 1px solid rgba(70, 204, 94, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .btn-custom-success:hover {
+        background-color: #46CC5E;
+        color: #17171C;
+        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+    }
+
+    .btn-ghost-cancel {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.4);
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .btn-ghost-cancel:hover {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.06);
+    }
+</style>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
