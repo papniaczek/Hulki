@@ -276,7 +276,7 @@ namespace Hulki.Web.Controllers;
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Świetna robota! Raport dodany, a na Twoje konto wpłynęło +{pointsEarned} punktów!";
+            TempData["SuccessMessage"] = $"Świetna robota! Raport dodany, a na twoje konto wpłynęło +{pointsEarned} punktów!";
             return RedirectToAction("Index", "Home");
         }
     }

@@ -1,8 +1,10 @@
+@using Hulki.Web.Models
 @{
     ViewData["Title"] = "Mój Profil";
     var user = ViewBag.User as AppUser;
     var inventory = ViewBag.Inventory as List<RewardItem>;
     var reports = ViewBag.Reports as List<DailyReport>;
+
     string StatusColor(string status) => status switch
     {
         "Zatwierdzony" => "#46CC5E",
@@ -32,14 +34,12 @@
 
             <!-- Info Użytkownika -->
             <div class="d-flex align-items-center gap-4 mb-4 mb-md-0">
-                <div
-                    class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0">
+                <div class="rounded-circle avatar-wrapper d-flex align-items-center justify-content-center flex-shrink-0">
                     <i class="bi bi-person-fill text-light" style="font-size: 3rem;"></i>
                 </div>
                 <div>
                     <h2 class="mb-1 fw-bold text-light text-uppercase" style="letter-spacing: 1px;">
-                        @user.FirstName
-                        @user.LastName
+                        @user.FirstName @user.LastName
                     </h2>
                     <p class="mb-0 text-muted small">
                         <i class="bi bi-envelope me-2"></i>@user.Email
@@ -63,12 +63,9 @@
         <!-- SEKCJA: EKWIPUNEK -->
         <div class="col-md-7">
             <div class="d-flex justify-content-center align-items-center gap-3 mb-4 border-bottom border-secondary pb-2">
-                <h4 class="text-light fw-bold mb-0">
-                    Twój Ekwipunek
-                </h4>
+                <h4 class="text-light fw-bold mb-0">Twój Ekwipunek</h4>
                 <span class="badge bg-primary text-dark rounded-pill px-3 py-2 fw-bold">
-                    Posiadane:
-                    @inventory.Count
+                    Posiadane: @inventory.Count
                 </span>
             </div>
 
@@ -81,11 +78,9 @@
                         var rarityName = item.ItemRarity?.Name ?? "Pospolity";
 
                         <div class="col-6 col-sm-4">
-                            <!-- KARTA PRZEDMIOTU -->
                             <div class="inventory-card card h-100 text-center position-relative overflow-hidden pb-5"
                                  data-item-id="@item.Id" style="--item-color: @rarityColor;">
 
-                                <!-- IKONA ZAZNACZENIA -->
                                 <div class="item-check position-absolute top-0 end-0 m-2" style="display:none; z-index:10;">
                                     <i class="bi bi-check-circle-fill text-success fs-4 drop-shadow"></i>
                                 </div>
@@ -105,16 +100,13 @@
                                     <div class="fw-bold small text-truncate w-100 mb-2 text-light" title="@item.Name">
                                         @item.Name
                                     </div>
-                                    <span class="badge w-100"
-                                          style="background-color: @rarityColor; color: #17171C;">
+                                    <span class="badge w-100" style="background-color: @rarityColor; color: #17171C;">
                                         @rarityName
                                     </span>
                                 </div>
 
-                                <!-- UKRYTY PRZYCISK SPRZEDAŻY -->
                                 <div class="sell-overlay position-absolute bottom-0 start-0 w-100 p-2">
-                                    <form asp-controller="Store" asp-action="SellItem" method="post"
-                                          class="single-sell-form m-0">
+                                    <form asp-controller="Store" asp-action="SellItem" method="post" class="single-sell-form m-0">
                                         <input type="hidden" name="itemId" value="@item.Id"/>
                                         <button type="submit" class="btn btn-sm w-100 fw-bold sell-single-btn"
                                                 onclick="return confirm('Na pewno sprzedać @item.Name?')">
@@ -135,16 +127,9 @@
                                 Zaznaczono: <span id="selectedNum" class="text-primary fs-5 mx-1">0</span>
                             </span>
                             <div class="d-flex gap-2 flex-wrap">
-                                <button type="button" id="btnSelectAll"
-                                        class="btn btn-sm btn-secondary rounded-pill">
-                                    Wszystkie
-                                </button>
-                                <button type="button" id="btnDeselectAll"
-                                        class="btn btn-sm btn-secondary rounded-pill">
-                                    Odznacz
-                                </button>
-                                <button type="submit" class="btn btn-sm btn-danger fw-bold rounded-pill shadow-sm"
-                                        onclick="return confirmMultiSell()">
+                                <button type="button" id="btnSelectAll" class="btn btn-sm btn-secondary rounded-pill">Wszystkie</button>
+                                <button type="button" id="btnDeselectAll" class="btn btn-sm btn-secondary rounded-pill">Odznacz</button>
+                                <button type="submit" class="btn btn-sm btn-danger fw-bold rounded-pill shadow-sm" onclick="return confirmMultiSell()">
                                     Sprzedaj zaznaczone
                                 </button>
                             </div>
@@ -168,73 +153,84 @@
             }
         </div>
 
-        <!-- SEKCJA: OSTATNIE WPISY (Dzienniczek) -->
-        <div class="col-md-5">
-            <div class="d-flex justify-content-center align-items-center mb-4 border-bottom border-secondary pb-2">
-                <h4 class="text-light fw-bold mb-0">
-                    Ostatnie Wpisy
-                </h4>
-            </div>
+        <!-- SEKCJA PRAWA -->
+        <div class="col-md-5 d-flex flex-column gap-4">
 
-            <div class="card border-0 reports-card d-flex flex-column" style="background-color: #1b1b22; border: 1px solid rgba(255, 255, 255, 0.03);">
-                <div class="card-body p-0 d-flex flex-column flex-grow-1">
-                    <ul class="list-group list-group-flush rounded-3 flex-grow-1 d-flex flex-column overflow-auto" style="max-height: 232px;">
-                        @if (reports != null && reports.Any())
-                        {
-                            foreach (var report in reports.Take(3))
+            <!-- OSTATNIE WPISY -->
+            <div>
+                <div class="d-flex justify-content-center align-items-center mb-4 border-bottom border-secondary pb-2">
+                    <h4 class="text-light fw-bold mb-0">Ostatnie Wpisy</h4>
+                </div>
+
+                <div class="card border-0 reports-card d-flex flex-column" style="background-color: #1b1b22; border: 1px solid rgba(255, 255, 255, 0.03);">
+                    <div class="card-body p-0 d-flex flex-column flex-grow-1">
+                        <ul class="list-group list-group-flush rounded-3 flex-grow-1 d-flex flex-column overflow-auto" style="max-height: 232px;">
+                            @if (reports != null && reports.Any())
                             {
-                                var status = report.ReportStatus?.Name;
+                                foreach (var report in reports.Take(3))
+                                {
+                                    var status = report.ReportStatus?.Name;
 
-                                <li class="list-group-item report-list-item bg-transparent border-secondary" style="cursor: pointer;">
-                                    <a asp-controller="Admin" asp-action="ReportDetails" asp-route-id="@report.Id" class="text-decoration-none" style="display: block; padding: 1rem;">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <small class="text-muted fw-bold">
-                                                <i class="bi bi-calendar-event me-2"></i>@report.CreatedAt.ToString("dd.MM.yyyy")
-                                            </small>
-                                            @* tutaj cosik *@
-                                            <span class="badge rounded-pill px-2 py-1" style="background:@StatusBg(status); color:@StatusColor(status); border:1px solid @StatusBorder(status);">@report.ReportStatus.Name</span>
-                                        </div>
-                                        <p class="mb-0 text-light small text-truncate" style="transition: all 0.2s ease;">@report.Content</p>
-                                    </a>
+                                    <li class="list-group-item report-list-item bg-transparent border-secondary" style="cursor: pointer;">
+                                        <a asp-controller="Admin" asp-action="ReportDetails" asp-route-id="@report.Id" class="text-decoration-none" style="display: block; padding: 1rem;">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <small class="text-muted fw-bold">
+                                                    <i class="bi bi-calendar-event me-2"></i>@report.CreatedAt.ToString("dd.MM.yyyy")
+                                                </small>
+                                                <span class="badge rounded-pill px-2 py-1" style="background:@StatusBg(status); color:@StatusColor(status); border:1px solid @StatusBorder(status);">@report.ReportStatus.Name</span>
+                                            </div>
+                                            <p class="mb-0 text-light small text-truncate" style="transition: all 0.2s ease;">@report.Content</p>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                            else
+                            {
+                                <li class="list-group-item p-5 text-center text-muted border-0 bg-transparent">
+                                    <i class="bi bi-journal-x fs-1 d-block mb-3 opacity-25"></i> Brak wpisów w dzienniczku.
                                 </li>
                             }
-                        }
-                        else
-                        {
-                            <li class="list-group-item p-5 text-center text-muted border-0 bg-transparent">
-                                <i class="bi bi-journal-x fs-1 d-block mb-3 opacity-25"></i>
-                                Brak wpisów w dzienniczku.
-                            </li>
-                        }
-                    </ul>
-                </div>
-                <div class="card-footer bg-transparent border-top border-secondary text-center p-3">
-                    <a asp-controller="Patient" asp-action="DailyReport"
-                       class="btn btn-custom-success w-100 ">
-                        <i class="bi bi-pencil-square me-2"></i> Dodaj dzisiejszy wpis
-                    </a>
+                        </ul>
+                    </div>
+                    <div class="card-footer bg-transparent border-top border-secondary text-center p-3">
+                        <a asp-controller="Patient" asp-action="DailyReport" class="btn btn-custom-success w-100">
+                            <i class="bi bi-pencil-square me-2"></i> Dodaj dzisiejszy wpis
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark fw-bold">
-                    <i class="bi bi-award-fill"></i> Gablota z Osiągnięciami
+
+            <!-- GABLOTA OSIĄGNIĘĆ -->
+            <div>
+                <div class="d-flex justify-content-center align-items-center mb-4 border-bottom border-secondary pb-2">
+                    <h4 class="text-light fw-bold mb-0">Gablota z Osiągnięciami</h4>
                 </div>
-                <div class="card-body">
+
+                <div class="card border-0 reports-card p-3" style="background-color: #1b1b22; border: 1px solid rgba(255, 255, 255, 0.03);">
                     @if (ViewBag.Badges == null || ((IEnumerable<Hulki.Web.Models.UserBadge>)ViewBag.Badges).Count() == 0)
                     {
-                        <p class="text-muted mb-0">Jeszcze nie zdobyto żadnych odznak. Realizuj cele, aby odblokować pierwsze osiągnięcia!</p>
+                        <div class="text-center p-4 text-muted">
+                            <i class="bi bi-award fs-2 d-block mb-2 opacity-50"></i>
+                            <p class="mb-0 small">Jeszcze nie zdobyto żadnych odznak. Realizuj cele, aby odblokować pierwsze osiągnięcia!</p>
+                        </div>
                     }
                     else
                     {
-                        <div class="row row-cols-2 row-cols-md-4 g-3">
+                        <div class="row row-cols-2 g-3 overflow-auto" style="max-height: 330px; padding: 4px;">
                             @foreach (var userBadge in ViewBag.Badges)
                             {
-                                <div class="col text-center">
-                                    <div class="p-3 border rounded bg-light h-100">
-                                        <i class="bi @userBadge.Badge.IconPath text-warning" style="font-size: 2.5rem;"></i>
-                                        <h6 class="mt-2 mb-1 fw-bold">@userBadge.Badge.Name</h6>
-                                        <small class="text-muted d-block mb-2" style="font-size: 0.75rem;">@userBadge.Badge.Description</small>
-                                        <span class="badge bg-secondary">Odblokowano: @userBadge.EarnedAt.ToString("dd.MM.yyyy")</span>
+                                <div class="col">
+                                    <div class="badge-card h-100 p-3 text-center rounded-3 border d-flex flex-column align-items-center justify-content-between">
+                                        <div class="badge-icon-wrapper mb-2">
+                                            <i class="bi @userBadge.Badge.IconPath text-warning"></i>
+                                        </div>
+                                        <h6 class="mb-1 fw-bold text-light small text-truncate w-100">@userBadge.Badge.Name</h6>
+                                        <p class="text-muted mb-2 lh-sm px-1" style="font-size: 0.7rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            @userBadge.Badge.Description
+                                        </p>
+                                        <span class="badge w-100 text-muted border border-secondary bg-transparent" style="font-size: 0.65rem;">
+                                            <i class="bi bi-calendar-check me-1"></i>@userBadge.EarnedAt.ToString("dd.MM.yyyy")
+                                        </span>
                                     </div>
                                 </div>
                             }
@@ -242,8 +238,8 @@
                     }
                 </div>
             </div>
+
         </div>
-        
     </div>
 </div>
 
@@ -267,7 +263,6 @@
         letter-spacing: 1px;
         transition: all 0.3s ease;
     }
-
 
     .btn-custom-success:hover {
         background: #46CC5E !important;
@@ -328,16 +323,13 @@
         box-shadow: 0 0 15px rgba(70, 204, 94, 0.2);
     }
 
-    /* Karta Pustego Ekwipunku */
     .empty-inventory-card {
         background-color: #1b1b22;
         border-radius: 16px;
-        background-color: #1b1b22;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-    /* --- Karty Ekwipunku --- */
     .inventory-card {
         background-color: #1b1b22;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -348,7 +340,6 @@
         cursor: pointer;
     }
 
-    /* Pojemnik na ikonę w karcie */
     .item-icon-container {
         height: 60px;
         width: 100%;
@@ -367,7 +358,6 @@
         filter: drop-shadow(0 0 8px var(--item-color));
     }
 
-    /* Hover na karcie - Karta świeci kolorem rzadkości */
     .inventory-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px var(--item-color);
@@ -381,7 +371,6 @@
         min-width: 180px;
     }
 
-    /* Overlay przycisku Sprzedaj */
     .sell-overlay {
         background: #1b1b22;
         opacity: 0;
@@ -409,7 +398,6 @@
         box-shadow: 0 0 10px rgba(218, 41, 46, 0.6);
     }
 
-    /* --- Karta Dzienniczka --- */
     .reports-card {
         background-color: #1b1b22;
         border-radius: 16px;
@@ -431,7 +419,27 @@
         border-bottom: none !important;
     }
 
-    /* --- Tryb Multi-Sell  --- */
+    /* --- GABLOTA OSIĄGNIĘĆ --- */
+    .badge-card {
+        background-color: rgba(31, 41, 55, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.25s ease-in-out;
+    }
+
+    .badge-card:hover {
+        background-color: rgba(49, 62, 82, 0.5);
+        border-color: rgba(255, 193, 7, 0.3) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 12px rgba(255, 193, 7, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .badge-icon-wrapper i {
+        font-size: 2.2rem;
+        filter: drop-shadow(0 2px 8px rgba(255, 193, 7, 0.3));
+    }
+
+    /* --- Multi-Sell --- */
     .inventory-card.selected {
         background-color: rgba(70, 204, 94, 0.1) !important;
         border-color: #46CC5E !important;
@@ -443,7 +451,6 @@
         display: block !important;
     }
 
-    /* Ukrywamy pojedynczy przycisk sprzedazy, gdy cos zaznaczono */
     body.multi-mode .sell-overlay {
         display: none !important;
     }
@@ -452,7 +459,6 @@
         padding-bottom: 90px;
     }
 
-    /* Pasek na dole ekranu podczas trybu Multi-Sell */
     .multi-sell-floating-bar {
         position: fixed;
         bottom: 30px;

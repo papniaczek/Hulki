@@ -13,11 +13,12 @@
                         Forum Społecznościowe
                     </h2>
 
-                    <a asp-action="CreateCategory" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase shadow" style="letter-spacing: 1px; font-size: 0.85rem; margin-bottom: 8px;">
-                        <i class="bi bi-plus-circle me-2"></i> Nowe forum
-                    </a>
-
-                </span>
+                    @if (User.IsInRole("Terapeuta") || User.IsInRole("Admin")){
+                        <a asp - action = "CreateCategory" class ="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase shadow" style = "letter-spacing: 1px; font-size: 0.85rem; margin-bottom: 8px;" >
+                            <i class ="bi bi-plus-circle me-2" ></i > Nowe forum
+                            </a>
+                    }
+                    </span>
                 <p class="text-light mb-0 fs-5 fw-light opacity-75">
                     Razem łatwiej. Podziel się swoimi doświadczeniami, znajdź wsparcie i pomagaj innym.
                 </p>

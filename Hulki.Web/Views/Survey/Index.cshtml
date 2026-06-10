@@ -13,7 +13,7 @@
         <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
             <div class="mb-4 mb-md-0">
                 <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
-                    <i class="bi bi-ui-radios me-2"></i>Kwestionariusze
+                    Kwestionariusze
                 </h2>
                 <p class="text-light mb-0 fs-5 fw-light opacity-75">
                     @if (isTherapist)
@@ -31,17 +31,21 @@
                     <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px; width: 120px"">Ankiety</div>
                     <div class="fs-3 fw-bold text-primary">@Model.Count()</div>
                 </div>
-                @if (isTherapist)
-                {
-                    <a asp-action="Create" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.85rem;">
-                        <i class="bi bi-plus-lg me-2"></i>Nowa ankieta
-                    </a>
-                }
+
             </div>
         </div>
         <div class="survey-header-glow"></div>
     </div>
-
+    @if (isTherapist)
+    {
+        <div class="d-flex justify-content-end mb-3">
+            <a asp-action="Create"
+               class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 text-uppercase shadow"
+               style="letter-spacing: 1px; font-size: 0.85rem;">
+                <i class="bi bi-calendar-plus me-2"></i>Nowa ankieta
+            </a>
+        </div>
+    }
     @if (!Model.Any())
     {
         <div class="empty-state text-center py-5 rounded-4">
