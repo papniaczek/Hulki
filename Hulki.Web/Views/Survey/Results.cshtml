@@ -45,7 +45,6 @@
             @foreach (var (submission, idx) in submissions.Select((s, i) => (s, i + 1)))
             {
                 <div class="submission-card rounded-4 overflow-hidden">
-                    {{!-- ACCORDION HEADER --}}
                     <button class="submission-header w-100 d-flex align-items-center justify-content-between p-4 gap-3"
                             type="button"
                             data-bs-toggle="collapse"
@@ -71,7 +70,6 @@
                         </div>
                     </button>
 
-                    {{!-- ACCORDION BODY --}}
                     <div class="collapse" id="sub-@submission.Id">
                         <div class="submission-body p-4 pt-0">
                             <div class="d-flex flex-column gap-3 mt-2">

@@ -138,7 +138,7 @@
 
                                         @* Przycisk: Szczegóły *@
                                         <a asp-action="PatientDetails" asp-route-id="@p.Id"
-                                           class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                           class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 12px">
                                             <i class="bi bi-eye me-1"></i>Szczegóły
                                         </a>
 
@@ -156,7 +156,7 @@
                                                 @if (User.IsInRole("Admin"))
                                                 {
                                                     <button type="submit"
-                                                            class="btn btn-sm btn-therapist-revoke rounded-pill px-3"
+                                                            class="btn btn-sm btn-therapist-revoke btn-therapist-action rounded-pill px-3"
                                                             title="Odbierz rolę terapeuty">
                                                         <i class="bi bi-person-dash me-1"></i>Odbierz rolę
                                                     </button>
@@ -167,7 +167,7 @@
                                                 @if (User.IsInRole("Admin"))
                                                 {
                                                     <button type="submit"
-                                                            class="btn btn-sm btn-therapist-grant rounded-pill px-3"
+                                                            class="btn btn-sm btn-therapist-grant btn-therapist-action rounded-pill px-3"
                                                             title="Nadaj rolę terapeuty">
                                                         <i class="bi bi-person-check me-1"></i>Ustaw terapeutą
                                                     </button>
@@ -197,6 +197,11 @@
 </div>
 
 <style>
+    .btn-therapist-action {
+        width: 170px;
+        font-size: 12px !important;
+    }
+
     .patients-header-card {
         background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
         border: 1px solid rgba(70, 204, 94, 0.15);

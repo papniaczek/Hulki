@@ -22,14 +22,16 @@ namespace Hulki.Web.Controllers
             _userManager = userManager;
         }
 
-        // Lista ankiet (widok wspólny, ale pacjent widzi "Wypełnij", a terapeuta "Wyniki")
+        // Lista ankiet (widok wspólny)
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Challenge();
 
             var surveys = await _surveyService.GetAllSurveysAsync();
-            ViewBag.IsTherapist = user.IsTherapist;
+
+            // POPRAWKA: Sprawdzamy role bezpośrednio z Identity
+            ViewBag.IsTherapist = User.IsInRole("Terapeuta") || User.IsInRole("Admin");
             ViewBag.UserId = user.Id;
 
             return View(surveys);
@@ -37,20 +39,17 @@ namespace Hulki.Web.Controllers
 
         // TERAOPEUTA: Formularz tworzenia nowej ankiety
         [HttpGet]
-        public async Task<IActionResult> Create()
+        [Authorize(Roles = "Terapeuta, Admin")] // POPRAWKA: Blokada na poziomie ról
+        public IActionResult Create()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null || !user.IsTherapist) return Forbid();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Terapeuta, Admin")]
         public async Task<IActionResult> Create(string title, List<string> questions)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null || !user.IsTherapist) return Forbid();
-
             if (string.IsNullOrWhiteSpace(title) || !questions.Any(q => !string.IsNullOrWhiteSpace(q)))
             {
                 ModelState.AddModelError("", "Tytuł i przynajmniej jedno pytanie są wymagane.");
@@ -98,11 +97,9 @@ namespace Hulki.Web.Controllers
 
         // TERAPEUTA: Podgląd wyników ankiety
         [HttpGet]
+        [Authorize(Roles = "Terapeuta, Admin")] // POPRAWKA: Tylko personel może wejść
         public async Task<IActionResult> Results(Guid id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null || !user.IsTherapist) return Forbid();
-
             var survey = await _surveyService.GetSurveyByIdAsync(id);
             if (survey == null) return NotFound();
 

@@ -124,10 +124,22 @@
                                     0
                                 </span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="notificationDropdown" id="notificationList" style="width: 300px; max-height: 400px; overflow-y: auto;">
-                                <li>
-                                    <span class="dropdown-item text-muted text-center">Ładowanie...</span>
+                            <ul class="dropdown-menu dropdown-menu-end shadow"
+                                aria-labelledby="notificationDropdown"
+                                id="notificationList">
+
+                                <li class="px-3 py-2 border-bottom notification-header">
+                                    <div class="fw-semibold text-white">Powiadomienia</div>
+                                    <small class="text-secondary">Najnowsze aktywności</small>
                                 </li>
+
+                                <div id="notificationItems">
+                                    <li>
+                                        <span class="dropdown-item text-muted text-center">
+                                            Ładowanie...
+                                        </span>
+                                    </li>
+                                </div>
                             </ul>
                         </li>
                         var currentUser = await UserManager.GetUserAsync(User);
@@ -232,6 +244,75 @@
 </button>
 
 <style>
+    .notification-header {
+        border-color: rgba(255, 255, 255, .08) !important;
+    }
+
+    /* Dropdown powiadomień */
+    #notificationList {
+        width: 320px !important;
+        max-height: 420px !important;
+        overflow-y: auto !important;
+
+        background: #1f2937 !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 18px !important;
+
+        box-shadow:
+            0 20px 40px rgba(0, 0, 0, .35),
+            0 0 0 1px rgba(255, 255, 255, .03) !important;
+
+        padding: 8px !important;
+        margin-top: 12px !important;
+
+        backdrop-filter: blur(12px);
+    }
+
+    /* Elementy listy */
+    #notificationList .dropdown-item {
+        color: #e5e7eb !important;
+        border-radius: 12px !important;
+
+        padding: 12px 14px !important;
+
+        transition: all .2s ease !important;
+    }
+
+    /* Hover */
+    #notificationList .dropdown-item:hover {
+        background: rgba(99, 102, 241, .15) !important;
+        color: #ffffff !important;
+
+    }
+
+    /* Teksty pomocnicze */
+    #notificationList .text-muted {
+        color: #9ca3af !important;
+    }
+
+    /* Separator */
+    #notificationList .dropdown-divider {
+        border-color: rgba(255, 255, 255, .08) !important;
+    }
+
+    /* Scrollbar */
+    #notificationList::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #notificationList::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #notificationList::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, .15);
+        border-radius: 20px;
+    }
+
+    #notificationList::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, .25);
+    }
+
     .navbar .notification-btn {
         position: relative;
         color: rgba(255, 255, 255, 0.75) !important;
@@ -290,9 +371,33 @@
         align-items: center;
     }
 
+    .notification-unread {
+        background: rgba(99, 102, 241, .12) !important;
+        border-left: 3px solid #6366f1 !important;
+    }
+
+    .notification-unread:hover {
+        background: rgba(99, 102, 241, .20) !important;
+    }
 
     #notificationBadge:not(.d-none) {
         animation: pulse 1.2s infinite;
+    }
+
+    #notificationList::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        right: 18px;
+
+        width: 14px;
+        height: 14px;
+
+        background: #1f2937;
+        border-top: 1px solid rgba(255, 255, 255, .08);
+        border-left: 1px solid rgba(255, 255, 255, .08);
+
+        transform: rotate(45deg);
     }
 
     @@keyframes pulse {
@@ -358,27 +463,30 @@
                     }
 
                     // LISTA
-                    list.innerHTML = '';
+                    const items = document.getElementById('notificationItems');
+
+                    items.innerHTML = '';
 
                     if (!data.notifications || data.notifications.length === 0) {
-                        list.innerHTML = '<li><span class="dropdown-item text-muted text-center">Brak nowych powiadomień</span></li>';
+                        items.innerHTML =
+                            '<li><span class="dropdown-item text-muted text-center">Brak nowych powiadomień</span></li>';
                         return;
                     }
 
                     data.notifications.forEach(n => {
-                        const isUnread = !n.isRead ? 'fw-bold bg-light' : '';
+                        const isUnread = !n.isRead ? 'notification-unread' : '';
 
                         const li = document.createElement('li');
                         li.innerHTML = `
-                            <a class="dropdown-item text-wrap border-bottom p-3 ${isUnread}"
-                               href="#" onclick="markAsRead('${n.id}', this); return false;">
-                                <small class="text-muted d-block mb-1">
-                                    ${new Date(n.createdAt).toLocaleString()}
-                                </small>
-                                ${n.content}
-                            </a>
-                        `;
-                        list.appendChild(li);
+                                                <a class="dropdown-item text-wrap border-bottom p-3 ${isUnread}"
+                                                   href="#" onclick="markAsRead('${n.id}', this); return false;">
+                                                    <small class="text-muted d-block mb-1">
+                                                        ${new Date(n.createdAt).toLocaleString()}
+                                                    </small>
+                                                    ${n.content}
+                                                </a>
+                                            `;
+                        items.appendChild(li);
                     });
                 });
         }
@@ -388,7 +496,7 @@
                 .then(response => {
                     if (response.ok) {
                         // Zmień styl na przeczytany
-                        element.classList.remove('fw-bold', 'bg-light');
+                        element.classList.remove('notification-unread');
                         fetchNotifications(); // Przeładuj licznik
                     }
                 });
