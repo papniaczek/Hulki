@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
 
-[Authorize] // Forum tylko dla zalogowanych pacjentów
+[Authorize]
 public class ForumController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -19,7 +19,7 @@ public class ForumController : Controller
     private readonly INotificationService _notificationService;
 
     public ForumController(
-        ApplicationDbContext context, 
+        ApplicationDbContext context,
         UserManager<AppUser> userManager,
         INotificationService notificationService)
     {
@@ -28,7 +28,7 @@ public class ForumController : Controller
         _notificationService = notificationService;
     }
 
-    // 1. STRONA GŁÓWNA FORUM (Lista kategorii)
+
     public async Task<IActionResult> Index()
     {
         await SeedForumCategoriesIfNotExists();
@@ -40,12 +40,12 @@ public class ForumController : Controller
         return View(categories);
     }
 
-    // 2. WIDOK KONKRETNEJ KATEGORII (Lista tematów)
+
     public async Task<IActionResult> Category(int id)
     {
         var category = await _context.ForumCategories
             .Include(c => c.ForumTopics)
-                .ThenInclude(t => t.AppUser) // Zaciągamy autora tematu
+                .ThenInclude(t => t.AppUser)
             .Include(c => c.ForumTopics)
                 .ThenInclude(t => t.Posts)
             .FirstOrDefaultAsync(c => c.Id == id);
@@ -55,7 +55,7 @@ public class ForumController : Controller
         return View(category);
     }
 
-    // 3. WIDOK TEMATU (Czytanie postów i formularz odpowiedzi)
+
     public async Task<IActionResult> Topic(Guid id)
     {
         var topic = await _context.ForumTopics
@@ -70,7 +70,7 @@ public class ForumController : Controller
         return View(topic);
     }
 
-    // 4. CREATE: Formularz dodawania nowego tematu (GET)
+
     [HttpGet]
     public async Task<IActionResult> CreateTopic(int categoryId)
     {
@@ -81,7 +81,7 @@ public class ForumController : Controller
         return View();
     }
 
-    // 5. CREATE: Zapis nowego tematu w bazie (POST)
+
     [HttpPost]
     public async Task<IActionResult> CreateTopic(int forumCategoryId, string title, string content)
     {
@@ -107,11 +107,11 @@ public class ForumController : Controller
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Pomyślnie utworzono nowy temat!";
-        
+
         return RedirectToAction(nameof(Topic), new { id = newTopic.Id });
     }
 
-    // 6. CREATE: Dodawanie odpowiedzi w temacie (POST)
+
     [HttpPost]
     public async Task<IActionResult> CreatePost(Guid forumTopicId, string content)
     {
@@ -135,9 +135,9 @@ public class ForumController : Controller
         _context.ForumPosts.Add(post);
         await _context.SaveChangesAsync();
 
-        // POWIADOMIENIE DLA AUTORA TEMATU
+
         var topic = await _context.ForumTopics.FindAsync(forumTopicId);
-        if (topic != null && topic.AppUserId != user.Id) // Nie wysyłaj powiadomienia samemu sobie
+        if (topic != null && topic.AppUserId != user.Id)
         {
             await _notificationService.SendNotificationAsync(
                 topic.AppUserId,
@@ -145,7 +145,7 @@ public class ForumController : Controller
             );
         }
 
-        // POWIADOMIENIE DLA INNYCH UŻYTKOWNIKÓW którzy pisali w tym temacie
+
         var participantIds = await _context.ForumPosts
             .Where(p => p.ForumTopicId == forumTopicId && p.AppUserId != user.Id && p.AppUserId != topic.AppUserId)
             .Select(p => p.AppUserId)
@@ -164,14 +164,14 @@ public class ForumController : Controller
         return RedirectToAction(nameof(Topic), new { id = forumTopicId });
     }
 
-    // 7. CREATE: Formularz dodawania nowej kategorii forum (GET)
+
     [HttpGet]
     public IActionResult CreateCategory()
     {
         return View();
     }
 
-    // 8. CREATE: Zapis nowej kategorii forum (POST)
+
     [HttpPost]
     public async Task<IActionResult> CreateCategory(string name, string? description)
     {
@@ -194,7 +194,7 @@ public class ForumController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // --- SEEDING
+
     private async Task SeedForumCategoriesIfNotExists()
     {
         if (!await _context.ForumCategories.AnyAsync())

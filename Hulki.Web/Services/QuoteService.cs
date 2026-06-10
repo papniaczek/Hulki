@@ -13,7 +13,7 @@ namespace Hulki.Web.Services;
 
 public class QuoteService : IQuoteService
 {
-    public const string QuotesClientName      = "ZenQuotes";
+    public const string QuotesClientName = "ZenQuotes";
     public const string TranslationClientName = "MyMemory";
     private const string CacheKey = "quote:random";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
@@ -22,18 +22,27 @@ public class QuoteService : IQuoteService
     private readonly IMemoryCache _cache;
     private readonly ILogger<QuoteService> _logger;
 
-    public QuoteService(IHttpClientFactory httpClientFactory, IMemoryCache cache, ILogger<QuoteService> logger)
+    public QuoteService(
+        IHttpClientFactory httpClientFactory,
+        IMemoryCache cache,
+        ILogger<QuoteService> logger
+    )
     {
         _httpClientFactory = httpClientFactory;
         _cache = cache;
         _logger = logger;
     }
 
-    public async Task<QuoteDto> GetRandomQuoteAsync(bool forceRefresh = false, CancellationToken cancellationToken = default)
+    public async Task<QuoteDto> GetRandomQuoteAsync(
+        bool forceRefresh = false,
+        CancellationToken cancellationToken = default
+    )
     {
-        // Cache używamy tylko przy renderze strony (SSR). Przycisk "Nowy cytat" wywołuje
-        // serwis z forceRefresh=true, żeby faktycznie dostać coś nowego.
-        if (!forceRefresh && _cache.TryGetValue<QuoteDto>(CacheKey, out var cached) && cached is not null)
+        if (
+            !forceRefresh
+            && _cache.TryGetValue<QuoteDto>(CacheKey, out var cached)
+            && cached is not null
+        )
             return cached;
 
         QuoteDto quote;
@@ -43,7 +52,10 @@ public class QuoteService : IQuoteService
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Nie udało się pobrać cytatu z zewnętrznego API, używam fallbacku.");
+            _logger.LogWarning(
+                ex,
+                "Nie udało się pobrać cytatu z zewnętrznego API, używam fallbacku."
+            );
             quote = PickFallback();
         }
 
@@ -55,7 +67,6 @@ public class QuoteService : IQuoteService
     {
         var client = _httpClientFactory.CreateClient(QuotesClientName);
 
-        // ZenQuotes zwraca tablicę z jednym elementem dla /random.
         var items = await client.GetFromJsonAsync<ZenQuoteItem[]>("random", cancellationToken);
 
         if (items is null || items.Length == 0 || string.IsNullOrWhiteSpace(items[0].Quote))
@@ -65,8 +76,6 @@ public class QuoteService : IQuoteService
         var englishQuote = first.Quote!.Trim();
         var author = string.IsNullOrWhiteSpace(first.Author) ? null : first.Author!.Trim();
 
-        // ZenQuotes oddaje tylko po angielsku, więc tłumaczymy treść cytatu na polski.
-        // Nazwisko autora zostawiamy w oryginale (imiona własne nie powinny być tłumaczone).
         var translated = await TranslateToPolishAsync(englishQuote, cancellationToken);
         var content = translated ?? englishQuote;
 
@@ -74,11 +83,14 @@ public class QuoteService : IQuoteService
         {
             Content = content,
             Author = author,
-            Source = translated != null ? "ZenQuotes + MyMemory (PL)" : "ZenQuotes (EN)"
+            Source = translated != null ? "ZenQuotes + MyMemory (PL)" : "ZenQuotes (EN)",
         };
     }
 
-    private async Task<string?> TranslateToPolishAsync(string text, CancellationToken cancellationToken)
+    private async Task<string?> TranslateToPolishAsync(
+        string text,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
@@ -91,10 +103,10 @@ public class QuoteService : IQuoteService
             if (string.IsNullOrWhiteSpace(translated))
                 return null;
 
-            // MyMemory przy błędzie potrafi zwrócić komunikat typu "PLEASE SELECT TWO DISTINCT LANGUAGES"
-            // albo "MYMEMORY WARNING: ..." – wtedy lepiej zostawić oryginał.
-            if (translated.StartsWith("PLEASE ", StringComparison.OrdinalIgnoreCase) ||
-                translated.StartsWith("MYMEMORY", StringComparison.OrdinalIgnoreCase))
+            if (
+                translated.StartsWith("PLEASE ", StringComparison.OrdinalIgnoreCase)
+                || translated.StartsWith("MYMEMORY", StringComparison.OrdinalIgnoreCase)
+            )
                 return null;
 
             return translated;
@@ -115,15 +127,13 @@ public class QuoteService : IQuoteService
         ("Najciemniej jest tuż przed świtem.", "Thomas Fuller"),
         ("Małe kroki każdego dnia prowadzą do wielkich zmian.", "Nieznany"),
         ("Nie liczy się to, jak często upadasz, lecz jak często wstajesz.", "Vince Lombardi"),
-        ("Najlepszy czas, by zacząć, był wczoraj. Drugi najlepszy – dziś.", "Przysłowie chińskie")
+        ("Najlepszy czas, by zacząć, był wczoraj. Drugi najlepszy – dziś.", "Przysłowie chińskie"),
     };
 
     private static int _lastFallbackIndex = -1;
 
     private static QuoteDto PickFallback()
     {
-        // Losujemy tak, by nie trafić dwa razy z rzędu w ten sam cytat – inaczej przy częstym
-        // klikaniu "Nowy cytat" UI wyglądałby jakby przycisk nic nie robił.
         int idx;
         if (FallbackQuotes.Length == 1)
         {
@@ -131,30 +141,40 @@ public class QuoteService : IQuoteService
         }
         else
         {
-            do { idx = Random.Shared.Next(FallbackQuotes.Length); }
-            while (idx == _lastFallbackIndex);
+            do
+            {
+                idx = Random.Shared.Next(FallbackQuotes.Length);
+            } while (idx == _lastFallbackIndex);
         }
         _lastFallbackIndex = idx;
 
         var pick = FallbackQuotes[idx];
-        return new QuoteDto { Content = pick.Content, Author = pick.Author, Source = "Fallback" };
+        return new QuoteDto
+        {
+            Content = pick.Content,
+            Author = pick.Author,
+            Source = "Fallback",
+        };
     }
 
-    // DTO odpowiadające kształtowi odpowiedzi ZenQuotes: [{ "q": "...", "a": "...", "h": "..." }]
     private sealed class ZenQuoteItem
     {
-        [JsonPropertyName("q")] public string? Quote { get; set; }
-        [JsonPropertyName("a")] public string? Author { get; set; }
+        [JsonPropertyName("q")]
+        public string? Quote { get; set; }
+
+        [JsonPropertyName("a")]
+        public string? Author { get; set; }
     }
 
-    // DTO odpowiadające odpowiedzi MyMemory: { "responseData": { "translatedText": "..." }, ... }
     private sealed class MyMemoryResponse
     {
-        [JsonPropertyName("responseData")] public MyMemoryData? ResponseData { get; set; }
+        [JsonPropertyName("responseData")]
+        public MyMemoryData? ResponseData { get; set; }
     }
 
     private sealed class MyMemoryData
     {
-        [JsonPropertyName("translatedText")] public string? TranslatedText { get; set; }
+        [JsonPropertyName("translatedText")]
+        public string? TranslatedText { get; set; }
     }
 }

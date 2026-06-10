@@ -14,6 +14,7 @@ public class PointTransaction
     public DateTime TransactionDate { get; set; } = DateTime.Now;
 
     public Guid WalletId { get; set; }
+
     [ForeignKey("WalletId")]
     public virtual Wallet Wallet { get; set; }
 }

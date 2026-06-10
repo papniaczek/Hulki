@@ -15,8 +15,8 @@ public class ConsultationService : IConsultationService
 
     public async Task<IEnumerable<Consultation>> GetPatientConsultationsAsync(string patientId)
     {
-        return await _context.Consultations
-                .Include(c => c.Patient)
+        return await _context
+            .Consultations.Include(c => c.Patient)
             .Include(c => c.Therapist)
             .Include(c => c.Status)
             .Where(c => c.PatientId == patientId)
@@ -26,8 +26,8 @@ public class ConsultationService : IConsultationService
 
     public async Task<IEnumerable<Consultation>> GetTherapistConsultationsAsync(string therapistId)
     {
-        return await _context.Consultations
-            .Include(c => c.Patient)
+        return await _context
+            .Consultations.Include(c => c.Patient)
             .Include(c => c.Therapist)
             .Include(c => c.Status)
             .Where(c => c.TherapistId == therapistId)
@@ -50,19 +50,21 @@ public class ConsultationService : IConsultationService
             await _context.SaveChangesAsync();
         }
     }
+
     public async Task<Consultation> GetConsultationByIdAsync(Guid id)
     {
-        return await _context.Consultations
-            .Include(c => c.Patient)
+        return await _context
+            .Consultations.Include(c => c.Patient)
             .Include(c => c.Therapist)
             .Include(c => c.Status)
             .Include(c => c.Details)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
+
     public async Task<IEnumerable<Consultation>> GetUserConsultationsAsync(string userId)
     {
-        return await _context.Consultations
-            .Include(c => c.Patient)
+        return await _context
+            .Consultations.Include(c => c.Patient)
             .Include(c => c.Therapist)
             .Include(c => c.Status)
             .Where(c => c.PatientId == userId || c.TherapistId == userId)

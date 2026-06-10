@@ -29,128 +29,131 @@
 
                     <form asp-action="CreateCategory" method="post">
                         <div class="mb-4">
-                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Nazwa forum <span class="text-danger">*</span></label>
+                            <label class="form-label text-info fw-bold text-uppercase small"
+                                   style="letter-spacing: 0.5px;">Nazwa forum <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control custom-input" required
-                                   placeholder="Np. Motywacja, Porady, Sukcesy..." maxlength="100"/>
+                                   placeholder="Np. Motywacja, Porady, Sukcesy..." maxlength="100" />
                         </div>
 
                         <div class="mb-5">
-                            <label class="form-label text-info fw-bold text-uppercase small">Opis forum <span class="text-muted fw-normal">(opcjonalny)</span></label>
-                            <textarea name="description" class="form-control custom-input" rows="4"
-                                      placeholder="Krótki opis czego dotyczy to forum..." maxlength="500"></textarea>
-                        </div>
+                            <label class="form-label text-info fw-bold text-uppercase small">Opis forum <span
+                                class="text-muted fw-normal">(opcjonalny)</span></label>
+                                <textarea name="description" class="form-control custom-input" rows="4"
+                                          placeholder="Krótki opis czego dotyczy to forum..." maxlength="500"></textarea>
+                            </div>
 
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-info btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn">
-                                Utwórz Grupę i Opublikuj
-                            </button>
-                        </div>
-                    </form>
+                            <div class="d-grid">
+                                <button type="submit"
+                                        class="btn btn-info btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn">
+                                    Utwórz Grupę i Opublikuj
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<style>
-    .create-header-card {
-        background: linear-gradient(135deg, #1b1b22 0%, #111116 100%);
-        border: 1px solid rgba(13, 202, 240, 0.2);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
+    <style>
+        .create-header-card {
+            background: linear-gradient(135deg, #1b1b22 0%, #111116 100%);
+            border: 1px solid rgba(13, 202, 240, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
 
-    .create-glow {
-        position: absolute;
-        top: -100px;
-        right: -50px;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(13, 202, 240, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: 0;
-        pointer-events: none;
-    }
+        .create-glow {
+            position: absolute;
+            top: -100px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(13, 202, 240, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    .custom-btn-nav {
-        transition: all 0.2s ease;
-    }
+        .custom-btn-nav {
+            transition: all 0.2s ease;
+        }
 
-    .custom-btn-nav:hover {
-        box-shadow: 0 0 20px rgba(13, 202, 240, 0.5);
-    }
+        .custom-btn-nav:hover {
+            box-shadow: 0 0 20px rgba(13, 202, 240, 0.5);
+        }
 
-    .form-icon-wrapper {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        background: rgba(70, 204, 94, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        .form-icon-wrapper {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: rgba(70, 204, 94, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .form-control:focus {
-        background-color: #131319 !important;
-        border-color: #46CC5E !important;
-        color: #fff !important;
-        box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
-    }
+        .form-control:focus {
+            background-color: #131319 !important;
+            border-color: #46CC5E !important;
+            color: #fff !important;
+            box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
+        }
 
-    .form-control::placeholder {
-        color: rgba(255, 255, 255, 0.5) !important;
-    }
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
 
-    .btn-custom-success {
-        background-color: rgba(70, 204, 94, 0.10);
-        color: #46CC5E;
-        border: 1px solid rgba(70, 204, 94, 0.3);
-        transition: all 0.3s ease;
-    }
+        .btn-custom-success {
+            background-color: rgba(70, 204, 94, 0.10);
+            color: #46CC5E;
+            border: 1px solid rgba(70, 204, 94, 0.3);
+            transition: all 0.3s ease;
+        }
 
-    .custom-glow-btn:hover {
-        background: #6C5CE7 !important;
-        color: #fff !important;
-        box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
-    }
+        .custom-glow-btn:hover {
+            background: #6C5CE7 !important;
+            color: #fff !important;
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
+        }
 
-    .dark-panel-card {
-        background-color: #1b1b22;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-top: 3px solid #0dcaf0 !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
+        .dark-panel-card {
+            background-color: #1b1b22;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-top: 3px solid #0dcaf0 !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
 
-    .custom-input {
-        background-color: #121217 !important;
-        border: 1px solid #3f3f46 !important;
-        color: #ffffff !important;
-        border-radius: 8px !important;
-        padding: 0.8rem 1rem !important;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
+        .custom-input {
+            background-color: #121217 !important;
+            border: 1px solid #3f3f46 !important;
+            color: #ffffff !important;
+            border-radius: 8px !important;
+            padding: 0.8rem 1rem !important;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
 
-    .custom-input::placeholder {
-        color: #6c757d !important;
-    }
+        .custom-input::placeholder {
+            color: #6c757d !important;
+        }
 
-    .custom-input:focus {
-        border-color: #0dcaf0 !important;
-        box-shadow: 0 0 15px rgba(13, 202, 240, 0.25) !important;
-        outline: none !important;
-    }
+        .custom-input:focus {
+            border-color: #0dcaf0 !important;
+            box-shadow: 0 0 15px rgba(13, 202, 240, 0.25) !important;
+            outline: none !important;
+        }
 
-    .custom-glow-btn {
-        background-color: #0dcaf0;
-        color: #111116 !important;
-        border: none;
-        transition: all 0.3s ease;
-    }
+        .custom-glow-btn {
+            background-color: #0dcaf0;
+            color: #111116 !important;
+            border: none;
+            transition: all 0.3s ease;
+        }
 
-    .custom-glow-btn:hover {
-        background-color: #31d2f2 !important;
-        color: #111116 !important;
-        box-shadow: 0 0 20px rgba(13, 202, 240, 0.5);
-    }
-</style>
+        .custom-glow-btn:hover {
+            background-color: #31d2f2 !important;
+            color: #111116 !important;
+            box-shadow: 0 0 20px rgba(13, 202, 240, 0.5);
+        }
+    </style>

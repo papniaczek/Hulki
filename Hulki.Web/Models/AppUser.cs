@@ -8,8 +8,7 @@ public class AppUser : IdentityUser
     public string LastName { get; set; }
     public bool IsTherapist { get; set; }
     public virtual ICollection<PatientGroup> PatientGroups { get; set; }
-    
-    public virtual Wallet Wallet { get; set; } // Relacja 1 do 1 z portfelem
-    public virtual ICollection<DailyReport> DailyReports { get; set; } // Wpisy pacjenta
-    public virtual ICollection<PatientInventory> InventoryItems { get; set; } // Ekwipunek pacjenta
+    public virtual Wallet Wallet { get; set; }
+    public virtual ICollection<DailyReport> DailyReports { get; set; }
+    public virtual ICollection<PatientInventory> InventoryItems { get; set; }
 }

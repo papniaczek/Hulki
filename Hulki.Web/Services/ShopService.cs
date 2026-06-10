@@ -16,11 +16,12 @@ public class ShopService : IShopService
         _context = context;
     }
 
-    public async Task<IReadOnlyList<ShopItemDto>> GetShopItemsAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ShopItemDto>> GetShopItemsAsync(
+        CancellationToken cancellationToken = default
+    )
     {
-        // Pobieranie danych prosto z bazy przez EF Core i mapowanie do DTO po stronie SQL.
-        var items = await _context.RewardItems
-            .AsNoTracking()
+        var items = await _context
+            .RewardItems.AsNoTracking()
             .Include(r => r.ItemRarity)
             .OrderBy(r => r.Price)
             .ThenBy(r => r.Name)
@@ -31,7 +32,7 @@ public class ShopService : IShopService
                 Description = r.Description,
                 Price = r.Price,
                 IconPath = r.IconPath,
-                Rarity = r.ItemRarity != null ? r.ItemRarity.Name : null
+                Rarity = r.ItemRarity != null ? r.ItemRarity.Name : null,
             })
             .ToListAsync(cancellationToken);
 

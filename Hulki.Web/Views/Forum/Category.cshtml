@@ -4,7 +4,8 @@
 }
 
 <div class="container mt-4 text-light">
-    <div class="category-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4" style="min-height: 160px;">
+    <div class="category-header-card mb-5 p-4 p-md-5 position-relative overflow-hidden rounded-4"
+         style="min-height: 160px;">
         <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
             <div class="mb-4 mb-md-0">
                 <h2 class="text-primary fw-bold mb-2 text-uppercase" style="letter-spacing: 1px;">
@@ -27,7 +28,8 @@
             foreach (var topic in Model.ForumTopics.OrderByDescending(t => t.CreatedAt))
             {
                 <div class="col-md-12">
-                    <a asp-action="Topic" asp-route-id="@topic.Id" class="topic-card card h-100 d-flex flex-column text-decoration-none">
+                    <a asp-action="Topic" asp-route-id="@topic.Id"
+                       class="topic-card card h-100 d-flex flex-column text-decoration-none">
                         <div class="card-body p-4 d-flex flex-column flex-grow-1">
                             <div class="d-flex align-items-start mb-3">
                                 <div class="topic-icon-wrapper me-3 flex-shrink-0">
@@ -39,7 +41,8 @@
                                 </div>
                                 <small class="text-muted ms-2 text-nowrap">@topic.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
                             </div>
-                            <div class="d-flex align-items-center justify-content-between text-muted small border-top border-secondary pt-3 mt-auto">
+                            <div
+                                class="d-flex align-items-center justify-content-between text-muted small border-top border-secondary pt-3 mt-auto">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-chat-dots me-2 fs-5 text-primary"></i>
                                     <span>Odpowiedzi: <strong class="text-light">@(topic.Posts?.Count ?? 0)</strong></span>
@@ -55,93 +58,95 @@
             <div class="col-12">
                 <div class="card border-0 bg-dark rounded-3 p-5 text-center text-muted">
                     <i class="bi bi-chat-dots fs-3 d-block mb-3 text-secondary"></i>
-                    <p class="mb-0">Brak tematów w tym dziale. Bądź pierwszy i <a asp-action="CreateTopic" asp-route-categoryId="@Model.Id" class="text-primary fw-bold">załóż nowy temat!</a></p>
+                    <p class="mb-0">Brak tematów w tym dziale. Bądź pierwszy i <a asp-action="CreateTopic"
+                                                                                      asp-route-categoryId="@Model.Id" class="text-primary fw-bold">załóż nowy temat!</a></p>
+                    </div>
                 </div>
-            </div>
+            }
+        </div>
+
+        <div class="mt-5 text-center">
+            <a asp-action="CreateTopic" asp-route-categoryId="@Model.Id"
+               class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 custom-glow-btn">
+                <i class="bi bi-plus-circle me-2"></i> Załóż nowy temat
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .category-header-card {
+            background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
+            border: 1px solid rgba(70, 204, 94, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
-    </div>
 
-    <div class="mt-5 text-center">
-        <a asp-action="CreateTopic" asp-route-categoryId="@Model.Id" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2 custom-glow-btn">
-            <i class="bi bi-plus-circle me-2"></i> Załóż nowy temat
-        </a>
-    </div>
-</div>
+        .category-header-glow {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-<style>
-    .category-header-card {
-        background: linear-gradient(135deg, #1b1b22 0%, #17171c 100%);
-        border: 1px solid rgba(70, 204, 94, 0.15);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
+        .topic-card {
+            background-color: #1b1b22;
+            border: 1px solid rgba(255, 255, 255, 0.03) !important;
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
 
-    .category-header-glow {
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 250px;
-        height: 250px;
-        background: radial-gradient(circle, rgba(70, 204, 94, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        z-index: 0;
-        pointer-events: none;
-    }
+        .topic-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(70, 204, 94, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
 
-    .topic-card {
-        background-color: #1b1b22;
-        border: 1px solid rgba(255, 255, 255, 0.03) !important;
-        border-radius: 16px;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
+        .topic-card:hover {
+            transform: translateY(-5px);
+            background-color: #1f1f27;
+            border-color: rgba(70, 204, 94, 0.4) !important;
+            box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15);
+        }
 
-    .topic-icon-wrapper {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        background: rgba(70, 204, 94, 0.08);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
+        .topic-card:hover .topic-icon-wrapper {
+            background: #46CC5E;
+            box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+        }
 
-    .topic-card:hover {
-        transform: translateY(-5px);
-        background-color: #1f1f27;
-        border-color: rgba(70, 204, 94, 0.4) !important;
-        box-shadow: 0 10px 25px rgba(70, 204, 94, 0.15);
-    }
+        .topic-card:hover .topic-icon-wrapper i {
+            color: #17171C !important;
+        }
 
-    .topic-card:hover .topic-icon-wrapper {
-        background: #46CC5E;
-        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
-    }
+        .btn-custom-success {
+            background-color: rgba(70, 204, 94, 0.10);
+            color: #46CC5E;
+            border: 1px solid rgba(70, 204, 94, 0.3);
+            transition: all 0.3s ease;
+        }
 
-    .topic-card:hover .topic-icon-wrapper i {
-        color: #17171C !important;
-    }
+        .btn-custom-success:hover {
+            background-color: #46CC5E;
+            color: #17171C;
+            box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
+        }
 
-    .btn-custom-success {
-        background-color: rgba(70, 204, 94, 0.10);
-        color: #46CC5E;
-        border: 1px solid rgba(70, 204, 94, 0.3);
-        transition: all 0.3s ease;
-    }
+        .custom-glow-btn {
+            transition: all 0.3s ease;
+        }
 
-    .btn-custom-success:hover {
-        background-color: #46CC5E;
-        color: #17171C;
-        box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
-    }
-
-    .custom-glow-btn {
-        transition: all 0.3s ease;
-    }
-
-    .custom-glow-btn:hover {
-        background: #6C5CE7;
-        color: #fff !important;
-        box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
-    }
-</style>
+        .custom-glow-btn:hover {
+            background: #6C5CE7;
+            color: #fff !important;
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.6);
+        }
+    </style>

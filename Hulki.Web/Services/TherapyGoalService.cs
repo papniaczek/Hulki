@@ -23,9 +23,10 @@ namespace Hulki.Web.Services
         private readonly INotificationService _notificationService;
 
         public TherapyGoalService(
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             IBadgeService badgeService,
-            INotificationService notificationService)
+            INotificationService notificationService
+        )
         {
             _context = context;
             _badgeService = badgeService;
@@ -34,10 +35,10 @@ namespace Hulki.Web.Services
 
         public async Task<List<TherapyGoal>> GetUserGoalsAsync(string userId)
         {
-            return await _context.TherapyGoals
-                .Include(g => g.Milestones)
+            return await _context
+                .TherapyGoals.Include(g => g.Milestones)
                 .Where(g => g.AppUserId == userId)
-                .OrderBy(g => g.IsCompleted) // Niezakończone na górze
+                .OrderBy(g => g.IsCompleted)
                 .ThenBy(g => g.Deadline)
                 .ToListAsync();
         }
@@ -49,13 +50,15 @@ namespace Hulki.Web.Services
 
             foreach (var m in milestones.Where(x => !string.IsNullOrWhiteSpace(x)))
             {
-                goal.Milestones.Add(new GoalMilestone
-                {
-                    Id = Guid.NewGuid(),
-                    GoalId = goal.Id,
-                    Description = m,
-                    IsCompleted = false
-                });
+                goal.Milestones.Add(
+                    new GoalMilestone
+                    {
+                        Id = Guid.NewGuid(),
+                        GoalId = goal.Id,
+                        Description = m,
+                        IsCompleted = false,
+                    }
+                );
             }
 
             _context.TherapyGoals.Add(goal);
@@ -64,18 +67,20 @@ namespace Hulki.Web.Services
 
         public async Task ToggleMilestoneAsync(Guid milestoneId, string userId)
         {
-            var milestone = await _context.GoalMilestones
-                .Include(m => m.Goal)
+            var milestone = await _context
+                .GoalMilestones.Include(m => m.Goal)
                 .FirstOrDefaultAsync(m => m.Id == milestoneId);
 
             if (milestone != null && milestone.Goal.AppUserId == userId)
             {
                 milestone.IsCompleted = !milestone.IsCompleted;
 
-                var allMilestones = await _context.GoalMilestones.Where(m => m.GoalId == milestone.GoalId).ToListAsync();
-                milestone.Goal.IsCompleted = allMilestones.Any() && allMilestones.All(m => m.IsCompleted);
+                var allMilestones = await _context
+                    .GoalMilestones.Where(m => m.GoalId == milestone.GoalId)
+                    .ToListAsync();
+                milestone.Goal.IsCompleted =
+                    allMilestones.Any() && allMilestones.All(m => m.IsCompleted);
 
-                // POWIADOMIENIE gdy cały cel zostaje ukończony
                 if (milestone.Goal.IsCompleted)
                 {
                     await _notificationService.SendNotificationAsync(
@@ -91,7 +96,9 @@ namespace Hulki.Web.Services
 
         public async Task DeleteGoalAsync(Guid goalId, string userId)
         {
-            var goal = await _context.TherapyGoals.FirstOrDefaultAsync(g => g.Id == goalId && g.AppUserId == userId);
+            var goal = await _context.TherapyGoals.FirstOrDefaultAsync(g =>
+                g.Id == goalId && g.AppUserId == userId
+            );
             if (goal != null)
             {
                 _context.TherapyGoals.Remove(goal);

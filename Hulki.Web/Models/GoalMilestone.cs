@@ -9,7 +9,6 @@ namespace Hulki.Web.Models
         public virtual TherapyGoal Goal { get; set; }
         public string Description { get; set; }
 
-        // TEGO BRAKOWAŁO W TWOIM KODZIE:
         public bool IsCompleted { get; set; }
     }
 }

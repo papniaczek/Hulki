@@ -28,12 +28,18 @@
 
                     <form asp-controller="Account" asp-action="Login" method="post">
                         <div class="mb-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold" style="user-select: none; letter-spacing: 0.5px;">Email</label>
-                            <input type="email" name="email" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required placeholder="twoj@email.com" />
+                            <label class="form-label text-muted small text-uppercase fw-bold"
+                                   style="user-select: none; letter-spacing: 0.5px;">Email</label>
+                            <input type="email" name="email"
+                                   class="form-control form-control-lg bg-dark border-secondary text-light rounded-3"
+                                   required placeholder="twoj@email.com" />
                         </div>
                         <div class="mb-4">
-                            <label class="form-label text-muted small text-uppercase fw-bold" style="user-select: none; letter-spacing: 0.5px;">Hasło</label>
-                            <input type="password" name="password" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" required placeholder="••••••••" />
+                            <label class="form-label text-muted small text-uppercase fw-bold"
+                                   style="user-select: none; letter-spacing: 0.5px;">Hasło</label>
+                            <input type="password" name="password"
+                                   class="form-control form-control-lg bg-dark border-secondary text-light rounded-3"
+                                   required placeholder="••••••••" />
                             @if (hasError)
                             {
                                 <div class="invalid-feedback d-block mt-2">
@@ -41,13 +47,17 @@
                                 </div>
                             }
                         </div>
-                        <button type="submit" class="btn btn-login w-100 fw-bold py-3 rounded-3 mt-2" style="background: linear-gradient(135deg, #46CC5E 0%, #2eb34d 100%); color: #fff; border: none; transition: all 0.3s ease;">Zaloguj</button>
+                        <button type="submit" class="btn btn-login w-100 fw-bold py-3 rounded-3 mt-2"
+                                style="background: linear-gradient(135deg, #46CC5E 0%, #2eb34d 100%); color: #fff; border: none; transition: all 0.3s ease;">Zaloguj</button>
                     </form>
                 </div>
             </div>
             <div class="text-center mt-4">
                 <span class="text-muted small">Nie masz konta? </span>
-                <a asp-controller="Account" asp-action="Register" class="text-primary fw-bold text-decoration-none" style="font-size: 0.95rem; transition: all 0.2s ease;" onmouseover="this.style.textShadow='0 0 10px rgba(70, 204, 94, 0.5)';" onmouseout="this.style.textShadow='none';">Zarejestruj się</a>
+                <a asp-controller="Account" asp-action="Register" class="text-primary fw-bold text-decoration-none"
+                   style="font-size: 0.95rem; transition: all 0.2s ease;"
+                   onmouseover="this.style.textShadow='0 0 10px rgba(70, 204, 94, 0.5)';"
+                   onmouseout="this.style.textShadow='none';">Zarejestruj się</a>
             </div>
         </div>
     </div>

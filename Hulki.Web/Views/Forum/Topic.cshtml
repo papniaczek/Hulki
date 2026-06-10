@@ -5,14 +5,16 @@
 
 <div class="container mt-4 text-light">
     <div class="topic-header-card mb-5 p-4 position-relative overflow-hidden rounded-4 d-flex" style="min-height: 140px; flex-direction: column">
-        <div class="position-relative z-1 d-flex flex-column justify-content-center p-2" >
+        <div class="position-relative z-1 d-flex flex-column justify-content-center p-2">
             <div class="mb-5">
                 <h2 class="text-primary fw-bold text-uppercase" style="letter-spacing: 1px;">
                     <i class="bi bi-chat-dots-fill me-2"></i>@Model.Title
                 </h2>
                 <p class="text-light mb-0 fs-6 fw-light opacity-75">
                     <i class="bi bi-person-fill me-2"></i>@Model.AppUser?.FirstName @Model.AppUser?.LastName
-                    <span class="ms-3"><i class="bi bi-calendar3 me-1"></i>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                    <span class="ms-3">
+                        <i class="bi bi-calendar3 me-1"></i>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                    </span>
                 </p>
             </div>
         </div>
@@ -40,7 +42,9 @@
                         </div>
                         <div class="flex-grow-1">
                             <div class="fw-bold text-light">@post.AppUser?.FirstName @post.AppUser?.LastName</div>
-                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>@post.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>@post.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            </small>
                         </div>
                     </div>
                     <p class="mb-0 text-light" style="white-space: pre-wrap;">@post.Content</p>
@@ -70,7 +74,9 @@
                        class="btn btn-outline-secondary fw-bold rounded-pill px-4 py-2"
                        style="border-color: #DA292E; color: #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
                        onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
-                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">Anuluj</a>
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#DA292E';">
+                        Anuluj
+                    </a>
                     <button type="submit" class="btn btn-custom-success fw-bold rounded-pill px-4 py-2" style="background-color: #46CC5E; color: #17171C; border: none;">Wyślij odpowiedź</button>
                 </div>
             </form>

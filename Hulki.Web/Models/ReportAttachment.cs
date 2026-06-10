@@ -13,10 +13,12 @@ public class ReportAttachment
     public string FilePath { get; set; }
 
     public int FileTypeId { get; set; }
+
     [ForeignKey("FileTypeId")]
     public virtual FileType FileType { get; set; }
 
     public Guid DailyReportId { get; set; }
+
     [ForeignKey("DailyReportId")]
     public virtual DailyReport DailyReport { get; set; }
 }

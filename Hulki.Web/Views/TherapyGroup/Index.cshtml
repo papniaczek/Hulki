@@ -11,7 +11,8 @@
         <div class="position-relative z-1 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
             <div class="mb-4 mb-md-0">
                 <h2 class="text-primary fw-bold mb-2 text-uppercase d-flex align-items-center" style="letter-spacing: 1px;">
-                    <span style="display:flex; gap: 1rem;">Grupy Wsparcia
+                    <span style="display:flex; gap: 1rem;">
+                        Grupy Wsparcia
                         @if (User.IsInRole("Admin") || User.IsInRole("Terapeuta"))
                         {
                             <div class="text-md-end d-flex align-items-center">
@@ -39,10 +40,9 @@
     <div class="row g-4">
         @foreach (var group in Model)
         {
-            // Liczymy tylko zatwierdzonych uczestników w grupie
             int approvedCount = group.PatientGroups?.Count(pg => pg.IsApproved) ?? 0;
 
-            // Szukamy rekordu powiązania aktualnego użytkownika z tą grupą
+
             var userMembership = group.PatientGroups?.FirstOrDefault(pg => pg.AppUserId == currentUserId);
 
             <div class="col-md-6">

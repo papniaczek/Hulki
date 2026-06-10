@@ -13,6 +13,7 @@ namespace Hulki.Web.Models
         public DateTime Deadline { get; set; }
         public bool IsCompleted { get; set; }
 
-        public virtual ICollection<GoalMilestone> Milestones { get; set; } = new List<GoalMilestone>();
+        public virtual ICollection<GoalMilestone> Milestones { get; set; } =
+            new List<GoalMilestone>();
     }
 }

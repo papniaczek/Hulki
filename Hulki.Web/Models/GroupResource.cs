@@ -13,12 +13,12 @@ public class GroupResource
     public string Title { get; set; }
 
     [Required]
-    public string FilePath { get; set; } // Ścieżka do pliku na serwerze
+    public string FilePath { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // Powiązanie z grupą
     public int TherapyGroupId { get; set; }
+
     [ForeignKey("TherapyGroupId")]
     public virtual TherapyGroup TherapyGroup { get; set; }
 }

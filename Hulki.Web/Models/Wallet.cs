@@ -12,6 +12,7 @@ public class Wallet
     public int Balance { get; set; } = 0;
 
     public string AppUserId { get; set; }
+
     [ForeignKey("AppUserId")]
     public virtual AppUser AppUser { get; set; }
 }

@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel.DataAnnotations.Schema; // <-- DODAJ TĘ LINIJKĘ
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hulki.Web.Models
 {
@@ -9,7 +9,7 @@ namespace Hulki.Web.Models
 
         public Guid SubmissionId { get; set; }
 
-        [ForeignKey("SubmissionId")] // <-- JAWNIE WSKAZUJEMY KLUCZ OBCY
+        [ForeignKey("SubmissionId")]
         public virtual SurveySubmission Submission { get; set; }
 
         public Guid QuestionId { get; set; }

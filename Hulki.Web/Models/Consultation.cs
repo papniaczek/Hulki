@@ -1,4 +1,3 @@
-
 namespace Hulki.Web.Models;
 
 public class Consultation

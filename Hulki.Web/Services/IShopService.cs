@@ -7,8 +7,7 @@ namespace Hulki.Web.Services;
 
 public interface IShopService
 {
-    /// <summary>
-    /// Zwraca aktualną ofertę przedmiotów dostępnych w sklepie.
-    /// </summary>
-    Task<IReadOnlyList<ShopItemDto>> GetShopItemsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ShopItemDto>> GetShopItemsAsync(
+        CancellationToken cancellationToken = default
+    );
 }

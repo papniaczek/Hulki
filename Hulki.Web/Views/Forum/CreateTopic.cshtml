@@ -28,32 +28,35 @@
             <div class="card dark-panel-card rounded-4 border-0">
 
                 <div class="card-body p-5">
-                        <form asp-action="CreateTopic" method="post">
-                            <input type="hidden" name="forumCategoryId" value="@category?.Id"/>
+                    <form asp-action="CreateTopic" method="post">
+                        <input type="hidden" name="forumCategoryId" value="@category?.Id" />
 
-                            <div class="mb-4">
-                                <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Tytuł tematu <span class="text-danger">*</span></label>
-                                <input type="text" name="title" class="form-control custom-input" required
-                                       placeholder="Napisz krótki i zwięzły tytuł..." maxlength="200"/>
-                            </div>
+                        <div class="mb-4">
+                            <label class="form-label text-info fw-bold text-uppercase small"
+                                   style="letter-spacing: 0.5px;">Tytuł tematu <span class="text-danger">*</span></label>
+                            <input type="text" name="title" class="form-control custom-input" required
+                                   placeholder="Napisz krótki i zwięzły tytuł..." maxlength="200" />
+                        </div>
 
-                            <div class="mb-4">
-                                <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Treść <span class="text-danger">*</span></label>
-                                <textarea name="content" class="form-control custom-input" rows="8" required
+                        <div class="mb-4">
+                            <label class="form-label text-info fw-bold text-uppercase small"
+                                   style="letter-spacing: 0.5px;">Treść <span class="text-danger">*</span></label>
+                            <textarea name="content" class="form-control custom-input" rows="8" required
                                       placeholder="Opisz dokładnie swój problem lub przemyślenia..."></textarea>
-                            </div>
+                        </div>
 
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-info btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn">
-                                    Utwórz Temat i Opublikuj
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="d-grid">
+                            <button type="submit"
+                                    class="btn btn-info btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn">
+                                Utwórz Temat i Opublikuj
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 <style>
     .create-header-card {

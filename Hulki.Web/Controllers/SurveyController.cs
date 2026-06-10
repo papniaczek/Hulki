@@ -22,24 +22,22 @@ namespace Hulki.Web.Controllers
             _userManager = userManager;
         }
 
-        // Lista ankiet (widok wspólny)
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Challenge();
+            if (user == null)
+                return Challenge();
 
             var surveys = await _surveyService.GetAllSurveysAsync();
 
-            // POPRAWKA: Sprawdzamy role bezpośrednio z Identity
             ViewBag.IsTherapist = User.IsInRole("Terapeuta") || User.IsInRole("Admin");
             ViewBag.UserId = user.Id;
 
             return View(surveys);
         }
 
-        // TERAOPEUTA: Formularz tworzenia nowej ankiety
         [HttpGet]
-        [Authorize(Roles = "Terapeuta, Admin")] // POPRAWKA: Blokada na poziomie ról
+        [Authorize(Roles = "Terapeuta, Admin")]
         public IActionResult Create()
         {
             return View();
@@ -50,7 +48,10 @@ namespace Hulki.Web.Controllers
         [Authorize(Roles = "Terapeuta, Admin")]
         public async Task<IActionResult> Create(string title, List<string> questions)
         {
-            if (string.IsNullOrWhiteSpace(title) || !questions.Any(q => !string.IsNullOrWhiteSpace(q)))
+            if (
+                string.IsNullOrWhiteSpace(title)
+                || !questions.Any(q => !string.IsNullOrWhiteSpace(q))
+            )
             {
                 ModelState.AddModelError("", "Tytuł i przynajmniej jedno pytanie są wymagane.");
                 return View();
@@ -61,12 +62,12 @@ namespace Hulki.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // PACJENT: Formularz wypełniania ankiety
         [HttpGet]
         public async Task<IActionResult> Fill(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Challenge();
+            if (user == null)
+                return Challenge();
 
             if (await _surveyService.HasUserSubmittedAsync(id, user.Id))
             {
@@ -75,7 +76,8 @@ namespace Hulki.Web.Controllers
             }
 
             var survey = await _surveyService.GetSurveyByIdAsync(id);
-            if (survey == null) return NotFound();
+            if (survey == null)
+                return NotFound();
 
             return View(survey);
         }
@@ -85,7 +87,8 @@ namespace Hulki.Web.Controllers
         public async Task<IActionResult> Submit(Guid surveyId, Dictionary<Guid, string> answers)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Challenge();
+            if (user == null)
+                return Challenge();
 
             if (await _surveyService.HasUserSubmittedAsync(surveyId, user.Id))
                 return BadRequest("Zdublowane żądanie.");
@@ -95,13 +98,13 @@ namespace Hulki.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // TERAPEUTA: Podgląd wyników ankiety
         [HttpGet]
-        [Authorize(Roles = "Terapeuta, Admin")] // POPRAWKA: Tylko personel może wejść
+        [Authorize(Roles = "Terapeuta, Admin")]
         public async Task<IActionResult> Results(Guid id)
         {
             var survey = await _surveyService.GetSurveyByIdAsync(id);
-            if (survey == null) return NotFound();
+            if (survey == null)
+                return NotFound();
 
             var submissions = await _surveyService.GetSurveyResultsAsync(id);
 

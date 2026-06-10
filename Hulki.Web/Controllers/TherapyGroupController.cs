@@ -1,17 +1,17 @@
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Hulki.Web.Data;
 using Hulki.Web.Models;
+using Hulki.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Hulki.Web.Services; 
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
 
-[Authorize] 
+[Authorize]
 public class TherapyGroupController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -19,24 +19,24 @@ public class TherapyGroupController : Controller
     private readonly INotificationService _notificationService;
 
     public TherapyGroupController(
-        ApplicationDbContext context, 
+        ApplicationDbContext context,
         UserManager<AppUser> userManager,
-        INotificationService notificationService) // <-- DODANE
+        INotificationService notificationService
+    )
     {
         _context = context;
         _userManager = userManager;
-        _notificationService = notificationService; // <-- DODANE
+        _notificationService = notificationService;
     }
 
-    // 1. LISTA GRUP
     public async Task<IActionResult> Index()
     {
         await SeedTherapyTypesIfNotExists();
 
         var user = await _userManager.GetUserAsync(User);
 
-        var groups = await _context.TherapyGroups
-            .Include(t => t.TherapyType)
+        var groups = await _context
+            .TherapyGroups.Include(t => t.TherapyType)
             .Include(t => t.PatientGroups)
             .ToListAsync();
 
@@ -45,22 +45,24 @@ public class TherapyGroupController : Controller
         return View(groups);
     }
 
-    // 2. DOŁĄCZANIE DO GRUPY
     [HttpPost]
     public async Task<IActionResult> Join(int id)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Challenge();
+        if (user == null)
+            return Challenge();
 
-        var group = await _context.TherapyGroups
-            .Include(g => g.PatientGroups)
+        var group = await _context
+            .TherapyGroups.Include(g => g.PatientGroups)
             .FirstOrDefaultAsync(g => g.Id == id);
 
-        if (group == null) return NotFound();
+        if (group == null)
+            return NotFound();
 
         if (group.PatientGroups.Any(pg => pg.AppUserId == user.Id))
         {
-            TempData["ErrorMessage"] = "Złożyłeś już wniosek do tej grupy lub jesteś jej członkiem.";
+            TempData["ErrorMessage"] =
+                "Złożyłeś już wniosek do tej grupy lub jesteś jej członkiem.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -76,69 +78,72 @@ public class TherapyGroupController : Controller
             AppUserId = user.Id,
             TherapyGroupId = group.Id,
             JoinedDate = System.DateTime.Now,
-            IsApproved = false 
+            IsApproved = false,
         };
 
         _context.PatientGroups.Add(application);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Wniosek o dołączenie został wysłany! Poczekaj na zatwierdzenie przez terapeutę.";
+        TempData["SuccessMessage"] =
+            "Wniosek o dołączenie został wysłany! Poczekaj na zatwierdzenie przez terapeutę.";
         return RedirectToAction(nameof(Index));
     }
 
-    // 3. ZARZĄDZANIE GRUPĄ I WNIOSKAMI
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Manage(int id)
     {
-        var group = await _context.TherapyGroups
-            .Include(g => g.PatientGroups)
-                .ThenInclude(pg => pg.AppUser) 
+        var group = await _context
+            .TherapyGroups.Include(g => g.PatientGroups)
+                .ThenInclude(pg => pg.AppUser)
             .FirstOrDefaultAsync(g => g.Id == id);
 
-        if (group == null) return NotFound();
+        if (group == null)
+            return NotFound();
 
         return View(group);
     }
-    
-    // --- DASHBOARD GRUPY (Dla członków i personelu) ---
+
     [HttpGet]
     public async Task<IActionResult> Details(int id)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Challenge();
+        if (user == null)
+            return Challenge();
 
         bool isStaff = User.IsInRole("Admin") || User.IsInRole("Terapeuta");
-        
-        var group = await _context.TherapyGroups
-            .Include(g => g.PatientGroups)
+
+        var group = await _context
+            .TherapyGroups.Include(g => g.PatientGroups)
             .Include(g => g.TherapyType)
             .FirstOrDefaultAsync(g => g.Id == id);
 
-        if (group == null) return NotFound();
+        if (group == null)
+            return NotFound();
 
         bool isMember = group.PatientGroups.Any(pg => pg.AppUserId == user.Id && pg.IsApproved);
 
         if (!isStaff && !isMember)
         {
-            TempData["ErrorMessage"] = "Nie masz dostępu do tej grupy. Musisz być jej zatwierdzonym członkiem.";
+            TempData["ErrorMessage"] =
+                "Nie masz dostępu do tej grupy. Musisz być jej zatwierdzonym członkiem.";
             return RedirectToAction(nameof(Index));
         }
 
-        var messages = await _context.GroupMessages
-            .Include(m => m.AppUser)
+        var messages = await _context
+            .GroupMessages.Include(m => m.AppUser)
             .Where(m => m.TherapyGroupId == id)
             .OrderByDescending(m => m.CreatedAt)
             .ToListAsync();
 
-        var quests = await _context.GroupQuests
-            .Include(q => q.Submissions)
-            .ThenInclude(s => s.AppUser)
+        var quests = await _context
+            .GroupQuests.Include(q => q.Submissions)
+                .ThenInclude(s => s.AppUser)
             .Where(q => q.TherapyGroupId == id)
             .OrderByDescending(q => q.CreatedAt)
             .ToListAsync();
 
-        var resources = await _context.GroupResources
-            .Where(r => r.TherapyGroupId == id)
+        var resources = await _context
+            .GroupResources.Where(r => r.TherapyGroupId == id)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
 
@@ -151,19 +156,19 @@ public class TherapyGroupController : Controller
         return View(group);
     }
 
-    // --- DODAWANIE WPISU NA TABLICĘ ---
     [HttpPost]
     public async Task<IActionResult> AddMessage(int groupId, string content)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null || string.IsNullOrWhiteSpace(content)) return RedirectToAction(nameof(Details), new { id = groupId });
+        if (user == null || string.IsNullOrWhiteSpace(content))
+            return RedirectToAction(nameof(Details), new { id = groupId });
 
         var message = new GroupMessage
         {
             TherapyGroupId = groupId,
             AppUserId = user.Id,
             Content = content,
-            CreatedAt = DateTime.Now
+            CreatedAt = DateTime.Now,
         };
 
         _context.GroupMessages.Add(message);
@@ -172,14 +177,13 @@ public class TherapyGroupController : Controller
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
 
-    // 4. ZATWIERDZANIE WNIOSKU
-    // 4. ZATWIERDZANIE WNIOSKU
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Approve(int groupId, string userId)
     {
-        var membership = await _context.PatientGroups
-            .FirstOrDefaultAsync(pg => pg.TherapyGroupId == groupId && pg.AppUserId == userId);
+        var membership = await _context.PatientGroups.FirstOrDefaultAsync(pg =>
+            pg.TherapyGroupId == groupId && pg.AppUserId == userId
+        );
 
         if (membership != null)
         {
@@ -187,8 +191,10 @@ public class TherapyGroupController : Controller
             _context.PatientGroups.Update(membership);
             await _context.SaveChangesAsync();
 
-            // WYSYŁANIE POWIADOMIENIA
-            await _notificationService.SendNotificationAsync(userId, "Twój wniosek o dołączenie do grupy terapeutycznej został zaakceptowany! Zobacz zakładkę grupy.");
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Twój wniosek o dołączenie do grupy terapeutycznej został zaakceptowany! Zobacz zakładkę grupy."
+            );
 
             TempData["SuccessMessage"] = "Pacjent został przyjęty do grupy!";
         }
@@ -196,29 +202,29 @@ public class TherapyGroupController : Controller
         return RedirectToAction(nameof(Manage), new { id = groupId });
     }
 
-    // 5. ODRZUCANIE/USUNIĘCIE Z GRUPY
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Reject(int groupId, string userId)
     {
-        var membership = await _context.PatientGroups
-            .FirstOrDefaultAsync(pg => pg.TherapyGroupId == groupId && pg.AppUserId == userId);
+        var membership = await _context.PatientGroups.FirstOrDefaultAsync(pg =>
+            pg.TherapyGroupId == groupId && pg.AppUserId == userId
+        );
 
         if (membership != null)
         {
             _context.PatientGroups.Remove(membership);
             await _context.SaveChangesAsync();
 
-            // WYSYŁANIE POWIADOMIENIA
-            await _notificationService.SendNotificationAsync(userId, "Twój wniosek o dołączenie do grupy został odrzucony przez terapeutę.");
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Twój wniosek o dołączenie do grupy został odrzucony przez terapeutę."
+            );
 
             TempData["ErrorMessage"] = "Wniosek został odrzucony. Pacjent został usunięty.";
         }
 
         return RedirectToAction(nameof(Manage), new { id = groupId });
     }
-
-    // --- STANDARDOWE CRUD DLA TERAPEUTY ---
 
     [HttpGet]
     [Authorize(Roles = "Terapeuta, Admin")]
@@ -234,7 +240,7 @@ public class TherapyGroupController : Controller
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Create(TherapyGroup group)
     {
-        ModelState.Remove("TherapyType"); 
+        ModelState.Remove("TherapyType");
         ModelState.Remove("PatientGroups");
 
         if (ModelState.IsValid)
@@ -254,7 +260,8 @@ public class TherapyGroupController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var group = await _context.TherapyGroups.FindAsync(id);
-        if (group == null) return NotFound();
+        if (group == null)
+            return NotFound();
 
         ViewBag.TherapyTypes = await _context.TherapyTypes.ToListAsync();
         return View(group);
@@ -264,7 +271,8 @@ public class TherapyGroupController : Controller
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Edit(int id, TherapyGroup group)
     {
-        if (id != group.Id) return NotFound();
+        if (id != group.Id)
+            return NotFound();
 
         ModelState.Remove("TherapyType");
         ModelState.Remove("PatientGroups");
@@ -295,10 +303,20 @@ public class TherapyGroupController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // --- 1. TWORZENIE WYZWANIA (TERAPEUTA) ---
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
-    public async Task<IActionResult> CreateQuest(int groupId, string title, string description, string questType, int rewardPoints, string? optionA, string? optionB, string? optionC, string? optionD, string? correctOption)
+    public async Task<IActionResult> CreateQuest(
+        int groupId,
+        string title,
+        string description,
+        string questType,
+        int rewardPoints,
+        string? optionA,
+        string? optionB,
+        string? optionC,
+        string? optionD,
+        string? correctOption
+    )
     {
         if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(description))
         {
@@ -309,12 +327,12 @@ public class TherapyGroupController : Controller
                 Description = description,
                 QuestType = questType,
                 RewardPoints = rewardPoints,
-                // Zapisujemy opcje tylko, jeśli to Quiz
+
                 OptionA = questType == "QuizABCD" ? optionA : null,
                 OptionB = questType == "QuizABCD" ? optionB : null,
                 OptionC = questType == "QuizABCD" ? optionC : null,
                 OptionD = questType == "QuizABCD" ? optionD : null,
-                CorrectOption = questType == "QuizABCD" ? correctOption : null
+                CorrectOption = questType == "QuizABCD" ? correctOption : null,
             };
             _context.GroupQuests.Add(quest);
             await _context.SaveChangesAsync();
@@ -323,24 +341,24 @@ public class TherapyGroupController : Controller
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
 
-    // --- 2. WYSYŁANIE ODPOWIEDZI (PACJENT) ---
     [HttpPost]
     public async Task<IActionResult> SubmitQuest(int questId, int groupId, string answerText)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null || string.IsNullOrWhiteSpace(answerText)) return RedirectToAction(nameof(Details), new { id = groupId });
+        if (user == null || string.IsNullOrWhiteSpace(answerText))
+            return RedirectToAction(nameof(Details), new { id = groupId });
 
         var quest = await _context.GroupQuests.FindAsync(questId);
-        if (quest == null) return NotFound();
+        if (quest == null)
+            return NotFound();
 
         var submission = new QuestSubmission
         {
             GroupQuestId = questId,
             AppUserId = user.Id,
-            AnswerText = answerText
+            AnswerText = answerText,
         };
 
-        // AUTO-OCENIANIE DLA QUIZU ABCD!
         if (quest.QuestType == "QuizABCD")
         {
             submission.IsEvaluated = true;
@@ -348,37 +366,43 @@ public class TherapyGroupController : Controller
 
             if (submission.IsAccepted)
             {
-                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w =>
+                    w.AppUserId == user.Id
+                );
                 if (wallet != null)
                 {
                     wallet.Balance += quest.RewardPoints;
-                    _context.PointTransactions.Add(new PointTransaction
-                    {
-                        Id = Guid.NewGuid(),
-                        WalletId = wallet.Id,
-                        Amount = quest.RewardPoints,
-                        Description = $"Prawidłowa odpowiedź w quizie: {quest.Title}",
-                        TransactionDate = DateTime.Now
-                    });
+                    _context.PointTransactions.Add(
+                        new PointTransaction
+                        {
+                            Id = Guid.NewGuid(),
+                            WalletId = wallet.Id,
+                            Amount = quest.RewardPoints,
+                            Description = $"Prawidłowa odpowiedź w quizie: {quest.Title}",
+                            TransactionDate = DateTime.Now,
+                        }
+                    );
                 }
             }
         }
 
         _context.QuestSubmissions.Add(submission);
         await _context.SaveChangesAsync();
-        
-        TempData["SuccessMessage"] = quest.QuestType == "QuizABCD" ? "Quiz został sprawdzony automatycznie!" : "Odpowiedź wysłana! Oczekuje na weryfikację terapeuty.";
-        
+
+        TempData["SuccessMessage"] =
+            quest.QuestType == "QuizABCD"
+                ? "Quiz został sprawdzony automatycznie!"
+                : "Odpowiedź wysłana! Oczekuje na weryfikację terapeuty.";
+
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
 
-    // --- 3. OCENIANIE I PRZYZNAWANIE PUNKTÓW (TERAPEUTA) ---
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> EvaluateQuest(int submissionId, int groupId, bool accept)
     {
-        var submission = await _context.QuestSubmissions
-            .Include(s => s.GroupQuest)
+        var submission = await _context
+            .QuestSubmissions.Include(s => s.GroupQuest)
             .FirstOrDefaultAsync(s => s.Id == submissionId);
 
         if (submission != null && !submission.IsEvaluated)
@@ -388,19 +412,24 @@ public class TherapyGroupController : Controller
 
             if (accept)
             {
-                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == submission.AppUserId);
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w =>
+                    w.AppUserId == submission.AppUserId
+                );
                 if (wallet != null)
                 {
                     wallet.Balance += submission.GroupQuest.RewardPoints;
-                    
-                    _context.PointTransactions.Add(new PointTransaction
-                    {
-                        Id = Guid.NewGuid(),
-                        WalletId = wallet.Id,
-                        Amount = submission.GroupQuest.RewardPoints,
-                        Description = $"Nagroda za grupowe wyzwanie: {submission.GroupQuest.Title}",
-                        TransactionDate = DateTime.Now
-                    });
+
+                    _context.PointTransactions.Add(
+                        new PointTransaction
+                        {
+                            Id = Guid.NewGuid(),
+                            WalletId = wallet.Id,
+                            Amount = submission.GroupQuest.RewardPoints,
+                            Description =
+                                $"Nagroda za grupowe wyzwanie: {submission.GroupQuest.Title}",
+                            TransactionDate = DateTime.Now,
+                        }
+                    );
                 }
             }
 
@@ -410,19 +439,17 @@ public class TherapyGroupController : Controller
 
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
-    
-    // --- USUWANIE WYZWANIA (TERAPEUTA) ---
+
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> DeleteQuest(int questId, int groupId)
     {
-        var quest = await _context.GroupQuests
-            .Include(q => q.Submissions)
+        var quest = await _context
+            .GroupQuests.Include(q => q.Submissions)
             .FirstOrDefaultAsync(q => q.Id == questId);
 
         if (quest != null)
         {
-            // Cascade delete powiązanych odpowiedzi z bazy, aby nie było błędów klucza obcego
             _context.QuestSubmissions.RemoveRange(quest.Submissions);
             _context.GroupQuests.Remove(quest);
             await _context.SaveChangesAsync();
@@ -432,10 +459,13 @@ public class TherapyGroupController : Controller
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
 
-    // --- WRZUCANIE PLIKU DO MATERIAŁÓW (TERAPEUTA) ---
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
-    public async Task<IActionResult> UploadResource(int groupId, string title, IFormFile uploadedFile)
+    public async Task<IActionResult> UploadResource(
+        int groupId,
+        string title,
+        IFormFile uploadedFile
+    )
     {
         if (string.IsNullOrWhiteSpace(title) || uploadedFile == null || uploadedFile.Length == 0)
         {
@@ -447,33 +477,36 @@ public class TherapyGroupController : Controller
         var fileExtension = Path.GetExtension(uploadedFile.FileName).ToLowerInvariant();
         if (!allowedExtensions.Contains(fileExtension))
         {
-            TempData["ErrorMessage"] = "Nieobsługiwany format pliku. Obsługiwane rozszerzenia to: .jpg, .jpeg, .png, .pdf";
+            TempData["ErrorMessage"] =
+                "Nieobsługiwany format pliku. Obsługiwane rozszerzenia to: .jpg, .jpeg, .png, .pdf";
             return RedirectToAction(nameof(Details), new { id = groupId });
         }
 
-        // Definiujemy katalog zapisu
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resources");
+        var uploadsFolder = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            "uploads",
+            "resources"
+        );
         if (!Directory.Exists(uploadsFolder))
         {
             Directory.CreateDirectory(uploadsFolder);
         }
 
-        // Zabezpieczenie nazwy pliku przed nadpisaniem 
-        var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(uploadedFile.FileName);
+        var uniqueFileName =
+            Guid.NewGuid().ToString() + "_" + Path.GetFileName(uploadedFile.FileName);
         var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-        // Zapis fizyczny pliku na dysku serwera
         using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
             await uploadedFile.CopyToAsync(fileStream);
         }
 
-        // Zapis relacji w bazie danych
         var resource = new GroupResource
         {
             TherapyGroupId = groupId,
             Title = title,
-            FilePath = "/uploads/resources/" + uniqueFileName 
+            FilePath = "/uploads/resources/" + uniqueFileName,
         };
 
         _context.GroupResources.Add(resource);
@@ -482,8 +515,7 @@ public class TherapyGroupController : Controller
         TempData["SuccessMessage"] = $"Pomyślnie udostępniono materiał: {title}!";
         return RedirectToAction(nameof(Details), new { id = groupId });
     }
-    
-    // --- AUTOMATYCZNY SIEWNIK DANYCH SŁOWNIKOWYCH ---
+
     private async Task SeedTherapyTypesIfNotExists()
     {
         if (!await _context.TherapyTypes.AnyAsync())

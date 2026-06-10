@@ -145,14 +145,14 @@
         LOSUJ!
     </button>
 
-    <!-- PRZYCISK SPRÓBUJ PONOWNIE  -->
+
     <form asp-controller="Store" asp-action="PlayRoulette" method="post" id="retry-form" class="d-none mt-3">
-        <input type="hidden" name="gameId" value="@ViewBag.GameId" />
+        <input type="hidden" name="gameId" value="@ViewBag.GameId"/>
         <button type="submit" id="retry-btn" class="btn btn-success px-5 py-3 fw-bold" style="margin-top: 28px">
             <i class="bi bi-arrow-repeat me-2"></i><strong>SPRÓBUJ PONOWNIE! (@ViewBag.GameCost PKT)</strong>
         </button>
     </form>
-    
+
     <div id="result-message" class="mt-4 alert alert-success d-none bg-dark text-success border-success">
         <h4 class="mb-3">@Html.Raw(ViewBag.Message)</h4>
         <a asp-action="Index" class="btn btn-outline-success px-4 py-2">Wróć do sklepu</a>

@@ -13,13 +13,13 @@ public class GroupMessage
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // Kto to napisał?
     public string AppUserId { get; set; }
+
     [ForeignKey("AppUserId")]
     public virtual AppUser AppUser { get; set; }
 
-    // W jakiej grupie?
     public int TherapyGroupId { get; set; }
+
     [ForeignKey("TherapyGroupId")]
     public virtual TherapyGroup TherapyGroup { get; set; }
 }

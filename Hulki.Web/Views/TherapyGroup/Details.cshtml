@@ -7,7 +7,7 @@
     var resources = ViewBag.Resources as IEnumerable<Hulki.Web.Models.GroupResource>;
     string currentUserId = ViewBag.CurrentUserId as string;
 
-    // NAPRAWIONY BŁĄD (Brak crasha 500):
+
     bool isStaff = ViewBag.IsStaff == true;
 }
 
@@ -124,14 +124,14 @@
                 <div class="modal-content kd-modal-content">
                     <form asp-action="CreateQuest" method="post">
                         <input type="hidden" name="groupId" value="@Model.Id"/>
-                        
+
                         <div class="modal-header kd-modal-header">
                             <h5 class="modal-title kd-modal-title">
                                 <i class="bi bi-trophy me-2"></i>Kreator Wyzwań
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
-                        
+
                         <div class="modal-body kd-modal-body">
                             <p class="kd-text-muted mb-4">
                                 Stwórz nowe wyzwanie dla swojej grupy terapeutycznej.
@@ -141,7 +141,7 @@
                                 <label class="form-label kd-label">Tytuł</label>
                                 <input type="text" name="title" class="form-control kd-input" required placeholder="np. Quiz o nałogach"/>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label kd-label">Typ zadania</label>
                                 <select name="questType" id="questTypeSelect" class="form-select kd-input" onchange="toggleQuizFields()">
@@ -149,7 +149,7 @@
                                     <option value="QuizABCD">Quiz ABCD (Automatyczne sprawdzanie)</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label class="form-label kd-label">Treść zadania / Pytanie</label>
                                 <textarea name="description" class="form-control kd-input" rows="3" required placeholder="Opisz wyzwanie lub zadaj pytanie..."></textarea>
@@ -204,7 +204,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="modal-footer kd-modal-footer">
                             <button type="button" class="btn kd-btn-cancel" data-bs-dismiss="modal">
                                 ANULUJ
@@ -457,7 +457,7 @@
         pointer-events: none;
     }
 
-    /* NAV PILLS */
+
     .custom-nav-pills .nav-link {
         color: #888899;
         background: #1b1b22;
@@ -554,7 +554,7 @@
         transform: scale(1.02);
     }
 
-    /* STYLE Z KREATORA PRZEDMIOTU */
+
     .kd-modal-content {
         background-color: #1a1a21 !important;
         border: none !important;
@@ -677,7 +677,6 @@
         background-color: #46CC5E !important;
         color: #17171C !important;
     }
-
 </style>
 
 <script>

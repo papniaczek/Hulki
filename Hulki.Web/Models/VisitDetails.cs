@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 
-namespace Hulki.Web.Models  // <-- Zmień to tutaj!
+namespace Hulki.Web.Models
 {
     public class VisitDetails
     {
-        public int Id { get; set; } 
+        public int Id { get; set; }
         public Guid ConsultationId { get; set; }
         public string MedicalHistory { get; set; }
         public string Diagnosis { get; set; }

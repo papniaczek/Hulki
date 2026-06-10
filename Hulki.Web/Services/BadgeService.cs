@@ -12,7 +12,6 @@ namespace Hulki.Web.Services
     {
         Task<List<UserBadge>> GetUserBadgesAsync(string userId);
         Task CheckAndAwardBadgesAsync(string userId);
-        
     }
 
     public class BadgeService : IBadgeService
@@ -28,8 +27,8 @@ namespace Hulki.Web.Services
 
         public async Task<List<UserBadge>> GetUserBadgesAsync(string userId)
         {
-            return await _context.UserBadges
-                .Include(ub => ub.Badge)
+            return await _context
+                .UserBadges.Include(ub => ub.Badge)
                 .Where(ub => ub.AppUserId == userId)
                 .OrderByDescending(ub => ub.EarnedAt)
                 .ToListAsync();
@@ -37,37 +36,32 @@ namespace Hulki.Web.Services
 
         public async Task CheckAndAwardBadgesAsync(string userId)
         {
-            // 1. Pobierz statystyki użytkownika
-            int completedGoals = await _context.TherapyGoals
-                .CountAsync(g => g.AppUserId == userId && g.IsCompleted);
-            
-            int reportsCreated = await _context.DailyReports
-                .CountAsync(r => r.AppUserId == userId);
-            
-            int consultationsCompleted = await _context.Consultations
-                .CountAsync(c => (c.PatientId == userId || c.TherapistId == userId) 
-                                  && c.Status.Name == "Zakończona");
-            
-            var wallet = await _context.Wallets
-                .FirstOrDefaultAsync(w => w.AppUserId == userId);
-            int pointsEarned = wallet?.Balance ?? 0;
-            
-            int forumPosts = await _context.ForumPosts
-                .CountAsync(p => p.AppUserId == userId);
+            int completedGoals = await _context.TherapyGoals.CountAsync(g =>
+                g.AppUserId == userId && g.IsCompleted
+            );
 
-            // 2. Pobierz odznaki, których użytkownik JESZCZE NIE MA
-            var earnedBadgeIds = await _context.UserBadges
-                .Where(ub => ub.AppUserId == userId)
+            int reportsCreated = await _context.DailyReports.CountAsync(r => r.AppUserId == userId);
+
+            int consultationsCompleted = await _context.Consultations.CountAsync(c =>
+                (c.PatientId == userId || c.TherapistId == userId) && c.Status.Name == "Zakończona"
+            );
+
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == userId);
+            int pointsEarned = wallet?.Balance ?? 0;
+
+            int forumPosts = await _context.ForumPosts.CountAsync(p => p.AppUserId == userId);
+
+            var earnedBadgeIds = await _context
+                .UserBadges.Where(ub => ub.AppUserId == userId)
                 .Select(ub => ub.BadgeId)
                 .ToListAsync();
 
-            var availableBadges = await _context.AchievementBadges
-                .Where(b => !earnedBadgeIds.Contains(b.Id))
+            var availableBadges = await _context
+                .AchievementBadges.Where(b => !earnedBadgeIds.Contains(b.Id))
                 .ToListAsync();
 
             bool anyAwarded = false;
 
-            // 3. Weryfikacja warunków
             foreach (var badge in availableBadges)
             {
                 bool conditionsMet = false;
@@ -90,14 +84,14 @@ namespace Hulki.Web.Services
                         conditionsMet = forumPosts >= badge.ConditionValue;
                         break;
                     case "DaysStreak":
-                        // Dla uproszczenia sprawdzamy tylko ilość dni z raportami
-                        var reportDates = await _context.DailyReports
-                            .Where(r => r.AppUserId == userId)
+
+                        var reportDates = await _context
+                            .DailyReports.Where(r => r.AppUserId == userId)
                             .Select(r => r.CreatedAt.Date)
                             .Distinct()
                             .OrderByDescending(d => d)
                             .ToListAsync();
-                        
+
                         int streak = CalculateDayStreak(reportDates);
                         conditionsMet = streak >= badge.ConditionValue;
                         break;
@@ -105,16 +99,20 @@ namespace Hulki.Web.Services
 
                 if (conditionsMet)
                 {
-                    _context.UserBadges.Add(new UserBadge
-                    {
-                        Id = Guid.NewGuid(),
-                        AppUserId = userId,
-                        BadgeId = badge.Id,
-                        EarnedAt = DateTime.Now
-                    });
+                    _context.UserBadges.Add(
+                        new UserBadge
+                        {
+                            Id = Guid.NewGuid(),
+                            AppUserId = userId,
+                            BadgeId = badge.Id,
+                            EarnedAt = DateTime.Now,
+                        }
+                    );
 
-                    await _notificationService.SendNotificationAsync(userId,
-                        $"🏆 Odblokowano nową odznakę: {badge.Name}! {badge.Description}");
+                    await _notificationService.SendNotificationAsync(
+                        userId,
+                        $"🏆 Odblokowano nową odznakę: {badge.Name}! {badge.Description}"
+                    );
 
                     anyAwarded = true;
                 }
@@ -125,11 +123,12 @@ namespace Hulki.Web.Services
                 await _context.SaveChangesAsync();
             }
         }
-        
+
         private int CalculateDayStreak(List<DateTime> orderedDates)
         {
-            if (orderedDates.Count == 0) return 0;
-            
+            if (orderedDates.Count == 0)
+                return 0;
+
             int streak = 1;
             for (int i = 0; i < orderedDates.Count - 1; i++)
             {
@@ -140,7 +139,7 @@ namespace Hulki.Web.Services
                 }
                 else
                 {
-                    break; // Przerwa w streak
+                    break;
                 }
             }
             return streak;

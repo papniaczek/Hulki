@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Hulki.Web.Data;
 using Hulki.Web.Models;
 using Hulki.Web.Services;
@@ -7,15 +12,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Hulki.Web.Controllers;
 
-// Tylko zalogowani
 [Authorize]
 public class PatientController : Controller
 {
@@ -30,7 +29,8 @@ public class PatientController : Controller
         UserManager<AppUser> userManager,
         IWebHostEnvironment webHostEnvironment,
         INotificationService notificationService,
-        IPdfReportService pdfReportService)
+        IPdfReportService pdfReportService
+    )
     {
         _context = context;
         _userManager = userManager;
@@ -39,44 +39,44 @@ public class PatientController : Controller
         _pdfReportService = pdfReportService;
     }
 
-    // PANEL PACJENTA Z WYKRESAMI POSTĘPU
     [HttpGet]
     public async Task<IActionResult> Index()
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return RedirectToAction("Login", "Account");
+        if (user == null)
+            return RedirectToAction("Login", "Account");
 
-        // --- Raporty z ostatnich 30 dni ---
         var thirtyDaysAgo = DateTime.Today.AddDays(-29);
-        var reports = await _context.DailyReports
-            .Where(r => r.AppUserId == user.Id && r.CreatedAt >= thirtyDaysAgo)
+        var reports = await _context
+            .DailyReports.Where(r => r.AppUserId == user.Id && r.CreatedAt >= thirtyDaysAgo)
             .OrderBy(r => r.CreatedAt)
             .ToListAsync();
 
-        // Dane dla wykresu aktywności (liczba raportów per dzień)
-        var last30Days = Enumerable.Range(0, 30)
+        var last30Days = Enumerable
+            .Range(0, 30)
             .Select(i => DateTime.Today.AddDays(-29 + i))
             .ToList();
 
         var activityLabels = last30Days.Select(d => d.ToString("dd.MM")).ToList();
-        var activityData = last30Days.Select(d =>
-            reports.Count(r => r.CreatedAt.Date == d.Date)).ToList();
+        var activityData = last30Days
+            .Select(d => reports.Count(r => r.CreatedAt.Date == d.Date))
+            .ToList();
 
-        // --- Transakcje punktowe (ostatnie 30 dni) ---
-        var wallet = await _context.Wallets
-            .Include(w => w.AppUser)
+        var wallet = await _context
+            .Wallets.Include(w => w.AppUser)
             .FirstOrDefaultAsync(w => w.AppUserId == user.Id);
 
         List<PointTransaction> transactions = new();
         if (wallet != null)
         {
-            transactions = await _context.PointTransactions
-                .Where(t => t.WalletId == wallet.Id && t.TransactionDate >= thirtyDaysAgo)
+            transactions = await _context
+                .PointTransactions.Where(t =>
+                    t.WalletId == wallet.Id && t.TransactionDate >= thirtyDaysAgo
+                )
                 .OrderBy(t => t.TransactionDate)
                 .ToListAsync();
         }
 
-        // Dane dla wykresu skumulowanych punktów (bieżące saldo każdego dnia)
         var currentBalance = wallet?.Balance ?? 0;
         var totalPointsInPeriod = transactions.Sum(t => t.Amount);
         var balanceBeforePeriod = currentBalance - totalPointsInPeriod;
@@ -92,9 +92,8 @@ public class PatientController : Controller
             pointsData.Add(runningBalance);
         }
 
-        // --- Streak (seria kolejnych dni z raportem) ---
-        var allReports = await _context.DailyReports
-            .Where(r => r.AppUserId == user.Id)
+        var allReports = await _context
+            .DailyReports.Where(r => r.AppUserId == user.Id)
             .Select(r => r.CreatedAt.Date)
             .Distinct()
             .OrderByDescending(d => d)
@@ -109,14 +108,15 @@ public class PatientController : Controller
                 streak++;
                 checkDate = reportDate;
             }
-            else break;
+            else
+                break;
         }
 
-        // --- Łączna liczba raportów i procent aktywności ---
         var totalReports = await _context.DailyReports.CountAsync(r => r.AppUserId == user.Id);
         var reportsThisMonth = reports.Count;
         var daysInMonth = DateTime.Today.Day;
-        var activityPercent = daysInMonth > 0 ? (int)Math.Round((double)reportsThisMonth / daysInMonth * 100) : 0;
+        var activityPercent =
+            daysInMonth > 0 ? (int)Math.Round((double)reportsThisMonth / daysInMonth * 100) : 0;
 
         ViewBag.ActivityLabels = activityLabels;
         ViewBag.ActivityData = activityData;
@@ -132,11 +132,9 @@ public class PatientController : Controller
         return View();
     }
 
-    // W PatientController.cs
     [HttpGet]
     public async Task<IActionResult> AddMood()
     {
-        // Pobieramy typy nastrojów, żeby wyświetlić je w dropdownie
         ViewBag.MoodTypes = await _context.MoodTypes.ToListAsync();
         return View();
     }
@@ -145,36 +143,35 @@ public class PatientController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddMood(int moodTypeId)
     {
-        var userId = _userManager.GetUserId(User); // Pobieramy ID zalogowanego pacjenta
+        var userId = _userManager.GetUserId(User);
 
         var log = new MoodLog
         {
             Id = Guid.NewGuid(),
             AppUserId = userId,
             Date = DateTime.Now,
-            MoodTypeId = moodTypeId
+            MoodTypeId = moodTypeId,
         };
 
         _context.MoodLogs.Add(log);
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Twój nastrój został zapisany!";
-        return RedirectToAction("Index"); // Wracamy do panelu głównego pacjenta
+        return RedirectToAction("Index");
     }
 
-    // 1. WYŚWIETLANIE FORMULARZA
     [HttpGet]
     public async Task<IActionResult> DailyReport()
     {
         var user = await _userManager.GetUserAsync(User);
         var today = DateTime.Today;
-        bool alreadyReportedToday = await _context.DailyReports
-            .AnyAsync(r => r.AppUserId == user.Id && r.CreatedAt >= today && r.CreatedAt < today.AddDays(1));
+        bool alreadyReportedToday = await _context.DailyReports.AnyAsync(r =>
+            r.AppUserId == user.Id && r.CreatedAt >= today && r.CreatedAt < today.AddDays(1)
+        );
         ViewBag.AlreadyReportedToday = alreadyReportedToday;
         return View();
     }
 
-    // 2. PRZETWARZANIE WYSŁANEGO FORMULARZA (Z PLIKIEM)
     [HttpPost]
     public async Task<IActionResult> DailyReport(string content, IFormFile? attachment)
     {
@@ -186,10 +183,10 @@ public class PatientController : Controller
 
         var user = await _userManager.GetUserAsync(User);
 
-        // LIMIT: jeden raport dziennie
         var today = DateTime.Today;
-        bool alreadyReportedToday = await _context.DailyReports
-            .AnyAsync(r => r.AppUserId == user.Id && r.CreatedAt >= today && r.CreatedAt < today.AddDays(1));
+        bool alreadyReportedToday = await _context.DailyReports.AnyAsync(r =>
+            r.AppUserId == user.Id && r.CreatedAt >= today && r.CreatedAt < today.AddDays(1)
+        );
 
         if (alreadyReportedToday)
         {
@@ -197,23 +194,22 @@ public class PatientController : Controller
             return RedirectToAction("DailyReport");
         }
 
-        // SPRAWDZANIE SŁOWNIKÓW
-        var defaultStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Oczekujący")
-                            ?? new ReportStatus { Name = "Oczekujący" };
-        if (defaultStatus.Id == 0) _context.ReportStatuses.Add(defaultStatus);
+        var defaultStatus =
+            await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Oczekujący")
+            ?? new ReportStatus { Name = "Oczekujący" };
+        if (defaultStatus.Id == 0)
+            _context.ReportStatuses.Add(defaultStatus);
 
-        // ZAPIS RAPORTU
         var report = new DailyReport
         {
             Id = Guid.NewGuid(),
             Content = content,
             CreatedAt = DateTime.Now,
             AppUserId = user.Id,
-            ReportStatus = defaultStatus
+            ReportStatus = defaultStatus,
         };
         _context.DailyReports.Add(report);
 
-        // UPLOAD
         bool hasAttachment = false;
         if (attachment != null && attachment.Length > 0)
         {
@@ -222,20 +218,25 @@ public class PatientController : Controller
             string fileTypeName = fileExtension == ".pdf" ? "Dokument PDF" : "Obraz";
             if (!allowedExtensions.Contains(fileExtension))
             {
-                ModelState.AddModelError("", "Nieobsługiwany format pliku. Obsługiwane rozszerzenia to: .jpg, .jpeg, .png, .pdf");
+                ModelState.AddModelError(
+                    "",
+                    "Nieobsługiwany format pliku. Obsługiwane rozszerzenia to: .jpg, .jpeg, .png, .pdf"
+                );
                 return View();
             }
 
             hasAttachment = true;
-            var fileType = await _context.FileTypes.FirstOrDefaultAsync(f => f.Extension == fileExtension)
-           ?? new FileType { Name = fileTypeName, Extension = fileExtension };
+            var fileType =
+                await _context.FileTypes.FirstOrDefaultAsync(f => f.Extension == fileExtension)
+                ?? new FileType { Name = fileTypeName, Extension = fileExtension };
             if (fileType.Id == 0)
                 _context.FileTypes.Add(fileType);
 
             string uniqueFileName = Guid.NewGuid().ToString() + "_" + attachment.FileName;
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads");
 
-            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
 
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -250,17 +251,21 @@ public class PatientController : Controller
                 FileName = attachment.FileName,
                 FilePath = "/uploads/" + uniqueFileName,
                 DailyReportId = report.Id,
-                FileType = fileType
+                FileType = fileType,
             };
             _context.ReportAttachments.Add(reportAttachment);
         }
 
-        // DODAWANIE PUNKTÓW 
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
 
         if (wallet == null)
         {
-            wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
+            wallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                AppUserId = user.Id,
+                Balance = 0,
+            };
             _context.Wallets.Add(wallet);
             await _context.SaveChangesAsync();
         }
@@ -282,38 +287,42 @@ public class PatientController : Controller
             Amount = pointsEarned,
             Description = transactionReason,
             TransactionDate = DateTime.Now,
-            WalletId = wallet.Id
+            WalletId = wallet.Id,
         };
         _context.PointTransactions.Add(transaction);
 
         await _context.SaveChangesAsync();
 
-        // POWIADOMIENIE DLA PACJENTA
         await _notificationService.SendNotificationAsync(
             user.Id,
             $"Brawo! Twój dzienny wpis został zapisany. Otrzymujesz +{pointsEarned} punktów!"
         );
 
-        TempData["SuccessMessage"] = $"Świetna robota! Raport dodany, a na twoje konto wpłynęło +{pointsEarned} punktów!";
+        TempData["SuccessMessage"] =
+            $"Świetna robota! Raport dodany, a na twoje konto wpłynęło +{pointsEarned} punktów!";
         return RedirectToAction("Index", "Home");
     }
 
-    // --- GENEROWANIE PDF ---
-
-    /// <summary>
-    /// Generuje PDF z raportami dziennymi z opcjonalnym filtrowaniem dat
-    /// </summary>
     [HttpGet]
-    public async Task<IActionResult> DownloadDailyReportsPdf(DateTime? startDate = null, DateTime? endDate = null)
+    public async Task<IActionResult> DownloadDailyReportsPdf(
+        DateTime? startDate = null,
+        DateTime? endDate = null
+    )
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
+        if (user == null)
+            return Unauthorized();
 
         try
         {
-            var pdfBytes = await _pdfReportService.GenerateDailyReportsPdfAsync(user.Id, startDate, endDate);
+            var pdfBytes = await _pdfReportService.GenerateDailyReportsPdfAsync(
+                user.Id,
+                startDate,
+                endDate
+            );
 
-            var fileName = $"Raporty_Dzienne_{user.FirstName}_{user.LastName}_{DateTime.Now:yyyyMMdd}.pdf";
+            var fileName =
+                $"Raporty_Dzienne_{user.FirstName}_{user.LastName}_{DateTime.Now:yyyyMMdd}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }
         catch (Exception ex)
@@ -323,20 +332,19 @@ public class PatientController : Controller
         }
     }
 
-    /// <summary>
-    /// Generuje PDF z raportem postępów (cele, odznaki, statystyki)
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> DownloadProgressReportPdf()
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Unauthorized();
+        if (user == null)
+            return Unauthorized();
 
         try
         {
             var pdfBytes = await _pdfReportService.GenerateUserProgressReportAsync(user.Id);
 
-            var fileName = $"Raport_Postepu_{user.FirstName}_{user.LastName}_{DateTime.Now:yyyyMMdd}.pdf";
+            var fileName =
+                $"Raport_Postepu_{user.FirstName}_{user.LastName}_{DateTime.Now:yyyyMMdd}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }
         catch (Exception ex)

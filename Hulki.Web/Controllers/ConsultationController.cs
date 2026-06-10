@@ -38,7 +38,6 @@ public class ConsultationController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return NotFound();
 
-        // GetUserConsultationsAsync zwraca wizyty gdzie user jest pacjentem LUB terapeutą
         var consultations = await _consultationService.GetUserConsultationsAsync(user.Id);
         return View(consultations);
     }
@@ -51,7 +50,7 @@ public class ConsultationController : Controller
 
         if (user.IsTherapist)
         {
-            // Terapeuta wybiera pacjenta — szukamy po polu IsTherapist == false
+
             var patients = await _userManager.Users
                 .Where(u => !u.IsTherapist)
                 .ToListAsync();
@@ -63,8 +62,8 @@ public class ConsultationController : Controller
         }
         else
         {
-            // Pacjent wybiera terapeutę — szukamy po polu IsTherapist == true
-            // UWAGA: GetUsersInRoleAsync("Terapeuta") też działa, ale IsTherapist jest bardziej niezawodne
+
+
             var therapists = await _userManager.Users
                 .Where(u => u.IsTherapist)
                 .ToListAsync();
@@ -112,15 +111,15 @@ public class ConsultationController : Controller
         }
 
         await _consultationService.CreateConsultationAsync(consultation);
-        
-        // POWIADOMIENIE DLA PACJENTA
+
+
         string recipientId = user.IsTherapist ? consultation.PatientId : consultation.TherapistId;
         string senderRole = user.IsTherapist ? "Terapeuta" : "Pacjent";
         await _notificationService.SendNotificationAsync(
             recipientId,
             $"{senderRole} {user.FirstName} {user.LastName} zaplanował(a) z Tobą wizytę na {consultation.StartTime:dd.MM.yyyy HH:mm}."
         );
-        
+
         TempData["SuccessMessage"] = "Wizyta została zaplanowana.";
         return RedirectToAction(nameof(Index));
     }
@@ -177,13 +176,13 @@ public class ConsultationController : Controller
         consultation.Details.InternalNotes = detailsFromForm.InternalNotes;
 
         await _consultationService.UpdateConsultationAsync(consultation);
-        
-        // POWIADOMIENIE DLA PACJENTA
+
+
         await _notificationService.SendNotificationAsync(
             consultation.PatientId,
             $"Terapeuta {user.FirstName} {user.LastName} zaktualizował(a) szczegóły Twojej wizyty z dnia {consultation.StartTime:dd.MM.yyyy}."
         );
-        
+
         TempData["SuccessMessage"] = "Karta wizyty została zapisana.";
         return RedirectToAction(nameof(Details), new { id = consultationId });
     }
@@ -228,9 +227,9 @@ public class ConsultationController : Controller
         consultation.StatusId = statusId;
         await _context.SaveChangesAsync();
 
-        // POWIADOMIENIE DLA PACJENTA
-        string statusMessage = statusId == 2 
-            ? "zakończona" 
+
+        string statusMessage = statusId == 2
+            ? "zakończona"
             : "odwołana";
         await _notificationService.SendNotificationAsync(
             consultation.PatientId,
@@ -244,9 +243,6 @@ public class ConsultationController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    /// <summary>
-    /// Generuje raport PDF dla pojedynczej konsultacji
-    /// </summary>
     [HttpGet]
     public async Task<IActionResult> DownloadPdf(Guid id)
     {
@@ -262,14 +258,13 @@ public class ConsultationController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // Sprawdzenie uprawnień - użytkownik musi być pacjentem lub terapeutą tej konsultacji
         if (consultation.PatientId != user.Id && consultation.TherapistId != user.Id)
             return Forbid();
 
         try
         {
             var pdfBytes = await _pdfReportService.GenerateConsultationReportAsync(id);
-            
+
             var fileName = $"Konsultacja_{consultation.StartTime:yyyyMMdd}.pdf";
             return File(pdfBytes, "application/pdf", fileName);
         }

@@ -20,7 +20,12 @@ public class AdminController : Controller
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly INotificationService _notificationService;
 
-    public AdminController(ApplicationDbContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, INotificationService notificationService)
+    public AdminController(
+        ApplicationDbContext context,
+        UserManager<AppUser> userManager,
+        RoleManager<IdentityRole> roleManager,
+        INotificationService notificationService
+    )
     {
         _context = context;
         _userManager = userManager;
@@ -28,7 +33,6 @@ public class AdminController : Controller
         _notificationService = notificationService;
     }
 
-    // --- DASHBOARD ---
     public async Task<IActionResult> Index()
     {
         var today = DateTime.Today;
@@ -57,11 +61,6 @@ public class AdminController : Controller
         return View();
     }
 
-    // ====================================================================
-    // ZARZĄDZANIE PACJENTAMI
-    // ====================================================================
-
-    // 1. LISTA PACJENTÓW
     [HttpGet]
     public async Task<IActionResult> Patients(string? search)
     {
@@ -84,12 +83,12 @@ public class AdminController : Controller
 
         var patientIds = patients.Select(p => p.Id).ToList();
 
-        var wallets = await _context.Wallets
-            .Where(w => patientIds.Contains(w.AppUserId))
+        var wallets = await _context
+            .Wallets.Where(w => patientIds.Contains(w.AppUserId))
             .ToDictionaryAsync(w => w.AppUserId, w => w.Balance);
 
-        var reportCounts = await _context.DailyReports
-            .Where(r => patientIds.Contains(r.AppUserId))
+        var reportCounts = await _context
+            .DailyReports.Where(r => patientIds.Contains(r.AppUserId))
             .GroupBy(r => r.AppUserId)
             .Select(g => new { UserId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.UserId, x => x.Count);
@@ -107,7 +106,6 @@ public class AdminController : Controller
         return View(patients);
     }
 
-    // 2. SZCZEGÓŁY PACJENTA
     [HttpGet]
     public async Task<IActionResult> PatientDetails(string id)
     {
@@ -145,7 +143,8 @@ public class AdminController : Controller
             .Where(pg => pg.AppUserId == user.Id)
             .ToListAsync();
 
-        var transactions = wallet != null
+        var transactions =
+            wallet != null
                 ? await _context
                     .PointTransactions.Where(t => t.WalletId == wallet.Id)
                     .OrderByDescending(t => t.TransactionDate)
@@ -160,8 +159,8 @@ public class AdminController : Controller
         ViewBag.Groups = groups;
         ViewBag.Transactions = transactions;
         ViewBag.IsLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now;
-        ViewBag.MoodLogs = await _context.MoodLogs
-            .Include(m => m.MoodType)
+        ViewBag.MoodLogs = await _context
+            .MoodLogs.Include(m => m.MoodType)
             .Where(m => m.AppUserId == id)
             .OrderByDescending(m => m.Date)
             .Take(5)
@@ -170,7 +169,6 @@ public class AdminController : Controller
         return View();
     }
 
-    // 3. RĘCZNA KOREKTA PUNKTÓW
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AdjustPoints(string userId, int amount, string? reason)
@@ -198,16 +196,18 @@ public class AdminController : Controller
         if (wallet.Balance < 0)
             wallet.Balance = 0;
 
-        _context.PointTransactions.Add(new PointTransaction
-        {
-            Id = Guid.NewGuid(),
-            Amount = amount,
-            Description = string.IsNullOrWhiteSpace(reason)
-                ? (amount > 0 ? "Korekta terapeuty (+)" : "Korekta terapeuty (-)")
-                : $"Korekta terapeuty: {reason}",
-            TransactionDate = DateTime.Now,
-            WalletId = wallet.Id,
-        });
+        _context.PointTransactions.Add(
+            new PointTransaction
+            {
+                Id = Guid.NewGuid(),
+                Amount = amount,
+                Description = string.IsNullOrWhiteSpace(reason)
+                    ? (amount > 0 ? "Korekta terapeuty (+)" : "Korekta terapeuty (-)")
+                    : $"Korekta terapeuty: {reason}",
+                TransactionDate = DateTime.Now,
+                WalletId = wallet.Id,
+            }
+        );
 
         await _context.SaveChangesAsync();
 
@@ -216,12 +216,12 @@ public class AdminController : Controller
             $"Twoje saldo punktów zostało zmienione o {amount}. Nowe saldo: {wallet.Balance}."
         );
 
-        TempData["SuccessMessage"] = $"Saldo zmienione o {amount} pkt. Nowe saldo: {wallet.Balance}.";
+        TempData["SuccessMessage"] =
+            $"Saldo zmienione o {amount} pkt. Nowe saldo: {wallet.Balance}.";
 
         return RedirectToAction(nameof(PatientDetails), new { id = userId });
     }
 
-    // 4. BLOKADA / ODBLOKOWANIE KONTA
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleLock(string userId)
@@ -236,31 +236,37 @@ public class AdminController : Controller
             return RedirectToAction(nameof(PatientDetails), new { id = userId });
         }
 
-        bool isCurrentlyLocked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now;
+        bool isCurrentlyLocked =
+            user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now;
 
         if (isCurrentlyLocked)
         {
             await _userManager.SetLockoutEndDateAsync(user, null);
-            await _notificationService.SendNotificationAsync(userId, "Twoje konto zostało odblokowane.");
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Twoje konto zostało odblokowane."
+            );
             TempData["SuccessMessage"] = "Konto pacjenta zostało odblokowane.";
         }
         else
         {
             await _userManager.SetLockoutEnabledAsync(user, true);
             await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
-            await _notificationService.SendNotificationAsync(userId, "Twoje konto zostało zablokowane przez administratora.");
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Twoje konto zostało zablokowane przez administratora."
+            );
             TempData["SuccessMessage"] = "Konto pacjenta zostało zablokowane.";
         }
 
         return RedirectToAction(nameof(PatientDetails), new { id = userId });
     }
 
-    // 5. INFORMACJE O WPISIE (GET)
     [HttpGet]
     public async Task<IActionResult> ReportDetails(Guid id)
     {
-        var report = await _context.DailyReports
-            .Include(r => r.AppUser)
+        var report = await _context
+            .DailyReports.Include(r => r.AppUser)
             .Include(r => r.ReportStatus)
             .Include(r => r.ReportAttachments)
             .FirstOrDefaultAsync(r => r.Id == id);
@@ -271,20 +277,20 @@ public class AdminController : Controller
         return View(report);
     }
 
-    // 6. AKCEPTACJA WPISU (Zabezpieczona przed brakiem statusów w słowniku)
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ApproveReport(Guid id)
     {
-        var report = await _context.DailyReports
-            .Include(r => r.ReportStatus)
+        var report = await _context
+            .DailyReports.Include(r => r.ReportStatus)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         if (report == null)
             return NotFound();
 
-        // Bezpiecznik: jeśli słownik został wyczyszczony, odtwarzamy brakujący rekord statusu w locie
-        var approvedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Zatwierdzony");
+        var approvedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s =>
+            s.Name == "Zatwierdzony"
+        );
         if (approvedStatus == null)
         {
             approvedStatus = new ReportStatus { Name = "Zatwierdzony" };
@@ -307,13 +313,12 @@ public class AdminController : Controller
         return RedirectToAction("ReportDetails", new { id = id });
     }
 
-    // 7. ODRZUCENIE WPISU (Zabezpieczona przed brakiem statusów w słowniku)
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RejectReport(Guid id)
     {
-        var report = await _context.DailyReports
-            .Include(r => r.AppUser)
+        var report = await _context
+            .DailyReports.Include(r => r.AppUser)
             .Include(r => r.ReportStatus)
             .Include(r => r.ReportAttachments)
             .FirstOrDefaultAsync(r => r.Id == id);
@@ -321,8 +326,9 @@ public class AdminController : Controller
         if (report == null)
             return NotFound();
 
-        // Bezpiecznik: jeśli słownik został wyczyszczony, odtwarzamy brakujący rekord statusu w locie
-        var rejectedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s => s.Name == "Odrzucony");
+        var rejectedStatus = await _context.ReportStatuses.FirstOrDefaultAsync(s =>
+            s.Name == "Odrzucony"
+        );
         if (rejectedStatus == null)
         {
             rejectedStatus = new ReportStatus { Name = "Odrzucony" };
@@ -337,7 +343,9 @@ public class AdminController : Controller
             bool hasAttachment = report.ReportAttachments != null && report.ReportAttachments.Any();
             int pointsToDeduct = hasAttachment ? 15 : 10;
 
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == report.AppUserId);
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w =>
+                w.AppUserId == report.AppUserId
+            );
             if (wallet != null)
             {
                 wallet.Balance -= pointsToDeduct;
@@ -364,13 +372,13 @@ public class AdminController : Controller
                 report.AppUserId,
                 $"Twój wpis został odrzucony. Utracono {pointsToDeduct} punktów."
             );
-            TempData["ErrorMessage"] = $"Wpis został odrzucony. Odebrano {pointsToDeduct} pkt z konta pacjenta.";
+            TempData["ErrorMessage"] =
+                $"Wpis został odrzucony. Odebrano {pointsToDeduct} pkt z konta pacjenta.";
         }
 
         return RedirectToAction("ReportDetails", new { id = id });
     }
 
-    // 8. PRZEPIĘCIE RÓL TERAPEUTY
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Admin")]
@@ -399,8 +407,12 @@ public class AdminController : Controller
 
             user.IsTherapist = false;
             await _userManager.UpdateAsync(user);
-            await _notificationService.SendNotificationAsync(userId, "Twoja rola terapeuty została odebrana.");
-            TempData["SuccessMessage"] = $"{user.FirstName} {user.LastName} nie jest już terapeutą.";
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Twoja rola terapeuty została odebrana."
+            );
+            TempData["SuccessMessage"] =
+                $"{user.FirstName} {user.LastName} nie jest już terapeutą.";
         }
         else
         {
@@ -409,17 +421,13 @@ public class AdminController : Controller
             user.IsTherapist = true;
             await _userManager.UpdateAsync(user);
             await _notificationService.SendNotificationAsync(userId, "Otrzymałeś rolę terapeuty.");
-            TempData["SuccessMessage"] = $"{user.FirstName} {user.LastName} otrzymał(a) rolę terapeuty.";
+            TempData["SuccessMessage"] =
+                $"{user.FirstName} {user.LastName} otrzymał(a) rolę terapeuty.";
         }
 
         return Redirect(returnUrl ?? Url.Action(nameof(Patients))!);
     }
 
-    // ====================================================================
-    // ZARZĄDZANIE PRZEDMIOTAMI W SKLEPIE
-    // ====================================================================
-
-    // 1. LISTA PRZEDMIOTÓW
     [HttpGet]
     public async Task<IActionResult> ShopItems()
     {
@@ -433,7 +441,6 @@ public class AdminController : Controller
         return View(items);
     }
 
-    // 2. EDYCJA PRZEDMIOTU – GET
     [HttpGet]
     public async Task<IActionResult> EditRewardItem(Guid id)
     {
@@ -448,10 +455,16 @@ public class AdminController : Controller
         return View(item);
     }
 
-    // 3. EDYCJA PRZEDMIOTU – POST
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditRewardItem(Guid id, string name, string? description, int price, string? iconPath, int itemRarityId)
+    public async Task<IActionResult> EditRewardItem(
+        Guid id,
+        string name,
+        string? description,
+        int price,
+        string? iconPath,
+        int itemRarityId
+    )
     {
         var item = await _context.RewardItems.FirstOrDefaultAsync(r => r.Id == id);
         if (item == null)
@@ -475,10 +488,15 @@ public class AdminController : Controller
         return RedirectToAction(nameof(ShopItems));
     }
 
-    // 4. SZYBKIE DODANIE Z LISTY
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateRewardItem(string name, string? description, int price, string? iconPath, int itemRarityId)
+    public async Task<IActionResult> CreateRewardItem(
+        string name,
+        string? description,
+        int price,
+        string? iconPath,
+        int itemRarityId
+    )
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -503,7 +521,6 @@ public class AdminController : Controller
         return RedirectToAction(nameof(ShopItems));
     }
 
-    // 5. USUWANIE PRZEDMIOTU
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteRewardItem(Guid id)

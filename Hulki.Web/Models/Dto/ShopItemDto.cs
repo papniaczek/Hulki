@@ -1,9 +1,5 @@
 namespace Hulki.Web.Models.Dto;
 
-/// <summary>
-/// DTO zwracane przez publiczne API sklepu (GET /api/shop/items).
-/// Nie ujawnia wewnętrznych pól encji (np. FK rzadkości).
-/// </summary>
 public class ShopItemDto
 {
     public string Id { get; set; } = default!;

@@ -20,7 +20,7 @@
                             <label class="form-label text-info fw-bold text-uppercase small"style="letter-spacing: 0.5px">Wybierz nastrój:</label>
                             <select name="moodTypeId" class="form-select custom-input" required>
                                 <option value="">-- Wybierz swój nastrój --</option>
-                        
+
                                 @foreach (var type in (List<Hulki.Web.Models.MoodType>)ViewBag.MoodTypes)
                                 {
                                     <option value="@type.Id">@type.Name</option>

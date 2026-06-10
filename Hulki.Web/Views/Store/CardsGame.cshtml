@@ -1,8 +1,8 @@
 @{
-ViewData["Title"] = "Wybierz Kartę!";
-var wonItem = ViewBag.WonItem as Hulki.Web.Models.RewardItem;
-var missed1 = ViewBag.Missed1 as Hulki.Web.Models.RewardItem;
-var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
+    ViewData["Title"] = "Wybierz Kartę!";
+    var wonItem = ViewBag.WonItem as Hulki.Web.Models.RewardItem;
+    var missed1 = ViewBag.Missed1 as Hulki.Web.Models.RewardItem;
+    var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
 }
 
 <style>
@@ -133,22 +133,24 @@ var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
     </div>
 
     <div class="row mt-5" id="cards-container">
-        @for(int i=0; i<3; i++)
+        @for (int i = 0; i < 3; i++)
         {
-        <div class="col-md-4 mb-4">
-            <div class="flip-card" onclick="revealCard(this)">
-                <div class="flip-card-inner shadow">
-                    <div class="flip-card-front">
-                        <h1><i class="bi bi-question-circle" style="font-size: 4rem; color: #46CC5E;"></i></h1>
-                        <p class="mt-3" style="color: #46CC5E;">Kliknij mnie</p>
-                    </div>
-                    <div class="flip-card-back">
-                        <h5 class="item-name fw-bold mb-3"></h5>
-                        <span class="badge item-rarity text-uppercase" style="letter-spacing: 1px; color: #000; background-color: rgba(255,255,255,0.7);"></span>
+            <div class="col-md-4 mb-4">
+                <div class="flip-card" onclick="revealCard(this)">
+                    <div class="flip-card-inner shadow">
+                        <div class="flip-card-front">
+                            <h1>
+                                <i class="bi bi-question-circle" style="font-size: 4rem; color: #46CC5E;"></i>
+                            </h1>
+                            <p class="mt-3" style="color: #46CC5E;">Kliknij mnie</p>
+                        </div>
+                        <div class="flip-card-back">
+                            <h5 class="item-name fw-bold mb-3"></h5>
+                            <span class="badge item-rarity text-uppercase" style="letter-spacing: 1px; color: #000; background-color: rgba(255,255,255,0.7);"></span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         }
     </div>
 
@@ -161,7 +163,7 @@ var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
 <script>
     let isRevealed = false;
 
-    // MAGIA Html.Raw rozwiązuje problem z "ł" i "ś" !
+
     const wonItemName = "@Html.Raw(wonItem.Name)";
     const wonItemRarity = "@Html.Raw(wonItem.ItemRarity.Name)";
     const missedItems = [
@@ -170,7 +172,7 @@ var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
     ];
 
     function revealCard(clickedCard) {
-        if(isRevealed) return;
+        if (isRevealed) return;
         isRevealed = true;
 
         const allCards = document.querySelectorAll('.flip-card');
@@ -182,13 +184,13 @@ var missed2 = ViewBag.Missed2 as Hulki.Web.Models.RewardItem;
             const rarityEl = backFace.querySelector('.item-rarity');
 
             if (card === clickedCard) {
-                // To karta gracza
+
                 nameEl.innerText = wonItemName;
                 rarityEl.innerText = wonItemRarity;
                 backFace.classList.add('winner-card');
                 card.classList.add('flipped');
             } else {
-                // Odrzucone karty
+
                 nameEl.innerText = missedItems[missedIndex].name;
                 rarityEl.innerText = missedItems[missedIndex].rarity;
 

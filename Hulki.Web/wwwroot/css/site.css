@@ -38,14 +38,14 @@
 html {
   font-size: 14px;
   overflow-y: scroll;
-    scrollbar-width: none; 
+  scrollbar-width: none;
 }
 
 ::-webkit-scrollbar {
-    display: none; 
+  display: none;
 }
 
- 
+
 
 @media (min-width: 768px) {
   html {
@@ -74,7 +74,7 @@ body {
   text-align: start;
 }
 
-.nav-link.dropdown-toggle{
+.nav-link.dropdown-toggle {
   border: 1px solid #46CC5E !important;
   color: #fff !important;
 }
@@ -225,7 +225,7 @@ a.nav-link:focus:active {
   color: white;
 }
 
-.dropdown-item:hover{
+.dropdown-item:hover {
   background-color: #3cac51;
 }
 
@@ -303,7 +303,7 @@ a.nav-link:focus:active {
   user-select: none;
 }
 
-/* Obrazek w tle z animacją powolnego zoomu */
+
 #banner::before {
   content: "";
   position: absolute;
@@ -318,7 +318,7 @@ a.nav-link:focus:active {
   animation: bannerZoom 12s ease-in-out infinite alternate;
 }
 
-/* Ciemny overlay z gradientem */
+
 #banner::after {
   content: "";
   position: absolute;
@@ -333,7 +333,7 @@ a.nav-link:focus:active {
   z-index: 2;
 }
 
-/* Zielona poświata na środku */
+
 #banner .banner-glow {
   position: absolute;
   inset: 0;
@@ -342,7 +342,7 @@ a.nav-link:focus:active {
   pointer-events: none;
 }
 
-/* Narożniki dekoracyjne */
+
 #banner .banner-corner {
   position: absolute;
   width: 22px;
@@ -378,7 +378,7 @@ a.nav-link:focus:active {
   border-right: 2px solid rgba(70, 204, 94, 0.5);
 }
 
-/* Nadtytuł "Centrum Wsparcia" */
+
 #banner>.banner-tag {
   position: relative;
   z-index: 5;
@@ -392,7 +392,7 @@ a.nav-link:focus:active {
   animation-delay: 0.1s;
 }
 
-/* Glitch + particle canvas */
+
 #banner-canvas {
   position: absolute;
   inset: 0;
@@ -467,7 +467,7 @@ a.nav-link:focus:active {
     blinkDescFade 0.65s step-end 4.9s forwards;
 }
 
-/* Scroll reveal dla kart */
+
 .scroll-reveal {
   opacity: 0;
   transform: translateY(40px);
@@ -483,8 +483,8 @@ a.nav-link:focus:active {
   background-color: #1a1a1e;
   position: relative;
   box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
-    border-radius: 30px !important;
-  
+  border-radius: 30px !important;
+
 }
 
 .carousel-wrapper {
@@ -495,7 +495,7 @@ a.nav-link:focus:active {
 
 }
 
-/* Przyciski (Strzałki) */
+
 .carousel-btn {
   background: transparent;
   border: 1px solid #444;
@@ -551,7 +551,7 @@ a.nav-link:focus:active {
   overflow: hidden;
   background-color: #222;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5),
-              0 8px 12px rgba(70, 204, 94, 0.15);
+    0 8px 12px rgba(70, 204, 94, 0.15);
 }
 
 
@@ -607,7 +607,7 @@ a.nav-link:focus:active {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* Kropki pod karuzelą */
+
 .carousel-dots {
   display: flex;
   justify-content: center;
@@ -648,7 +648,7 @@ a.nav-link:focus:active {
 }
 
 
-/* === Keyframes === */
+
 @keyframes glitchBase {
 
   0%,
@@ -731,53 +731,53 @@ a.nav-link:focus:active {
 }
 
 .scroll-to-top-btn {
-    position: fixed;
-    bottom: 40px;
-    left: 40px;
-    width: 55px;
-    height: 55px;
-    background: rgba(23, 23, 28, 0.6); 
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px); 
-    border: 2px solid rgba(70, 204, 94, 0.3);
-    color: #46CC5E; 
-    border-radius: 50%;
-    font-size: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(40px) scale(0.8);
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    cursor: pointer;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  width: 55px;
+  height: 55px;
+  background: rgba(23, 23, 28, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(70, 204, 94, 0.3);
+  color: #46CC5E;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(40px) scale(0.8);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
 .scroll-to-top-btn.show {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-    animation: floatIdle 3s ease-in-out infinite; 
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  animation: floatIdle 3s ease-in-out infinite;
 }
 
 .scroll-to-top-btn i {
-    transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 
 .scroll-to-top-btn:hover {
-    background: #46CC5E;
-    color: #17171C; 
-    border-color: #46CC5E;
-    box-shadow: 0 0 25px rgba(70, 204, 94, 0.6), 0 0 50px rgba(70, 204, 94, 0.2);
-    animation: none; 
-    transform: translateY(-1px) scale(1.1);
+  background: #46CC5E;
+  color: #17171C;
+  border-color: #46CC5E;
+  box-shadow: 0 0 25px rgba(70, 204, 94, 0.6), 0 0 50px rgba(70, 204, 94, 0.2);
+  animation: none;
+  transform: translateY(-1px) scale(1.1);
 }
 
 .scroll-to-top-btn:hover i {
-    animation: arrowBounce 0.6s infinite alternate ease-in-out;
+  animation: arrowBounce 0.6s infinite alternate ease-in-out;
 }
 
 
@@ -850,7 +850,7 @@ a.nav-link:focus:active {
   }
 }
 
-/* Badże z kategoriami */
+
 #banner>.banner-badges {
   position: relative;
   z-index: 5;
@@ -875,7 +875,7 @@ a.nav-link:focus:active {
   background: rgba(70, 204, 94, 0.08);
 }
 
-/* === Keyframes === */
+
 @keyframes bannerZoom {
   from {
     transform: scale(1);

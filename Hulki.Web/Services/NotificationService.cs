@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Hulki.Web.Models;
 using Hulki.Web.Data;
+using Hulki.Web.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hulki.Web.Services
@@ -31,10 +31,13 @@ namespace Hulki.Web.Services
             return await _context.Notifications.CountAsync(n => n.AppUserId == userId && !n.IsRead);
         }
 
-        public async Task<List<Notification>> GetLatestNotificationsAsync(string userId, int count = 5)
+        public async Task<List<Notification>> GetLatestNotificationsAsync(
+            string userId,
+            int count = 5
+        )
         {
-            return await _context.Notifications
-                .Where(n => n.AppUserId == userId)
+            return await _context
+                .Notifications.Where(n => n.AppUserId == userId)
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(count)
                 .ToListAsync();
@@ -52,8 +55,8 @@ namespace Hulki.Web.Services
 
         public async Task MarkAllAsReadAsync(string userId)
         {
-            var unreadNotifications = await _context.Notifications
-                .Where(n => n.AppUserId == userId && !n.IsRead)
+            var unreadNotifications = await _context
+                .Notifications.Where(n => n.AppUserId == userId && !n.IsRead)
                 .ToListAsync();
 
             foreach (var notification in unreadNotifications)
@@ -72,7 +75,7 @@ namespace Hulki.Web.Services
                 AppUserId = userId,
                 Content = content,
                 IsRead = false,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
             };
 
             _context.Notifications.Add(notification);

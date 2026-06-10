@@ -17,9 +17,10 @@ namespace Hulki.Web.Controllers
         private readonly INotificationService _notificationService;
 
         public TherapyGoalController(
-            ITherapyGoalService goalService, 
+            ITherapyGoalService goalService,
             UserManager<AppUser> userManager,
-            INotificationService notificationService)
+            INotificationService notificationService
+        )
         {
             _goalService = goalService;
             _userManager = userManager;
@@ -29,7 +30,8 @@ namespace Hulki.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            if (user == null)
+                return NotFound();
 
             var goals = await _goalService.GetUserGoalsAsync(user.Id);
             return View(goals);
@@ -37,10 +39,15 @@ namespace Hulki.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string title, DateTime deadline, List<string> milestones)
+        public async Task<IActionResult> Create(
+            string title,
+            DateTime deadline,
+            List<string> milestones
+        )
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound();
+            if (user == null)
+                return NotFound();
 
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -52,17 +59,16 @@ namespace Hulki.Web.Controllers
             {
                 AppUserId = user.Id,
                 Title = title,
-                Deadline = deadline
+                Deadline = deadline,
             };
 
             await _goalService.CreateGoalAsync(goal, milestones);
-            
-            // POWIADOMIENIE DLA PACJENTA
+
             await _notificationService.SendNotificationAsync(
                 user.Id,
                 $"Utworzono nowy cel terapeutyczny: {title}. Masz {milestones?.Count ?? 0} kamieni milowych do osiągnięcia!"
             );
-            
+
             TempData["SuccessMessage"] = "Nowy cel został dodany.";
 
             return RedirectToAction(nameof(Index));
@@ -72,7 +78,8 @@ namespace Hulki.Web.Controllers
         public async Task<IActionResult> ToggleMilestone(Guid milestoneId)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (user == null)
+                return Unauthorized();
 
             await _goalService.ToggleMilestoneAsync(milestoneId, user.Id);
             return RedirectToAction(nameof(Index));
@@ -82,7 +89,8 @@ namespace Hulki.Web.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            if (user == null)
+                return Unauthorized();
 
             await _goalService.DeleteGoalAsync(id, user.Id);
             return RedirectToAction(nameof(Index));

@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Hulki.Web.Data;
 using Hulki.Web.Models;
 using Hulki.Web.Services;
@@ -5,10 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Hulki.Web.Controllers;
 
@@ -20,9 +20,10 @@ public class StoreController : Controller
     private readonly INotificationService _notificationService;
 
     public StoreController(
-        ApplicationDbContext context, 
+        ApplicationDbContext context,
         UserManager<AppUser> userManager,
-        INotificationService notificationService)
+        INotificationService notificationService
+    )
     {
         _context = context;
         _userManager = userManager;
@@ -64,30 +65,62 @@ public class StoreController : Controller
         }
 
         wallet.Balance -= game.Cost;
-        _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = -game.Cost, Description = $"Gra: {game.Name}", TransactionDate = DateTime.Now, WalletId = wallet.Id });
+        _context.PointTransactions.Add(
+            new PointTransaction
+            {
+                Id = Guid.NewGuid(),
+                Amount = -game.Cost,
+                Description = $"Gra: {game.Name}",
+                TransactionDate = DateTime.Now,
+                WalletId = wallet.Id,
+            }
+        );
 
         var random = new Random();
         var wonItem = allRewards[random.Next(allRewards.Count)];
 
-        bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id);
+        bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi =>
+            pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id
+        );
         if (alreadyOwns)
         {
             int refund = game.Cost / 2;
             wallet.Balance += refund;
-            _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = refund, Description = $"Duplikat: {wonItem.Name} (Zwrot pkt)", TransactionDate = DateTime.Now, WalletId = wallet.Id });
+            _context.PointTransactions.Add(
+                new PointTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = refund,
+                    Description = $"Duplikat: {wonItem.Name} (Zwrot pkt)",
+                    TransactionDate = DateTime.Now,
+                    WalletId = wallet.Id,
+                }
+            );
             ViewBag.Message = $"Wylosowano duplikat! Otrzymujesz {refund} pkt zwrotu.";
         }
         else
         {
-            _context.PatientInventories.Add(new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id });
+            _context.PatientInventories.Add(
+                new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id }
+            );
             ViewBag.Message = $"Gratulacje! Wygrałeś nowy przedmiot: {wonItem.Name}!";
         }
 
-        _context.GameSessions.Add(new GameSession { Id = Guid.NewGuid(), AppUserId = user.Id, GameId = game.Id, PlayedAt = DateTime.Now });
+        _context.GameSessions.Add(
+            new GameSession
+            {
+                Id = Guid.NewGuid(),
+                AppUserId = user.Id,
+                GameId = game.Id,
+                PlayedAt = DateTime.Now,
+            }
+        );
         await _context.SaveChangesAsync();
 
         ViewBag.WonItem = wonItem;
-        ViewBag.AllRewards = allRewards.Select(r => new { name = r.Name, rarity = r.ItemRarity.Name }).ToList();
+        ViewBag.AllRewards = allRewards
+            .Select(r => new { name = r.Name, rarity = r.ItemRarity.Name })
+            .ToList();
         ViewBag.GameId = gameId;
         ViewBag.GameCost = game.Cost;
 
@@ -115,27 +148,57 @@ public class StoreController : Controller
         }
 
         wallet.Balance -= game.Cost;
-        _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = -game.Cost, Description = $"Gra: {game.Name}", TransactionDate = DateTime.Now, WalletId = wallet.Id });
+        _context.PointTransactions.Add(
+            new PointTransaction
+            {
+                Id = Guid.NewGuid(),
+                Amount = -game.Cost,
+                Description = $"Gra: {game.Name}",
+                TransactionDate = DateTime.Now,
+                WalletId = wallet.Id,
+            }
+        );
 
         var random = new Random();
         var shuffled = allRewards.OrderBy(x => random.Next()).Take(3).ToList();
         var wonItem = shuffled[0];
 
-        bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id);
+        bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi =>
+            pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id
+        );
         if (alreadyOwns)
         {
             int refund = game.Cost / 2;
             wallet.Balance += refund;
-            _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = refund, Description = $"Duplikat (Zwrot)", TransactionDate = DateTime.Now, WalletId = wallet.Id });
+            _context.PointTransactions.Add(
+                new PointTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = refund,
+                    Description = $"Duplikat (Zwrot)",
+                    TransactionDate = DateTime.Now,
+                    WalletId = wallet.Id,
+                }
+            );
             ViewBag.Message = $"Wylosowano duplikat! Otrzymujesz {refund} pkt zwrotu.";
         }
         else
         {
-            _context.PatientInventories.Add(new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id });
+            _context.PatientInventories.Add(
+                new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id }
+            );
             ViewBag.Message = $"Gratulacje! Wygrałeś: {wonItem.Name}!";
         }
 
-        _context.GameSessions.Add(new GameSession { Id = Guid.NewGuid(), AppUserId = user.Id, GameId = game.Id, PlayedAt = DateTime.Now });
+        _context.GameSessions.Add(
+            new GameSession
+            {
+                Id = Guid.NewGuid(),
+                AppUserId = user.Id,
+                GameId = game.Id,
+                PlayedAt = DateTime.Now,
+            }
+        );
         await _context.SaveChangesAsync();
 
         ViewBag.WonItem = wonItem;
@@ -159,15 +222,27 @@ public class StoreController : Controller
         }
 
         var allRewards = await _context.RewardItems.Include(r => r.ItemRarity).ToListAsync();
-        if (!allRewards.Any()) return RedirectToAction("Index");
+        if (!allRewards.Any())
+            return RedirectToAction("Index");
 
         wallet.Balance -= game.Cost;
-        _context.PointTransactions.Add(new PointTransaction { Id = Guid.NewGuid(), Amount = -game.Cost, Description = $"Gra: {game.Name}", TransactionDate = DateTime.Now, WalletId = wallet.Id });
+        _context.PointTransactions.Add(
+            new PointTransaction
+            {
+                Id = Guid.NewGuid(),
+                Amount = -game.Cost,
+                Description = $"Gra: {game.Name}",
+                TransactionDate = DateTime.Now,
+                WalletId = wallet.Id,
+            }
+        );
 
         var random = new Random();
         var wonItem = allRewards[random.Next(allRewards.Count)];
 
-        bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id);
+        bool alreadyOwns = await _context.PatientInventories.AnyAsync(pi =>
+            pi.AppUserId == user.Id && pi.RewardItemId == wonItem.Id
+        );
         if (alreadyOwns)
         {
             wallet.Balance += (game.Cost / 2);
@@ -175,11 +250,21 @@ public class StoreController : Controller
         }
         else
         {
-            _context.PatientInventories.Add(new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id });
+            _context.PatientInventories.Add(
+                new PatientInventory { AppUserId = user.Id, RewardItemId = wonItem.Id }
+            );
             ViewBag.Message = $"Nowy przedmiot w ekwipunku!";
         }
 
-        _context.GameSessions.Add(new GameSession { Id = Guid.NewGuid(), AppUserId = user.Id, GameId = game.Id, PlayedAt = DateTime.Now });
+        _context.GameSessions.Add(
+            new GameSession
+            {
+                Id = Guid.NewGuid(),
+                AppUserId = user.Id,
+                GameId = game.Id,
+                PlayedAt = DateTime.Now,
+            }
+        );
         await _context.SaveChangesAsync();
 
         ViewBag.WonItem = wonItem;
@@ -190,9 +275,9 @@ public class StoreController : Controller
     public async Task<IActionResult> SellItem(Guid itemId)
     {
         var user = await _userManager.GetUserAsync(User);
-        var inventoryEntry = await _context.PatientInventories
-            .Include(pi => pi.RewardItem)
-            .ThenInclude(ri => ri.ItemRarity)
+        var inventoryEntry = await _context
+            .PatientInventories.Include(pi => pi.RewardItem)
+                .ThenInclude(ri => ri.ItemRarity)
             .FirstOrDefaultAsync(pi => pi.AppUserId == user.Id && pi.RewardItemId == itemId);
 
         if (inventoryEntry == null)
@@ -208,7 +293,7 @@ public class StoreController : Controller
             "Epicki" => 15,
             "Rzadki" => 10,
             "Niepospolity" => 6,
-            _ => 3
+            _ => 3,
         };
 
         _context.PatientInventories.Remove(inventoryEntry);
@@ -216,25 +301,32 @@ public class StoreController : Controller
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
         if (wallet == null)
         {
-            wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
+            wallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                AppUserId = user.Id,
+                Balance = 0,
+            };
             _context.Wallets.Add(wallet);
         }
         wallet.Balance += sellPrice;
 
-        _context.PointTransactions.Add(new PointTransaction
-        {
-            Id = Guid.NewGuid(),
-            Amount = sellPrice,
-            Description = $"Sprzedaż: {inventoryEntry.RewardItem.Name}",
-            TransactionDate = DateTime.Now,
-            WalletId = wallet.Id
-        });
+        _context.PointTransactions.Add(
+            new PointTransaction
+            {
+                Id = Guid.NewGuid(),
+                Amount = sellPrice,
+                Description = $"Sprzedaż: {inventoryEntry.RewardItem.Name}",
+                TransactionDate = DateTime.Now,
+                WalletId = wallet.Id,
+            }
+        );
 
         await _context.SaveChangesAsync();
-        TempData["SuccessMessage"] = $"Sprzedano {inventoryEntry.RewardItem.Name} za {sellPrice} pkt!";
+        TempData["SuccessMessage"] =
+            $"Sprzedano {inventoryEntry.RewardItem.Name} za {sellPrice} pkt!";
         return RedirectToAction("Index", "Profile");
     }
-
 
     [HttpPost]
     public async Task<IActionResult> SellMultiple(List<Guid> itemIds)
@@ -246,9 +338,9 @@ public class StoreController : Controller
         }
 
         var user = await _userManager.GetUserAsync(User);
-        var entries = await _context.PatientInventories
-            .Include(pi => pi.RewardItem)
-            .ThenInclude(ri => ri.ItemRarity)
+        var entries = await _context
+            .PatientInventories.Include(pi => pi.RewardItem)
+                .ThenInclude(ri => ri.ItemRarity)
             .Where(pi => pi.AppUserId == user.Id && itemIds.Contains(pi.RewardItemId))
             .ToListAsync();
 
@@ -261,7 +353,12 @@ public class StoreController : Controller
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
         if (wallet == null)
         {
-            wallet = new Wallet { Id = Guid.NewGuid(), AppUserId = user.Id, Balance = 0 };
+            wallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                AppUserId = user.Id,
+                Balance = 0,
+            };
             _context.Wallets.Add(wallet);
         }
 
@@ -275,18 +372,20 @@ public class StoreController : Controller
                 "Epicki" => 15,
                 "Rzadki" => 10,
                 "Niepospolity" => 6,
-                _ => 3
+                _ => 3,
             };
             totalPrice += sellPrice;
 
-            _context.PointTransactions.Add(new PointTransaction
-            {
-                Id = Guid.NewGuid(),
-                Amount = sellPrice,
-                Description = $"Sprzedaz: {entry.RewardItem.Name}",
-                TransactionDate = DateTime.Now,
-                WalletId = wallet.Id
-            });
+            _context.PointTransactions.Add(
+                new PointTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    Amount = sellPrice,
+                    Description = $"Sprzedaz: {entry.RewardItem.Name}",
+                    TransactionDate = DateTime.Now,
+                    WalletId = wallet.Id,
+                }
+            );
 
             _context.PatientInventories.Remove(entry);
         }
@@ -294,31 +393,39 @@ public class StoreController : Controller
         wallet.Balance += totalPrice;
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = $"Sprzedano {entries.Count} przedmiotow za lacznie {totalPrice} pkt!";
+        TempData["SuccessMessage"] =
+            $"Sprzedano {entries.Count} przedmiotow za lacznie {totalPrice} pkt!";
         return RedirectToAction("Index", "Profile");
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> AddRewardItem(string name, int itemRarityId, string? description, int price, string? iconPath)
+    public async Task<IActionResult> AddRewardItem(
+        string name,
+        int itemRarityId,
+        string? description,
+        int price,
+        string? iconPath
+    )
     {
         if (!string.IsNullOrWhiteSpace(name))
         {
-            _context.RewardItems.Add(new RewardItem
-            {
-                Id = Guid.NewGuid(),
-                Name = name,
-                Description = string.IsNullOrWhiteSpace(description) ? null : description,
-                Price = price,
-                IconPath = string.IsNullOrWhiteSpace(iconPath) ? null : iconPath,
-                ItemRarityId = itemRarityId
-            });
+            _context.RewardItems.Add(
+                new RewardItem
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name,
+                    Description = string.IsNullOrWhiteSpace(description) ? null : description,
+                    Price = price,
+                    IconPath = string.IsNullOrWhiteSpace(iconPath) ? null : iconPath,
+                    ItemRarityId = itemRarityId,
+                }
+            );
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"Dodano przedmiot: {name}!";
         }
         return RedirectToAction("Index");
     }
 
-    private async Task SeedStoreDataIfNotExists()
-        => await StoreDataSeeder.SeedAsync(_context);
+    private async Task SeedStoreDataIfNotExists() => await StoreDataSeeder.SeedAsync(_context);
 }

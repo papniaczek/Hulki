@@ -45,15 +45,18 @@
 
                     <form asp-action="EditRewardItem" method="post">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id"/>
+                        <input type="hidden" name="id" value="@Model.Id" />
 
                         <div class="mb-4 position-relative">
-                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Nazwa <span class="text-danger">*</span></label>
-                            <input type="text" name="name" value="@Model.Name" class="form-control custom-input" maxlength="150" required/>
+                            <label class="form-label text-info fw-bold text-uppercase small"
+                                   style="letter-spacing: 0.5px;">Nazwa <span class="text-danger">*</span></label>
+                            <input type="text" name="name" value="@Model.Name" class="form-control custom-input"
+                                   maxlength="150" required />
                         </div>
 
                         <div class="mb-4 position-relative">
-                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Rzadkość <span class="text-danger">*</span></label>
+                            <label class="form-label text-info fw-bold text-uppercase small"
+                                   style="letter-spacing: 0.5px;">Rzadkość <span class="text-danger">*</span></label>
                             <select name="itemRarityId" class="form-select custom-input" required>
                                 @foreach (var r in rarities)
                                 {
@@ -70,23 +73,30 @@
                         </div>
 
                         <div class="mb-4 position-relative">
-                            <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Opis</label>
-                            <textarea name="description" rows="3" maxlength="1000" class="form-control custom-input">@Model.Description</textarea>
+                            <label class="form-label text-info fw-bold text-uppercase small"
+                                   style="letter-spacing: 0.5px;">Opis</label>
+                            <textarea name="description" rows="3" maxlength="1000"
+                                      class="form-control custom-input">@Model.Description</textarea>
                         </div>
 
                         <div class="row g-3 mb-5">
                             <div class="col-md-4 position-relative">
-                                <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Cena (pkt)</label>
-                                <input type="number" min="0" name="price" value="@Model.Price" class="form-control custom-input"/>
+                                <label class="form-label text-info fw-bold text-uppercase small"
+                                       style="letter-spacing: 0.5px;">Cena (pkt)</label>
+                                <input type="number" min="0" name="price" value="@Model.Price"
+                                       class="form-control custom-input" />
                             </div>
                             <div class="col-md-8 position-relative">
-                                <label class="form-label text-info fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Ścieżka do ikony</label>
-                                <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300" class="form-control custom-input" placeholder="/images/shop/icon.png"/>
+                                <label class="form-label text-info fw-bold text-uppercase small"
+                                       style="letter-spacing: 0.5px;">Ścieżka do ikony</label>
+                                <input type="text" name="iconPath" value="@Model.IconPath" maxlength="300"
+                                       class="form-control custom-input" placeholder="/images/shop/icon.png" />
                             </div>
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-warning btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn-warning">
+                            <button type="submit"
+                                    class="btn btn-warning btn-lg fw-bold rounded-pill text-uppercase custom-glow-btn-warning">
                                 Zapisz zmiany
                             </button>
                         </div>

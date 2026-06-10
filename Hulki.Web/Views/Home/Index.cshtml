@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    
+
 
     @{
         var quote = ViewBag.Quote as Hulki.Web.Models.Dto.QuoteDto;
@@ -71,7 +71,9 @@
                         <h4>Sklep Nagród</h4>
                         <p class="text-muted small">Wymień punkty na unikalne odznaki do profilu.</p>
                         <a asp-controller="Store" asp-action="Index"
-                           class="btn btn-outline-warning stretched-link">Zajrzyj</a>
+                           class="btn btn-outline-warning stretched-link">
+                            Zajrzyj
+                        </a>
                     </div>
                 </div>
             </div>
@@ -388,7 +390,6 @@
             drawParticles();
         }
 
-        // Scroll reveal
         const revealEls = document.querySelectorAll('.scroll-reveal');
         if ('IntersectionObserver' in window) {
             const obs = new IntersectionObserver((entries) => {

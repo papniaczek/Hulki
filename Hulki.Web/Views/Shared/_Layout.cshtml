@@ -56,7 +56,7 @@
             border-color: rgba(218, 41, 46, 0.45);
         }
     
-        /* WSPÓLNE STYLE DLA ZAAWANSOWANYCH DROPDOWNÓW (Powiadomienia + Profil) */
+    
         .glass-dropdown {
             background: rgba(31, 41, 55, 0.95) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -107,7 +107,7 @@
             margin: 8px 0 !important;
         }
     
-        /* Specyficzne dla profilu */
+    
         .profile-dropdown-menu {
             min-width: 260px !important;
         }
@@ -117,7 +117,7 @@
             color: #ff6b6b !important;
         }
     
-        /* Specyficzne dla powiadomień */
+    
         #notificationList {
             width: 340px !important;
             max-height: 450px !important;
@@ -461,18 +461,18 @@
                         const li = document.createElement('li');
                         li.className = "mb-1";
                         li.innerHTML = `
-                                <a class="dropdown-item text-wrap ${isUnread} d-flex align-items-start"
-                                   href="#" onclick="markAsRead('${n.id}', this); return false;">
-                                    
-                                    <div class="flex-grow-1">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <small class="text-muted" style="font-size: 0.75rem;">${new Date(n.createdAt).toLocaleString()}</small>
-                                            ${dot}
+                                    <a class="dropdown-item text-wrap ${isUnread} d-flex align-items-start"
+                                       href="#" onclick="markAsRead('${n.id}', this); return false;">
+                                        
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <small class="text-muted" style="font-size: 0.75rem;">${new Date(n.createdAt).toLocaleString()}</small>
+                                                ${dot}
+                                            </div>
+                                            <div class="text-light" style="font-size: 0.85rem; line-height: 1.4;">${n.content}</div>
                                         </div>
-                                        <div class="text-light" style="font-size: 0.85rem; line-height: 1.4;">${n.content}</div>
-                                    </div>
-                                </a>
-                            `;
+                                    </a>
+                                `;
                         items.appendChild(li);
                     });
                 });
