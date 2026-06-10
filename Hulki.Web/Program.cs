@@ -48,6 +48,8 @@ builder.Services.AddHttpClient(QuoteService.TranslationClientName, client =>
 });
 builder.Services.AddScoped<IQuoteService, QuoteService>();
 builder.Services.AddScoped<IConsultationService, ConsultationService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITherapyGoalService, TherapyGoalService>();
 var app = builder.Build();
 
 // SEEDING ADMINA

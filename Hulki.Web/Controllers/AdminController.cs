@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hulki.Web.Data;
 using Hulki.Web.Models;
+using Hulki.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +19,14 @@ public class AdminController : Controller
     private readonly UserManager<AppUser> _userManager;
 
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly INotificationService _notificationService;
 
-    public AdminController(ApplicationDbContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+    public AdminController(ApplicationDbContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, INotificationService notificationService)
     {
         _context = context;
         _userManager = userManager;
         _roleManager = roleManager;
+        _notificationService = notificationService;
     }
 
     // --- DASHBOARD ---
@@ -182,6 +185,7 @@ public class AdminController : Controller
         }
 
         var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == userId);
+
         if (wallet == null)
         {
             wallet = new Wallet
@@ -191,29 +195,33 @@ public class AdminController : Controller
                 Balance = 0,
             };
             _context.Wallets.Add(wallet);
-            await _context.SaveChangesAsync();
         }
 
         wallet.Balance += amount;
         if (wallet.Balance < 0)
             wallet.Balance = 0;
 
-        _context.PointTransactions.Add(
-            new PointTransaction
-            {
-                Id = Guid.NewGuid(),
-                Amount = amount,
-                Description = string.IsNullOrWhiteSpace(reason)
-                    ? (amount > 0 ? "Korekta terapeuty (+)" : "Korekta terapeuty (-)")
-                    : $"Korekta terapeuty: {reason}",
-                TransactionDate = DateTime.Now,
-                WalletId = wallet.Id,
-            }
-        );
+        _context.PointTransactions.Add(new PointTransaction
+        {
+            Id = Guid.NewGuid(),
+            Amount = amount,
+            Description = string.IsNullOrWhiteSpace(reason)
+                ? (amount > 0 ? "Korekta terapeuty (+)" : "Korekta terapeuty (-)")
+                : $"Korekta terapeuty: {reason}",
+            TransactionDate = DateTime.Now,
+            WalletId = wallet.Id,
+        });
 
         await _context.SaveChangesAsync();
+
+        await _notificationService.SendNotificationAsync(
+            userId,
+            $"Twoje saldo punktów zostało zmienione o {amount}. Nowe saldo: {wallet.Balance}."
+        );
+
         TempData["SuccessMessage"] =
             $"Saldo zmienione o {amount} pkt. Nowe saldo: {wallet.Balance}.";
+
         return RedirectToAction(nameof(PatientDetails), new { id = userId });
     }
 
@@ -238,12 +246,20 @@ public class AdminController : Controller
         if (isCurrentlyLocked)
         {
             await _userManager.SetLockoutEndDateAsync(user, null);
+            await _notificationService.SendNotificationAsync(
+    userId,
+    "Twoje konto zostało odblokowane."
+);
             TempData["SuccessMessage"] = "Konto pacjenta zostało odblokowane.";
         }
         else
         {
             await _userManager.SetLockoutEnabledAsync(user, true);
             await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(100));
+            await _notificationService.SendNotificationAsync(
+    userId,
+    "Twoje konto zostało zablokowane przez administratora."
+);
             TempData["SuccessMessage"] = "Konto pacjenta zostało zablokowane.";
         }
 
@@ -284,6 +300,11 @@ public class AdminController : Controller
         {
             report.ReportStatusId = approvedStatus.Id;
             await _context.SaveChangesAsync();
+
+            await _notificationService.SendNotificationAsync(
+                report.AppUserId,
+                "Twój wpis dzienniczka został zatwierdzony!"
+            );
             TempData["SuccessMessage"] = "Wpis został zatwierdzony.";
         }
 
@@ -338,6 +359,11 @@ public class AdminController : Controller
             }
 
             await _context.SaveChangesAsync();
+
+            await _notificationService.SendNotificationAsync(
+                report.AppUserId,
+                $"Twój wpis został odrzucony. Utracono {pointsToDeduct} punktów."
+            );
             TempData["ErrorMessage"] =
                 $"Wpis został odrzucony. Odebrano {pointsToDeduct} pkt z konta pacjenta.";
         }
@@ -378,7 +404,10 @@ public class AdminController : Controller
 
             user.IsTherapist = false;
             await _userManager.UpdateAsync(user);
-
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Twoja rola terapeuty została odebrana."
+            );
             TempData["SuccessMessage"] =
                 $"{user.FirstName} {user.LastName} nie jest już terapeutą.";
         }
@@ -388,7 +417,10 @@ public class AdminController : Controller
 
             user.IsTherapist = true;
             await _userManager.UpdateAsync(user);
-
+            await _notificationService.SendNotificationAsync(
+                userId,
+                "Otrzymałeś rolę terapeuty."
+            );
             TempData["SuccessMessage"] =
                 $"{user.FirstName} {user.LastName} otrzymał(a) rolę terapeuty.";
         }

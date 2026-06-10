@@ -4,6 +4,7 @@ using Hulki.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hulki.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610010024_AddNotificationDate")]
+    partial class AddNotificationDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,6 +59,24 @@ namespace Hulki.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConsultationStatuses");
+                });
+
+            modelBuilder.Entity("GoalMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GoalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GoalMilestones");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.AppUser", b =>
@@ -379,29 +400,6 @@ namespace Hulki.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GameTypes");
-                });
-
-            modelBuilder.Entity("Hulki.Web.Models.GoalMilestone", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("GoalId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GoalId");
-
-                    b.ToTable("GoalMilestones");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.GroupMessage", b =>
@@ -815,33 +813,6 @@ namespace Hulki.Web.Migrations
                     b.ToTable("RewardItems");
                 });
 
-            modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("Deadline")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.ToTable("TherapyGoals");
-                });
-
             modelBuilder.Entity("Hulki.Web.Models.TherapyGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -1160,6 +1131,31 @@ namespace Hulki.Web.Migrations
                     b.ToTable("SurveySubmissions");
                 });
 
+            modelBuilder.Entity("TherapyGoal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TherapyGoals");
+                });
+
             modelBuilder.Entity("UserBadge", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1290,17 +1286,6 @@ namespace Hulki.Web.Migrations
                     b.Navigation("AppUser");
 
                     b.Navigation("Game");
-                });
-
-            modelBuilder.Entity("Hulki.Web.Models.GoalMilestone", b =>
-                {
-                    b.HasOne("Hulki.Web.Models.TherapyGoal", "Goal")
-                        .WithMany("Milestones")
-                        .HasForeignKey("GoalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Goal");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.GroupMessage", b =>
@@ -1460,17 +1445,6 @@ namespace Hulki.Web.Migrations
                     b.Navigation("ItemRarity");
                 });
 
-            modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
-                {
-                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-                });
-
             modelBuilder.Entity("Hulki.Web.Models.TherapyGroup", b =>
                 {
                     b.HasOne("Hulki.Web.Models.TherapyType", "TherapyType")
@@ -1618,11 +1592,6 @@ namespace Hulki.Web.Migrations
             modelBuilder.Entity("Hulki.Web.Models.ReportStatus", b =>
                 {
                     b.Navigation("DailyReports");
-                });
-
-            modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
-                {
-                    b.Navigation("Milestones");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.TherapyGroup", b =>

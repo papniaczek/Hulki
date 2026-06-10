@@ -1,0 +1,132 @@
+@model IEnumerable<Hulki.Web.Models.TherapyGoal>
+
+@{
+    ViewData["Title"] = "Moje Cele Terapeutyczne";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-bullseye"></i> Cele Terapeutyczne</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Wyznacz nowy cel</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nazwa celu</label>
+                            <input type="text" name="title" class="form-control" placeholder="np. Ukończenie terapii kroków" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ostateczny termin</label>
+                            <input type="date" name="deadline" class="form-control" required />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Kamienie milowe (kroki do celu)</label>
+                            <div id="milestonesContainer">
+                                <input type="text" name="milestones" class="form-control mb-2" placeholder="Krok 1..." required />
+                                <input type="text" name="milestones" class="form-control mb-2" placeholder="Krok 2..." />
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 mt-1" onclick="addMilestoneField()">
+                                <i class="bi bi-plus-circle"></i> Dodaj kolejny krok
+                            </button>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100">Zapisz cel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">Nie wyznaczono jeszcze żadnych celów terapeutycznych.</div>
+            }
+            else
+            {
+                <div class="row row-cols-1 g-4">
+                    @foreach (var goal in Model)
+                    {
+                        var totalMilestones = goal.Milestones.Count;
+                        var completedMilestones = goal.Milestones.Count(m => m.IsCompleted);
+                        var progress = totalMilestones > 0 ? (int)Math.Round((double)completedMilestones / totalMilestones * 100) : 0;
+                        var cardBorder = goal.IsCompleted ? "border-success" : "";
+                        var headerBg = goal.IsCompleted ? "bg-success text-white" : "bg-light";
+
+                        <div class="col">
+                            <div class="card shadow-sm @cardBorder">
+                                <div class="card-header d-flex justify-content-between align-items-center @headerBg">
+                                    <h5 class="mb-0">
+                                        @if (goal.IsCompleted) { <i class="bi bi-check-circle-fill me-2"></i> }
+                                        @goal.Title
+                                    </h5>
+                                    <form asp-action="Delete" asp-route-id="@goal.Id" method="post" onsubmit="return confirm('Na pewno usunąć ten cel?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-muted">Termin: @goal.Deadline.ToString("dd.MM.yyyy")</small>
+                                        <small class="fw-bold @(progress == 100 ? "text-success" : "")">@progress%</small>
+                                    </div>
+                                    <div class="progress mb-4" style="height: 10px;">
+                                        <div class="progress-bar @(progress == 100 ? "bg-success" : "")" role="progressbar" style="width: @progress%;" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var milestone in goal.Milestones.OrderBy(m => m.IsCompleted))
+                                        {
+                                            <li class="list-group-item d-flex align-items-center px-0 border-0">
+                                                <form asp-action="ToggleMilestone" method="post" class="m-0 p-0 w-100 d-flex align-items-center">
+                                                    <input type="hidden" name="milestoneId" value="@milestone.Id" />
+                                                    <button type="submit" class="btn btn-link p-0 me-3 text-decoration-none text-dark">
+                                                        @if (milestone.IsCompleted)
+                                                        {
+                                                            <i class="bi bi-check-square-fill text-success fs-5"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="bi bi-square text-secondary fs-5"></i>
+                                                        }
+                                                    </button>
+                                                    <span class="@(milestone.IsCompleted ? "text-decoration-line-through text-muted" : "")">
+                                                        @milestone.Description
+                                                    </span>
+                                                </form>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function addMilestoneField() {
+        const container = document.getElementById('milestonesContainer');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'milestones';
+        input.className = 'form-control mb-2';
+        input.placeholder = 'Kolejny krok...';
+        container.appendChild(input);
+    }
+</script>

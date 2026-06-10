@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Hulki.Web.Services; 
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,11 +16,16 @@ public class TherapyGroupController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<AppUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public TherapyGroupController(ApplicationDbContext context, UserManager<AppUser> userManager)
+    public TherapyGroupController(
+        ApplicationDbContext context, 
+        UserManager<AppUser> userManager,
+        INotificationService notificationService) // <-- DODANE
     {
         _context = context;
         _userManager = userManager;
+        _notificationService = notificationService; // <-- DODANE
     }
 
     // 1. LISTA GRUP
@@ -167,6 +173,7 @@ public class TherapyGroupController : Controller
     }
 
     // 4. ZATWIERDZANIE WNIOSKU
+    // 4. ZATWIERDZANIE WNIOSKU
     [HttpPost]
     [Authorize(Roles = "Terapeuta, Admin")]
     public async Task<IActionResult> Approve(int groupId, string userId)
@@ -179,6 +186,10 @@ public class TherapyGroupController : Controller
             membership.IsApproved = true;
             _context.PatientGroups.Update(membership);
             await _context.SaveChangesAsync();
+
+            // WYSYŁANIE POWIADOMIENIA
+            await _notificationService.SendNotificationAsync(userId, "Twój wniosek o dołączenie do grupy terapeutycznej został zaakceptowany! Zobacz zakładkę grupy.");
+
             TempData["SuccessMessage"] = "Pacjent został przyjęty do grupy!";
         }
 
@@ -197,6 +208,10 @@ public class TherapyGroupController : Controller
         {
             _context.PatientGroups.Remove(membership);
             await _context.SaveChangesAsync();
+
+            // WYSYŁANIE POWIADOMIENIA
+            await _notificationService.SendNotificationAsync(userId, "Twój wniosek o dołączenie do grupy został odrzucony przez terapeutę.");
+
             TempData["ErrorMessage"] = "Wniosek został odrzucony. Pacjent został usunięty.";
         }
 
