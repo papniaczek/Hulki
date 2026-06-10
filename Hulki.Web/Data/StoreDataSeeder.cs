@@ -212,5 +212,31 @@ public static class StoreDataSeeder
             });
             await context.SaveChangesAsync();
         }
+        // 4. Pacjenci kroki
+        if (!context.AchievementBadges.Any())
+        {
+            context.AchievementBadges.AddRange(
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Pierwszy krok",
+                    Description = "Ukończono pierwszy cel terapeutyczny.",
+                    IconPath = "bi-star-fill",
+                    ConditionType = "GoalsCompleted",
+                    ConditionValue = 1
+                },
+                new AchievementBadge
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Weteran",
+                    Description = "Ukończono 5 celów terapeutycznych.",
+                    IconPath = "bi-trophy-fill",
+                    ConditionType = "GoalsCompleted",
+                    ConditionValue = 5
+                }
+            );
+            await context.SaveChangesAsync();
+        }
     }
+    
 }

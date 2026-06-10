@@ -50,6 +50,7 @@ builder.Services.AddScoped<IQuoteService, QuoteService>();
 builder.Services.AddScoped<IConsultationService, ConsultationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITherapyGoalService, TherapyGoalService>();
+builder.Services.AddScoped<IBadgeService, BadgeService>();
 var app = builder.Build();
 
 // SEEDING ADMINA
