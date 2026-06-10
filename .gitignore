@@ -52,3 +52,35 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# =========================
+# ŚRODOWISKA PROGRAMISTYCZNE
+# =========================
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.slnx.user
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+
+# Bazy danych lokalne i indeksy (Copilot, lokalny EF Core)
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# =========================
+# PLIKI APLIKACJI I RUNTIME
+# =========================
+
+# Folder z uploadami (wyklucza testowe obrazki/PDFy, ale zostawia sam folder)
+Hulki.Web/wwwroot/uploads/**
+!Hulki.Web/wwwroot/uploads/
+!Hulki.Web/wwwroot/uploads/.gitkeep
