@@ -109,6 +109,24 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .WithMany()
             .HasForeignKey(c => c.TherapistId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
+        builder.Entity<SurveyAnswer>()
+            .HasOne(a => a.Submission)
+            .WithMany(s => s.Answers)
+            .HasForeignKey(a => a.SubmissionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SurveyAnswer>()
+            .HasOne(a => a.Question)
+            .WithMany()
+            .HasForeignKey(a => a.QuestionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Survey>()
+            .HasMany(s => s.Submissions)
+            .WithOne(su => su.Survey)
+            .HasForeignKey(su => su.SurveyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
+        
 }

@@ -24,15 +24,29 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        // 1. Sprawdzamy czy użytkownik jest zalogowany
         if (User.Identity?.IsAuthenticated == true)
         {
             var user = await _userManager.GetUserAsync(User);
-            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user!.Id);
-            ViewBag.Points = wallet?.Balance ?? 0;
+
+            // 2. Bezpieczne sprawdzenie czy user faktycznie został pobrany (zabezpieczenie przed null)
+            if (user != null)
+            {
+                var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.AppUserId == user.Id);
+                ViewBag.Points = wallet?.Balance ?? 0;
+            }
+            else
+            {
+                // Jeśli user jest null mimo IsAuthenticated, wymuszamy wylogowanie/bezpieczne zero
+                ViewBag.Points = 0;
+            }
+        }
+        else
+        {
+            ViewBag.Points = 0;
         }
 
-        // Cytat pobieramy tutaj, żeby strona renderowała się już z treścią
-        // (serwis sam obsługuje fallback w razie awarii zewnętrznego API).
+        // Cytat zawsze się pobierze
         ViewBag.Quote = await _quoteService.GetRandomQuoteAsync();
 
         return View();

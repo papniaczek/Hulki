@@ -93,6 +93,7 @@ public class ProfileController : Controller
             await _context.SaveChangesAsync();
         }
 
+        // 2. Twarde wymuszenie przeliczenia osiągnięć dla zalogowanego pacjenta
         await _badgeService.CheckAndAwardBadgesAsync(user.Id);
 
         return RedirectToAction(nameof(Index));

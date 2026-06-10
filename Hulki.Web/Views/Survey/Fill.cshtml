@@ -1,0 +1,30 @@
+@model Hulki.Web.Models.Survey
+
+@{
+    ViewData["Title"] = "Wypełnij Ankietę";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm col-md-8 mx-auto">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">@Model.Title</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Submit" method="post">
+                <input type="hidden" name="surveyId" value="@Model.Id"/>
+
+                @foreach (var question in Model.Questions)
+                {
+                    <div class="mb-4 bg-light p-3 rounded border">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-question-circle"></i> @question.Text
+                        </label>
+                        <textarea name="answers[@question.Id]" class="form-control" rows="2" required></textarea>
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-primary w-100">Prześlij odpowiedzi</button>
+            </form>
+        </div>
+    </div>
+</div>

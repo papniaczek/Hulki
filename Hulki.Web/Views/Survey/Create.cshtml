@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Nowa Ankieta";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm col-md-8 mx-auto">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Kreator Kwestionariusza</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tytuł ankiety</label>
+                    <input type="text" name="title" class="form-control" required placeholder="np. Wywiad wstępny"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Pytania (otwarte)</label>
+                    <div id="questionsContainer">
+                        <input type="text" name="questions" class="form-control mb-2" required placeholder="Pytanie 1..."/>
+                        <input type="text" name="questions" class="form-control mb-2" placeholder="Pytanie 2..."/>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="addQuestionField()">
+                        <i class="bi bi-plus-circle"></i> Dodaj kolejne pytanie
+                    </button>
+                </div>
+                <hr/>
+                <button type="submit" class="btn btn-success">Zapisz i opublikuj</button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Anuluj</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function addQuestionField() {
+        const container = document.getElementById('questionsContainer');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'questions';
+        input.className = 'form-control mb-2';
+        input.placeholder = 'Kolejne pytanie...';
+        container.appendChild(input);
+    }
+</script>

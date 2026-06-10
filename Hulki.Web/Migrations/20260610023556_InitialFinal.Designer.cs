@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hulki.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260607215213_PrawieFinal")]
-    partial class PrawieFinal
+    [Migration("20260610023556_InitialFinal")]
+    partial class InitialFinal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,53 @@ namespace Hulki.Web.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ConsultationStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConsultationStatuses");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.AchievementBadge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConditionType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ConditionValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AchievementBadges");
+                });
 
             modelBuilder.Entity("Hulki.Web.Models.AppUser", b =>
                 {
@@ -47,6 +94,9 @@ namespace Hulki.Web.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsTherapist")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -96,6 +146,43 @@ namespace Hulki.Web.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.Consultation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TherapistId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("TherapistId");
+
+                    b.ToTable("Consultations");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.DailyReport", b =>
@@ -308,6 +395,29 @@ namespace Hulki.Web.Migrations
                     b.ToTable("GameTypes");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.GoalMilestone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("GoalId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoalId");
+
+                    b.ToTable("GoalMilestones");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.GroupMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -443,6 +553,71 @@ namespace Hulki.Web.Migrations
                     b.ToTable("ItemRarities");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.MoodLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MoodTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MoodTypeId");
+
+                    b.ToTable("MoodLogs");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.MoodType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MoodTypes");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.PatientGroup", b =>
                 {
                     b.Property<string>("AppUserId")
@@ -506,6 +681,36 @@ namespace Hulki.Web.Migrations
                     b.HasIndex("WalletId");
 
                     b.ToTable("PointTransactions");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.PrescribedMedication", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Dosage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Duration")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("VisitDetailsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VisitDetailsId");
+
+                    b.ToTable("PrescribedMedication");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.QuestSubmission", b =>
@@ -624,6 +829,118 @@ namespace Hulki.Web.Migrations
                     b.ToTable("RewardItems");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.Survey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Surveys");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveyAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SubmissionId");
+
+                    b.ToTable("SurveyAnswers");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveyQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("SurveyQuestions");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveySubmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("SurveySubmissions");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Deadline")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("TherapyGoals");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.TherapyGroup", b =>
                 {
                     b.Property<int>("Id")
@@ -671,6 +988,69 @@ namespace Hulki.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TherapyTypes");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.UserBadge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("BadgeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("BadgeId");
+
+                    b.ToTable("UserBadges");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.VisitDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ConsultationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Diagnosis")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InternalNotes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MedicalHistory")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Recommendations")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("VisitId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationId")
+                        .IsUnique();
+
+                    b.ToTable("VisitDetails");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.Wallet", b =>
@@ -827,6 +1207,33 @@ namespace Hulki.Web.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.Consultation", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.AppUser", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ConsultationStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hulki.Web.Models.AppUser", "Therapist")
+                        .WithMany()
+                        .HasForeignKey("TherapistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+
+                    b.Navigation("Status");
+
+                    b.Navigation("Therapist");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.DailyReport", b =>
                 {
                     b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
@@ -914,6 +1321,17 @@ namespace Hulki.Web.Migrations
                     b.Navigation("Game");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.GoalMilestone", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.TherapyGoal", "Goal")
+                        .WithMany("Milestones")
+                        .HasForeignKey("GoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Goal");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.GroupMessage", b =>
                 {
                     b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
@@ -953,6 +1371,17 @@ namespace Hulki.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("TherapyGroup");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.MoodLog", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.MoodType", "MoodType")
+                        .WithMany()
+                        .HasForeignKey("MoodTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MoodType");
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.PatientGroup", b =>
@@ -1004,6 +1433,13 @@ namespace Hulki.Web.Migrations
                     b.Navigation("Wallet");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.PrescribedMedication", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.VisitDetails", null)
+                        .WithMany("Medications")
+                        .HasForeignKey("VisitDetailsId");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.QuestSubmission", b =>
                 {
                     b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
@@ -1053,6 +1489,66 @@ namespace Hulki.Web.Migrations
                     b.Navigation("ItemRarity");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.SurveyAnswer", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.SurveyQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hulki.Web.Models.SurveySubmission", "Submission")
+                        .WithMany("Answers")
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Submission");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveyQuestion", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.Survey", "Survey")
+                        .WithMany("Questions")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Survey");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveySubmission", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hulki.Web.Models.Survey", "Survey")
+                        .WithMany("Submissions")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Survey");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.TherapyGroup", b =>
                 {
                     b.HasOne("Hulki.Web.Models.TherapyType", "TherapyType")
@@ -1062,6 +1558,34 @@ namespace Hulki.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("TherapyType");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.UserBadge", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hulki.Web.Models.AchievementBadge", "Badge")
+                        .WithMany()
+                        .HasForeignKey("BadgeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Badge");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.VisitDetails", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.Consultation", null)
+                        .WithOne("Details")
+                        .HasForeignKey("Hulki.Web.Models.VisitDetails", "ConsultationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Hulki.Web.Models.Wallet", b =>
@@ -1138,6 +1662,12 @@ namespace Hulki.Web.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.Consultation", b =>
+                {
+                    b.Navigation("Details")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.DailyReport", b =>
                 {
                     b.Navigation("ReportAttachments");
@@ -1178,9 +1708,31 @@ namespace Hulki.Web.Migrations
                     b.Navigation("DailyReports");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.Survey", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveySubmission", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
+                {
+                    b.Navigation("Milestones");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.TherapyGroup", b =>
                 {
                     b.Navigation("PatientGroups");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.VisitDetails", b =>
+                {
+                    b.Navigation("Medications");
                 });
 #pragma warning restore 612, 618
         }

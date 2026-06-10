@@ -1,0 +1,46 @@
+@model IEnumerable<Hulki.Web.Models.SurveySubmission>
+
+@{
+    var survey = ViewBag.Survey as Hulki.Web.Models.Survey;
+    ViewData["Title"] = "Wyniki: " + survey?.Title;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <h2><i class="bi bi-bar-chart-steps"></i> Wyniki: @survey?.Title</h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">Powrót</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Nikt jeszcze nie wypełnił tego kwestionariusza.</div>
+    }
+    else
+    {
+        <div class="accordion" id="resultsAccordion">
+            @foreach (var submission in Model)
+            {
+                <div class="accordion-item mb-3 shadow-sm border">
+                    <h2 class="accordion-header" id="heading-@submission.Id">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@submission.Id">
+                            <i class="bi bi-person-circle me-2 text-primary"></i>
+                            <strong>@submission.AppUser.FirstName @submission.AppUser.LastName</strong>
+                            <span class="ms-auto text-muted small me-3">Złożono: @submission.SubmittedAt.ToString("dd.MM.yyyy HH:mm")</span>
+                        </button>
+                    </h2>
+                    <div id="collapse-@submission.Id" class="accordion-collapse collapse" data-bs-parent="#resultsAccordion">
+                        <div class="accordion-body">
+                            @foreach (var answer in submission.Answers)
+                            {
+                                <div class="mb-3">
+                                    <p class="mb-1 text-muted fw-bold">Pytanie: @answer.Question.Text</p>
+                                    <p class="p-2 border rounded bg-white">@answer.AnswerText</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,6 +1,12 @@
-public class SurveyQuestion
+using System;
+
+namespace Hulki.Web.Models
 {
-    public Guid Id { get; set; }
-    public string Text { get; set; }
-    public Guid SurveyId { get; set; }
+    public class SurveyQuestion
+    {
+        public Guid Id { get; set; }
+        public string Text { get; set; }
+        public Guid SurveyId { get; set; }
+        public virtual Survey Survey { get; set; }
+    }
 }

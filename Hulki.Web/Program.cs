@@ -51,6 +51,7 @@ builder.Services.AddScoped<IConsultationService, ConsultationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITherapyGoalService, TherapyGoalService>();
 builder.Services.AddScoped<IBadgeService, BadgeService>();
+builder.Services.AddScoped<ISurveyService, SurveyService>();
 var app = builder.Build();
 
 // SEEDING ADMINA

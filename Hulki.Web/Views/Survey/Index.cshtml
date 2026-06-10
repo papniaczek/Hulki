@@ -1,0 +1,66 @@
+@model IEnumerable<Hulki.Web.Models.Survey>
+@inject Hulki.Web.Services.ISurveyService SurveyService
+
+@{
+    ViewData["Title"] = "Kwestionariusze";
+    bool isTherapist = ViewBag.IsTherapist;
+    string userId = ViewBag.UserId;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-ui-radios"></i> Kwestionariusze i Ankiety</h2>
+        @if (isTherapist)
+        {
+            <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Utwórz nową ankietę</a>
+        }
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var survey in Model)
+        {
+            var alreadySubmitted = !isTherapist && await SurveyService.HasUserSubmittedAsync(survey.Id, userId);
+
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">@survey.Title</h5>
+                        <p class="card-text text-muted">Liczba pytań: @survey.Questions.Count</p>
+                        @if (isTherapist)
+                        {
+                            <p class="card-text text-primary">
+                                <small>Wypełnień: @survey.Submissions.Count</small>
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer bg-white border-top-0 d-flex justify-content-end">
+                        @if (isTherapist)
+                        {
+                            <a asp-action="Results" asp-route-id="@survey.Id" class="btn btn-sm btn-outline-dark">Zobacz wyniki</a>
+                        }
+                        else
+                        {
+                            if (alreadySubmitted)
+                            {
+                                <button class="btn btn-sm btn-success" disabled><i class="bi bi-check-lg"></i> Wypełniono</button>
+                            }
+                            else
+                            {
+                                <a asp-action="Fill" asp-route-id="@survey.Id" class="btn btn-sm btn-primary">Wypełnij ankietę</a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

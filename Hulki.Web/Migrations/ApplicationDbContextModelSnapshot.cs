@@ -826,6 +826,91 @@ namespace Hulki.Web.Migrations
                     b.ToTable("RewardItems");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.Survey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Surveys");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveyAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SubmissionId");
+
+                    b.ToTable("SurveyAnswers");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveyQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("SurveyQuestions");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveySubmission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("SurveyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("SurveyId");
+
+                    b.ToTable("SurveySubmissions");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1119,83 +1204,6 @@ namespace Hulki.Web.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Survey", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Surveys");
-                });
-
-            modelBuilder.Entity("SurveyAnswer", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AnswerText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SubmissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SurveyAnswers");
-                });
-
-            modelBuilder.Entity("SurveyQuestion", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("SurveyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SurveyId");
-
-                    b.ToTable("SurveyQuestions");
-                });
-
-            modelBuilder.Entity("SurveySubmission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("SurveyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SurveySubmissions");
-                });
-
             modelBuilder.Entity("Hulki.Web.Models.Consultation", b =>
                 {
                     b.HasOne("Hulki.Web.Models.AppUser", "Patient")
@@ -1478,6 +1486,55 @@ namespace Hulki.Web.Migrations
                     b.Navigation("ItemRarity");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.SurveyAnswer", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.SurveyQuestion", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Hulki.Web.Models.SurveySubmission", "Submission")
+                        .WithMany("Answers")
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Submission");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveyQuestion", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.Survey", "Survey")
+                        .WithMany("Questions")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Survey");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveySubmission", b =>
+                {
+                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hulki.Web.Models.Survey", "Survey")
+                        .WithMany("Submissions")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Survey");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
                 {
                     b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
@@ -1590,15 +1647,6 @@ namespace Hulki.Web.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SurveyQuestion", b =>
-                {
-                    b.HasOne("Survey", null)
-                        .WithMany("Questions")
-                        .HasForeignKey("SurveyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Hulki.Web.Models.AppUser", b =>
                 {
                     b.Navigation("DailyReports");
@@ -1657,6 +1705,18 @@ namespace Hulki.Web.Migrations
                     b.Navigation("DailyReports");
                 });
 
+            modelBuilder.Entity("Hulki.Web.Models.Survey", b =>
+                {
+                    b.Navigation("Questions");
+
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("Hulki.Web.Models.SurveySubmission", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
             modelBuilder.Entity("Hulki.Web.Models.TherapyGoal", b =>
                 {
                     b.Navigation("Milestones");
@@ -1670,11 +1730,6 @@ namespace Hulki.Web.Migrations
             modelBuilder.Entity("Hulki.Web.Models.VisitDetails", b =>
                 {
                     b.Navigation("Medications");
-                });
-
-            modelBuilder.Entity("Survey", b =>
-                {
-                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }
