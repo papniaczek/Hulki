@@ -1,5 +1,6 @@
 using Hulki.Web.Data;
 using Hulki.Web.Models;
+using Hulki.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,16 @@ public class ForumController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<AppUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public ForumController(ApplicationDbContext context, UserManager<AppUser> userManager)
+    public ForumController(
+        ApplicationDbContext context, 
+        UserManager<AppUser> userManager,
+        INotificationService notificationService)
     {
         _context = context;
         _userManager = userManager;
+        _notificationService = notificationService;
     }
 
     // 1. STRONA GŁÓWNA FORUM (Lista kategorii)
@@ -128,6 +134,31 @@ public class ForumController : Controller
 
         _context.ForumPosts.Add(post);
         await _context.SaveChangesAsync();
+
+        // POWIADOMIENIE DLA AUTORA TEMATU
+        var topic = await _context.ForumTopics.FindAsync(forumTopicId);
+        if (topic != null && topic.AppUserId != user.Id) // Nie wysyłaj powiadomienia samemu sobie
+        {
+            await _notificationService.SendNotificationAsync(
+                topic.AppUserId,
+                $"{user.FirstName} {user.LastName} odpowiedział(a) na Twój temat: {topic.Title}"
+            );
+        }
+
+        // POWIADOMIENIE DLA INNYCH UŻYTKOWNIKÓW którzy pisali w tym temacie
+        var participantIds = await _context.ForumPosts
+            .Where(p => p.ForumTopicId == forumTopicId && p.AppUserId != user.Id && p.AppUserId != topic.AppUserId)
+            .Select(p => p.AppUserId)
+            .Distinct()
+            .ToListAsync();
+
+        foreach (var participantId in participantIds)
+        {
+            await _notificationService.SendNotificationAsync(
+                participantId,
+                $"Nowa odpowiedź w temacie: {topic.Title}"
+            );
+        }
 
         TempData["SuccessMessage"] = "Dodano odpowiedź!";
         return RedirectToAction(nameof(Topic), new { id = forumTopicId });

@@ -120,62 +120,72 @@
         </div>
 
         <div class="modal fade" id="createQuestModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content bg-dark text-light border-secondary rounded-4">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content kd-modal-content">
                     <form asp-action="CreateQuest" method="post">
                         <input type="hidden" name="groupId" value="@Model.Id"/>
-                        <div class="modal-header border-secondary">
-                            <h5 class="modal-title text-warning fw-bold text-uppercase">Nowe Wyzwanie</h5>
+                        
+                        <div class="modal-header kd-modal-header">
+                            <h5 class="modal-title kd-modal-title">
+                                <i class="bi bi-trophy me-2"></i>Kreator Wyzwań
+                            </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
-                        <div class="modal-body p-4">
+                        
+                        <div class="modal-body kd-modal-body">
+                            <p class="kd-text-muted mb-4">
+                                Stwórz nowe wyzwanie dla swojej grupy terapeutycznej.
+                            </p>
+
                             <div class="mb-3">
-                                <label class="form-label text-info fw-bold text-uppercase small">Tytuł</label>
-                                <input type="text" name="title" class="form-control bg-dark text-light border-secondary custom-input-focus" required placeholder="np. Quiz o nałogach"/>
+                                <label class="form-label kd-label">Tytuł</label>
+                                <input type="text" name="title" class="form-control kd-input" required placeholder="np. Quiz o nałogach"/>
                             </div>
+                            
                             <div class="mb-3">
-                                <label class="form-label text-info fw-bold text-uppercase small">Typ zadania</label>
-                                <select name="questType" id="questTypeSelect" class="form-select bg-dark text-light border-secondary custom-input-focus" onchange="toggleQuizFields()">
+                                <label class="form-label kd-label">Typ zadania</label>
+                                <select name="questType" id="questTypeSelect" class="form-select kd-input" onchange="toggleQuizFields()">
                                     <option value="Otwarte">Otwarte Pytanie (Odpowiedź tekstowa)</option>
                                     <option value="QuizABCD">Quiz ABCD (Automatyczne sprawdzanie)</option>
                                 </select>
                             </div>
+                            
                             <div class="mb-3">
-                                <label class="form-label text-info fw-bold text-uppercase small">Treść zadania / Pytanie</label>
-                                <textarea name="description" class="form-control bg-dark text-light border-secondary custom-input-focus" rows="3" required></textarea>
+                                <label class="form-label kd-label">Treść zadania / Pytanie</label>
+                                <textarea name="description" class="form-control kd-input" rows="3" required placeholder="Opisz wyzwanie lub zadaj pytanie..."></textarea>
                             </div>
 
                             <div id="abcdFields" class="d-none bg-secondary bg-opacity-10 p-4 rounded-4 mb-3 border border-secondary">
                                 <h6 class="text-warning mb-3 fw-bold text-uppercase">Odpowiedzi (wypełnij wybrane)</h6>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-dark text-light border-secondary">A</span>
-                                            <input type="text" name="optionA" class="form-control bg-dark text-light border-secondary" placeholder="Opcja A"/>
+                                        <div class="input-group kd-input-group">
+                                            <span class="input-group-text kd-input-group-text">A</span>
+                                            <input type="text" name="optionA" class="form-control kd-input" placeholder="Opcja A"/>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-dark text-light border-secondary">B</span>
-                                            <input type="text" name="optionB" class="form-control bg-dark text-light border-secondary" placeholder="Opcja B"/>
+                                        <div class="input-group kd-input-group">
+                                            <span class="input-group-text kd-input-group-text">B</span>
+                                            <input type="text" name="optionB" class="form-control kd-input" placeholder="Opcja B"/>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-dark text-light border-secondary">C</span>
-                                            <input type="text" name="optionC" class="form-control bg-dark text-light border-secondary" placeholder="Opcja C"/>
+                                        <div class="input-group kd-input-group">
+                                            <span class="input-group-text kd-input-group-text">C</span>
+                                            <input type="text" name="optionC" class="form-control kd-input" placeholder="Opcja C"/>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-dark text-light border-secondary">D</span>
-                                            <input type="text" name="optionD" class="form-control bg-dark text-light border-secondary" placeholder="Opcja D"/>
+                                        <div class="input-group kd-input-group">
+                                            <span class="input-group-text kd-input-group-text">D</span>
+                                            <input type="text" name="optionD" class="form-control kd-input" placeholder="Opcja D"/>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <label class="form-label fw-bold text-success text-uppercase small">Prawidłowa odpowiedź</label>
-                                    <select name="correctOption" class="form-select bg-dark text-light border-success">
+                                    <label class="form-label kd-label" style="color: #4ade80 !important;">Prawidłowa odpowiedź</label>
+                                    <select name="correctOption" class="form-select kd-input">
                                         <option value="A">Opcja A</option>
                                         <option value="B">Opcja B</option>
                                         <option value="C">Opcja C</option>
@@ -184,13 +194,24 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-warning fw-bold text-uppercase small">Nagroda (Punkty)</label>
-                                <input type="number" name="rewardPoints" class="form-control bg-dark text-light border-secondary custom-input-focus" min="5" value="50" required/>
+                            <div class="mb-2">
+                                <label class="form-label kd-label">Nagroda (Punkty)</label>
+                                <div class="input-group kd-input-group">
+                                    <span class="input-group-text kd-input-group-text">
+                                        <i class="bi bi-coin"></i>
+                                    </span>
+                                    <input type="number" name="rewardPoints" class="form-control kd-input" min="5" value="50" required/>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-footer border-secondary">
-                            <button type="submit" class="btn btn-warning text-dark fw-bold text-uppercase rounded-pill px-4">Zapisz i Opublikuj</button>
+                        
+                        <div class="modal-footer kd-modal-footer">
+                            <button type="button" class="btn kd-btn-cancel" data-bs-dismiss="modal">
+                                ANULUJ
+                            </button>
+                            <button type="submit" class="btn kd-btn-save">
+                                ZAPISZ WYZWANIE
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -532,6 +553,131 @@
         box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
         transform: scale(1.02);
     }
+
+    /* STYLE Z KREATORA PRZEDMIOTU */
+    .kd-modal-content {
+        background-color: #1a1a21 !important;
+        border: none !important;
+        border-top: 3px solid #0dcaf0 !important;
+        border-radius: 8px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+    }
+
+    .kd-modal-header {
+        border-bottom: none !important;
+        padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
+    }
+
+    .kd-modal-title {
+        color: #4ade80 !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        text-transform: uppercase;
+    }
+
+    .kd-modal-body {
+        padding: 1rem 1.5rem 1.5rem 1.5rem !important;
+    }
+
+    .kd-text-muted {
+        color: #d4d4d8 !important;
+        font-size: 0.85rem;
+    }
+
+    .kd-label {
+        color: #4ade80 !important;
+        font-weight: 800 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+
+    .kd-input {
+        background-color: #121217 !important;
+        border: 1px solid #3f3f46 !important;
+        color: #ffffff !important;
+        border-radius: 6px !important;
+        padding: 0.6rem 1rem !important;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+
+    .kd-input:focus {
+        border-color: #4ade80 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .kd-input-group {
+        display: flex;
+        width: 100%;
+    }
+
+    .kd-input-group-text {
+        background-color: #121217 !important;
+        border: 1px solid #3f3f46 !important;
+        border-right: none !important;
+        color: #fbbf24 !important;
+        border-top-left-radius: 6px !important;
+        border-bottom-left-radius: 6px !important;
+        padding: 0.6rem 1rem !important;
+        display: flex;
+        align-items: center;
+    }
+
+    .kd-input-group .kd-input {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-left: 1px solid #52525b !important;
+        flex: 1 1 auto;
+    }
+
+    .kd-modal-footer {
+        background-color: #27272f !important;
+        border-top: none !important;
+        padding: 1.2rem 1.5rem !important;
+        border-bottom-left-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .kd-btn-cancel {
+        background-color: transparent !important;
+        border: 1px solid #DA292E !important;
+        color: #DA292E !important;
+        border-radius: 20px !important;
+        padding: 0.5rem 2.5rem !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s;
+    }
+
+    .kd-btn-cancel:hover {
+        background-color: #DA292E !important;
+        color: white !important;
+    }
+
+    .kd-btn-save {
+        border: 1px solid #46CC5E !important;
+        color: #46CC5E !important;
+        border-radius: 20px !important;
+        padding: 0.5rem 2.5rem !important;
+        font-weight: 800 !important;
+        font-size: 0.85rem !important;
+    }
+
+    .kd-btn-save:hover {
+        background-color: #46CC5E !important;
+        color: #17171C !important;
+    }
+
 </style>
 
 <script>

@@ -279,8 +279,15 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow glass-dropdown" aria-labelledby="notificationDropdown" id="notificationList">
                                 <li class="px-3 py-2 notification-header border-bottom border-secondary">
-                                    <div class="fw-semibold text-white">Powiadomienia</div>
-                                    <small class="text-muted">Najnowsze aktywności</small>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-semibold text-white">Powiadomienia</div>
+                                            <small class="text-muted">Najnowsze aktywności</small>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="markAllAsRead(); return false;" title="Zaznacz wszystko jako przeczytane">
+                                            <i class="bi bi-check-all"></i>
+                                        </button>
+                                    </div>
                                 </li>
                                 <div id="notificationItems">
                                     <li>
@@ -478,6 +485,15 @@
                         element.classList.remove('notification-unread');
                         const dot = element.querySelector('.unread-dot');
                         if (dot) dot.remove();
+                        fetchNotifications();
+                    }
+                });
+        }
+
+        function markAllAsRead() {
+            fetch('/Notification/MarkAllAsRead', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
                         fetchNotifications();
                     }
                 });

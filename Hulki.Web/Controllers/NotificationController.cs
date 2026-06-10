@@ -38,5 +38,15 @@ namespace Hulki.Web.Controllers
             await _notificationService.MarkAsReadAsync(id);
             return Ok();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            await _notificationService.MarkAllAsReadAsync(user.Id);
+            return Ok();
+        }
     }
 }

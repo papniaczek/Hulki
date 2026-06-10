@@ -1,5 +1,6 @@
 using Hulki.Web.Data;
 using Hulki.Web.Models;
+using Hulki.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,16 @@ public class StoreController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<AppUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public StoreController(ApplicationDbContext context, UserManager<AppUser> userManager)
+    public StoreController(
+        ApplicationDbContext context, 
+        UserManager<AppUser> userManager,
+        INotificationService notificationService)
     {
         _context = context;
         _userManager = userManager;
+        _notificationService = notificationService;
     }
 
     public async Task<IActionResult> Index()

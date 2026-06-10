@@ -20,11 +20,16 @@ namespace Hulki.Web.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IBadgeService _badgeService;
+        private readonly INotificationService _notificationService;
 
-        public TherapyGoalService(ApplicationDbContext context, IBadgeService badgeService)
+        public TherapyGoalService(
+            ApplicationDbContext context, 
+            IBadgeService badgeService,
+            INotificationService notificationService)
         {
             _context = context;
             _badgeService = badgeService;
+            _notificationService = notificationService;
         }
 
         public async Task<List<TherapyGoal>> GetUserGoalsAsync(string userId)
@@ -69,6 +74,15 @@ namespace Hulki.Web.Services
 
                 var allMilestones = await _context.GoalMilestones.Where(m => m.GoalId == milestone.GoalId).ToListAsync();
                 milestone.Goal.IsCompleted = allMilestones.Any() && allMilestones.All(m => m.IsCompleted);
+
+                // POWIADOMIENIE gdy cały cel zostaje ukończony
+                if (milestone.Goal.IsCompleted)
+                {
+                    await _notificationService.SendNotificationAsync(
+                        userId,
+                        $"🎉 Wspaniała robota! Ukończyłeś cel terapeutyczny: {milestone.Goal.Title}"
+                    );
+                }
 
                 await _context.SaveChangesAsync();
                 await _badgeService.CheckAndAwardBadgesAsync(userId);

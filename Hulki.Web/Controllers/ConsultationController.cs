@@ -16,15 +16,18 @@ public class ConsultationController : Controller
     private readonly IConsultationService _consultationService;
     private readonly UserManager<AppUser> _userManager;
     private readonly ApplicationDbContext _context;
+    private readonly INotificationService _notificationService;
 
     public ConsultationController(
         IConsultationService consultationService,
         UserManager<AppUser> userManager,
-        ApplicationDbContext context)
+        ApplicationDbContext context,
+        INotificationService notificationService)
     {
         _consultationService = consultationService;
         _userManager = userManager;
         _context = context;
+        _notificationService = notificationService;
     }
 
     public async Task<IActionResult> Index()
@@ -106,6 +109,15 @@ public class ConsultationController : Controller
         }
 
         await _consultationService.CreateConsultationAsync(consultation);
+        
+        // POWIADOMIENIE DLA PACJENTA
+        string recipientId = user.IsTherapist ? consultation.PatientId : consultation.TherapistId;
+        string senderRole = user.IsTherapist ? "Terapeuta" : "Pacjent";
+        await _notificationService.SendNotificationAsync(
+            recipientId,
+            $"{senderRole} {user.FirstName} {user.LastName} zaplanował(a) z Tobą wizytę na {consultation.StartTime:dd.MM.yyyy HH:mm}."
+        );
+        
         TempData["SuccessMessage"] = "Wizyta została zaplanowana.";
         return RedirectToAction(nameof(Index));
     }
@@ -162,6 +174,13 @@ public class ConsultationController : Controller
         consultation.Details.InternalNotes = detailsFromForm.InternalNotes;
 
         await _consultationService.UpdateConsultationAsync(consultation);
+        
+        // POWIADOMIENIE DLA PACJENTA
+        await _notificationService.SendNotificationAsync(
+            consultation.PatientId,
+            $"Terapeuta {user.FirstName} {user.LastName} zaktualizował(a) szczegóły Twojej wizyty z dnia {consultation.StartTime:dd.MM.yyyy}."
+        );
+        
         TempData["SuccessMessage"] = "Karta wizyty została zapisana.";
         return RedirectToAction(nameof(Details), new { id = consultationId });
     }
@@ -205,6 +224,15 @@ public class ConsultationController : Controller
 
         consultation.StatusId = statusId;
         await _context.SaveChangesAsync();
+
+        // POWIADOMIENIE DLA PACJENTA
+        string statusMessage = statusId == 2 
+            ? "zakończona" 
+            : "odwołana";
+        await _notificationService.SendNotificationAsync(
+            consultation.PatientId,
+            $"Status Twojej wizyty z dnia {consultation.StartTime:dd.MM.yyyy} został zmieniony na: {statusMessage}."
+        );
 
         TempData["SuccessMessage"] = statusId == 2
             ? "Wizyta została oznaczona jako zakończona."

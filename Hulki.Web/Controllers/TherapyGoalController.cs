@@ -14,11 +14,16 @@ namespace Hulki.Web.Controllers
     {
         private readonly ITherapyGoalService _goalService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly INotificationService _notificationService;
 
-        public TherapyGoalController(ITherapyGoalService goalService, UserManager<AppUser> userManager)
+        public TherapyGoalController(
+            ITherapyGoalService goalService, 
+            UserManager<AppUser> userManager,
+            INotificationService notificationService)
         {
             _goalService = goalService;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index()
@@ -51,6 +56,13 @@ namespace Hulki.Web.Controllers
             };
 
             await _goalService.CreateGoalAsync(goal, milestones);
+            
+            // POWIADOMIENIE DLA PACJENTA
+            await _notificationService.SendNotificationAsync(
+                user.Id,
+                $"Utworzono nowy cel terapeutyczny: {title}. Masz {milestones?.Count ?? 0} kamieni milowych do osiągnięcia!"
+            );
+            
             TempData["SuccessMessage"] = "Nowy cel został dodany.";
 
             return RedirectToAction(nameof(Index));

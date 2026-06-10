@@ -1,5 +1,6 @@
 using Hulki.Web.Data;
 using Hulki.Web.Models;
+using Hulki.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,12 +22,18 @@ namespace Hulki.Web.Controllers;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly INotificationService _notificationService;
 
-        public PatientController(ApplicationDbContext context, UserManager<AppUser> userManager, IWebHostEnvironment webHostEnvironment)
+        public PatientController(
+            ApplicationDbContext context, 
+            UserManager<AppUser> userManager, 
+            IWebHostEnvironment webHostEnvironment,
+            INotificationService notificationService)
         {
             _context = context;
             _userManager = userManager;
             _webHostEnvironment = webHostEnvironment;
+            _notificationService = notificationService;
         }
 
         // PANEL PACJENTA Z WYKRESAMI POSTĘPU
@@ -275,6 +282,12 @@ namespace Hulki.Web.Controllers;
             _context.PointTransactions.Add(transaction);
 
             await _context.SaveChangesAsync();
+
+            // POWIADOMIENIE DLA PACJENTA
+            await _notificationService.SendNotificationAsync(
+                user.Id,
+                $"Brawo! Twój dzienny wpis został zapisany. Otrzymujesz +{pointsEarned} punktów!"
+            );
 
             TempData["SuccessMessage"] = $"Świetna robota! Raport dodany, a na twoje konto wpłynęło +{pointsEarned} punktów!";
             return RedirectToAction("Index", "Home");

@@ -13,6 +13,7 @@ namespace Hulki.Web.Services
         Task<int> GetUnreadCountAsync(string userId);
         Task<List<Notification>> GetLatestNotificationsAsync(string userId, int count = 5);
         Task MarkAsReadAsync(Guid id);
+        Task MarkAllAsReadAsync(string userId);
         Task SendNotificationAsync(string userId, string content);
     }
 
@@ -47,6 +48,20 @@ namespace Hulki.Web.Services
                 notification.IsRead = true;
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task MarkAllAsReadAsync(string userId)
+        {
+            var unreadNotifications = await _context.Notifications
+                .Where(n => n.AppUserId == userId && !n.IsRead)
+                .ToListAsync();
+
+            foreach (var notification in unreadNotifications)
+            {
+                notification.IsRead = true;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task SendNotificationAsync(string userId, string content)
