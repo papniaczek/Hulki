@@ -1,0 +1,109 @@
+@model IEnumerable<Hulki.Web.Models.Consultation>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<Hulki.Web.Models.AppUser> UserManager
+
+@{
+    ViewData["Title"] = "Moje Konsultacje";
+    var currentUser = await UserManager.GetUserAsync(User);
+    // Sprawdzamy, czy zalogowany użytkownik jest terapeutą (możesz też użyć User.IsInRole("Therapist") jeśli masz role)
+    bool isTherapist = currentUser?.IsTherapist ?? false;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar3"></i> Moje Konsultacje Indywidualne</h2>
+        @if (!isTherapist)
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="bi bi-calendar-plus"></i> Umów nową konsultację
+            </a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+            Nie masz jeszcze zaplanowanych żadnych konsultacji.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Data i godzina</th>
+                        <th>@((isTherapist) ? "Pacjent" : "Terapeuta")</th>
+                        <th>Notatki / Powód</th>
+                        <th>Status</th>
+                        <th class="text-end">Akcje</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string statusClass = item.StatusId switch
+                        {
+                            1 => "bg-warning text-dark", // Zaplanowana
+                            2 => "bg-success", // Zakończona
+                            3 => "bg-danger", // Odwołana
+                            _ => "bg-secondary"
+                        };
+
+                        <tr>
+                            <td>
+                                <strong class="d-block">@item.StartTime.ToString("dd.MM.yyyy")</strong>
+                                <small class="text-muted">@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                @if (isTherapist)
+                                {
+                                    <span>@item.Patient?.UserName</span>
+                                }
+                                else
+                                {
+                                    <span>@item.Therapist?.UserName</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 250px;" title="@item.Notes">
+                                    @(string.IsNullOrEmpty(item.Notes) ? "Brak uwag" : item.Notes)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge @statusClass">@item.Status?.Name</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Szczegóły">
+                                        <i class="bi bi-eye"></i> Szczegóły
+                                    </a>
+                                    @if (isTherapist && item.StatusId == 1)
+                                    {
+                                        <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id"/>
+                                            <input type="hidden" name="statusId" value="2"/>
+                                            <button type="submit" class="btn btn-outline-success" title="Oznacz jako zakończoną">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        </form>
+                                        <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@item.Id"/>
+                                            <input type="hidden" name="statusId" value="3"/>
+                                            <button type="submit" class="btn btn-outline-danger" title="Odwołaj">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

@@ -6,7 +6,7 @@ public class AppUser : IdentityUser
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    
+    public bool IsTherapist { get; set; }
     public virtual ICollection<PatientGroup> PatientGroups { get; set; }
     
     public virtual Wallet Wallet { get; set; } // Relacja 1 do 1 z portfelem

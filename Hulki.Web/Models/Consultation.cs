@@ -1,4 +1,6 @@
-using Hulki.Web.Models;
+
+namespace Hulki.Web.Models;
+
 public class Consultation
 {
     public Guid Id { get; set; }

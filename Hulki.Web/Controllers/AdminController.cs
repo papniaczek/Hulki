@@ -359,7 +359,6 @@ public class AdminController : Controller
         if (user == null)
             return NotFound();
 
-        // Admina nie można uczynić terapeutą (i odwrotnie)
         if (await _userManager.IsInRoleAsync(user, "Admin"))
         {
             TempData["ErrorMessage"] = "Nie można zmieniać roli konta administratora.";
@@ -368,19 +367,28 @@ public class AdminController : Controller
 
         const string role = "Terapeuta";
 
-        // Utwórz rolę jeśli nie istnieje (nie trzeba jej dodawać do Program.cs)
         if (!await _roleManager.RoleExistsAsync(role))
             await _roleManager.CreateAsync(new IdentityRole(role));
 
-        if (await _userManager.IsInRoleAsync(user, role))
+        var isTherapist = await _userManager.IsInRoleAsync(user, role);
+
+        if (isTherapist)
         {
             await _userManager.RemoveFromRoleAsync(user, role);
+
+            user.IsTherapist = false;
+            await _userManager.UpdateAsync(user);
+
             TempData["SuccessMessage"] =
                 $"{user.FirstName} {user.LastName} nie jest już terapeutą.";
         }
         else
         {
             await _userManager.AddToRoleAsync(user, role);
+
+            user.IsTherapist = true;
+            await _userManager.UpdateAsync(user);
+
             TempData["SuccessMessage"] =
                 $"{user.FirstName} {user.LastName} otrzymał(a) rolę terapeuty.";
         }
