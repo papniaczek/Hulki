@@ -109,5 +109,6 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .WithMany()
             .HasForeignKey(c => c.TherapistId)
             .OnDelete(DeleteBehavior.Restrict);
+        
     }
 }

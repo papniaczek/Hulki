@@ -47,7 +47,7 @@ builder.Services.AddHttpClient(QuoteService.TranslationClientName, client =>
     client.DefaultRequestHeaders.Add("User-Agent", "Hulki.Web/1.0");
 });
 builder.Services.AddScoped<IQuoteService, QuoteService>();
-
+builder.Services.AddScoped<IConsultationService, ConsultationService>();
 var app = builder.Build();
 
 // SEEDING ADMINA
