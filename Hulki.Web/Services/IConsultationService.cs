@@ -8,8 +8,6 @@ public interface IConsultationService
     Task<IEnumerable<Consultation>> GetTherapistConsultationsAsync(string therapistId);
     Task CreateConsultationAsync(Consultation consultation);
     Task UpdateStatusAsync(Guid consultationId, int newStatusId);
-
-    // --- DOPISZ TE DWIE METODY ---
     Task<Consultation> GetConsultationByIdAsync(Guid id);
     Task UpdateConsultationAsync(Consultation consultation);
     Task<IEnumerable<Consultation>> GetUserConsultationsAsync(string userId);
