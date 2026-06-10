@@ -13,4 +13,5 @@ public class Consultation
     public string? Notes { get; set; }
     public int StatusId { get; set; }
     public virtual ConsultationStatus Status { get; set; }
+    public VisitDetails Details { get; set; }
 }

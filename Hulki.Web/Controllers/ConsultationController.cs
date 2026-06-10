@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Hulki.Web.Models;
 using Hulki.Web.Models.Dto;
+using Hulki.Web.Data;
 
 namespace Hulki.Web.Controllers;
 
@@ -14,11 +15,15 @@ public class ConsultationController : Controller
 {
     private readonly IConsultationService _consultationService;
     private readonly UserManager<AppUser> _userManager;
-
-    public ConsultationController(IConsultationService consultationService, UserManager<AppUser> userManager)
+    private readonly ApplicationDbContext _context;
+    public ConsultationController(
+    IConsultationService consultationService,
+    UserManager<AppUser> userManager,
+    ApplicationDbContext context)
     {
         _consultationService = consultationService;
         _userManager = userManager;
+        _context = context;
     }
 
     public async Task<IActionResult> Index()
@@ -74,6 +79,7 @@ public class ConsultationController : Controller
         return View(new CreateConsultationDto());
     }
 
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateConsultationDto dto)
@@ -112,4 +118,73 @@ public class ConsultationController : Controller
         await _consultationService.CreateConsultationAsync(consultation);
         return RedirectToAction(nameof(Index));
     }
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        
+        if (user == null) return NotFound();
+
+        // Pobieramy konsultację z serwisu (musi zawierać dołączone Details)
+        var consultation = await _context.Consultations
+    .Include(c => c.Patient)
+    .Include(c => c.Therapist)
+    .Include(c => c.Details)
+    .FirstOrDefaultAsync(c => c.Id == id);
+        if (consultation == null) return NotFound("Nie znaleziono takiej konsultacji.");
+
+        // Zabezpieczenie: Tylko przypisany pacjent lub terapeuta może zobaczyć szczegóły
+        if (consultation.PatientId != user.Id && consultation.TherapistId != user.Id)
+        {
+            return Forbid();
+        }
+
+        // Jeśli konsultacja nie ma jeszcze utworzonego obiektu szczegółów, 
+        // tworzymy pusty obiekt, żeby widok nie wywalił NullReferenceException
+        if (consultation.Details == null)
+        {
+            consultation.Details = new VisitDetails
+            {
+                ConsultationId = id,
+                MedicalHistory = string.Empty,
+                Diagnosis = string.Empty,
+                Recommendations = string.Empty,
+                InternalNotes = string.Empty
+            };
+        }
+
+        // Przekazujemy również rolę użytkownika, by w widoku ukryć "InternalNotes" (notatki lekarskie) przed pacjentem
+        ViewBag.IsTherapist = user.IsTherapist;
+
+        return View(consultation);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    // Usunięto wadliwy atrybut [Authorize(Roles = "Therapist")]
+    public async Task<IActionResult> SaveDetails(Guid consultationId, VisitDetails detailsFromForm)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        // Ta linijka w zupełności wystarczy do zabezpieczenia akcji:
+        if (user == null || !user.IsTherapist) return Forbid();
+
+        var consultation = await _consultationService.GetConsultationByIdAsync(consultationId);
+        if (consultation == null) return NotFound();
+
+        if (consultation.Details == null)
+        {
+            consultation.Details = new VisitDetails { ConsultationId = consultationId };
+        }
+
+        consultation.Details.MedicalHistory = detailsFromForm.MedicalHistory;
+        consultation.Details.Diagnosis = detailsFromForm.Diagnosis;
+        consultation.Details.Recommendations = detailsFromForm.Recommendations;
+        consultation.Details.InternalNotes = detailsFromForm.InternalNotes;
+
+        await _consultationService.UpdateConsultationAsync(consultation);
+
+        return RedirectToAction(nameof(Details), new { id = consultationId });
+    }
+
 }
+

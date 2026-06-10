@@ -48,4 +48,16 @@ public class ConsultationService : IConsultationService
             await _context.SaveChangesAsync();
         }
     }
+    public async Task<Consultation> GetConsultationByIdAsync(Guid id)
+    {
+        return await _context.Consultations
+            .Include(c => c.Details) // Krytyczne: pobiera szczegóły wizyty razem z konsultacją
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public async Task UpdateConsultationAsync(Consultation consultation)
+    {
+        _context.Consultations.Update(consultation);
+        await _context.SaveChangesAsync();
+    }
 }
