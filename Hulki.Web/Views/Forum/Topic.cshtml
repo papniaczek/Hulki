@@ -1,6 +1,8 @@
-@model Hulki.Web.Models.ForumTopic
+@model Hulki.Web.Models.ForumTopicViewModel
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Topic.Title;
+    var topic = Model.Topic;
+    var paged = Model.Posts;
 }
 
 <div class="container mt-4 text-light">
@@ -8,31 +10,39 @@
         <div class="position-relative z-1 d-flex flex-column justify-content-center p-2">
             <div class="mb-5">
                 <h2 class="text-primary fw-bold text-uppercase" style="letter-spacing: 1px;">
-                    <i class="bi bi-chat-dots-fill me-2"></i>@Model.Title
+                    <i class="bi bi-chat-dots-fill me-2"></i>@topic.Title
                 </h2>
                 <p class="text-light mb-0 fs-6 fw-light opacity-75">
-                    <i class="bi bi-person-fill me-2"></i>@Model.AppUser?.FirstName @Model.AppUser?.LastName
+                    <i class="bi bi-person-fill me-2"></i>@topic.AppUser?.FirstName @topic.AppUser?.LastName
                     <span class="ms-3">
-                        <i class="bi bi-calendar3 me-1"></i>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                        <i class="bi bi-calendar3 me-1"></i>@topic.CreatedAt.ToString("dd.MM.yyyy HH:mm")
                     </span>
                 </p>
             </div>
         </div>
         <div class="topic-card card h-100 d-flex flex-column border-0 shadow-lg no-hover-card" style="background-color: transparent; margin-bottom: 2rem; max-width: 70%; box-shadow: -1px 1px 2px 0px rgba(0, 0, 0, 0.25) !important;">
             <div class="card-body p-3 custom-no-hover">
-                <p class="fs-5 text-light" style="white-space: pre-wrap; line-height: 1.8; margin-bottom: 0px">@Model.Content</p>
+                <p class="fs-5 text-light" style="white-space: pre-wrap; line-height: 1.8; margin-bottom: 0px">@topic.Content</p>
             </div>
         </div>
         <div class="topic-header-glow"></div>
     </div>
 
-    <h5 class="mb-4 fw-bold text-primary text-uppercase" style="letter-spacing: 1px;">
-        <i class="bi bi-chat-left-text-fill me-2"></i>Odpowiedzi (@(Model.Posts?.Count ?? 0))
-    </h5>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h5 class="mb-0 fw-bold text-primary text-uppercase" style="letter-spacing: 1px;">
+            <i class="bi bi-chat-left-text-fill me-2"></i>Odpowiedzi (@paged.TotalItems)
+        </h5>
+        @if (paged.TotalPages > 1)
+        {
+            <small class="text-muted">
+                Strona @paged.CurrentPage z @paged.TotalPages
+            </small>
+        }
+    </div>
 
-    @if (Model.Posts != null && Model.Posts.Any())
+    @if (paged.Items.Any())
     {
-        foreach (var post in Model.Posts.OrderBy(p => p.CreatedAt))
+        foreach (var post in paged.Items)
         {
             <div class="topic-card card border-0 rounded-4 shadow-md mb-3" style="background-color: #1b1b22;">
                 <div class="card-body p-4">
@@ -52,6 +62,59 @@
             </div>
         }
     }
+    else
+    {
+        <p class="text-muted">Brak odpowiedzi w tym temacie.</p>
+    }
+
+    @if (paged.TotalPages > 1)
+    {
+        <nav aria-label="Stronicowanie odpowiedzi" class="d-flex justify-content-center my-5">
+            <ul class="pagination forum-pagination gap-2">
+                <li class="page-item @(paged.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Topic" asp-route-id="@topic.Id" asp-route-page="@(paged.CurrentPage - 1)" aria-label="Poprzednia">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                @{
+                    int windowStart = Math.Max(1, paged.CurrentPage - 2);
+                    int windowEnd = Math.Min(paged.TotalPages, paged.CurrentPage + 2);
+                }
+
+                @if (windowStart > 1)
+                {
+                    <li class="page-item"><a class="page-link" asp-action="Topic" asp-route-id="@topic.Id" asp-route-page="1">1</a></li>
+                    if (windowStart > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                    }
+                }
+
+                @for (int p = windowStart; p <= windowEnd; p++)
+                {
+                    <li class="page-item @(p == paged.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Topic" asp-route-id="@topic.Id" asp-route-page="@p">@p</a>
+                    </li>
+                }
+
+                @if (windowEnd < paged.TotalPages)
+                {
+                    if (windowEnd < paged.TotalPages - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                    }
+                    <li class="page-item"><a class="page-link" asp-action="Topic" asp-route-id="@topic.Id" asp-route-page="@paged.TotalPages">@paged.TotalPages</a></li>
+                }
+
+                <li class="page-item @(paged.HasNextPage ? "" : "disabled")">
+                    <a class="page-link" asp-action="Topic" asp-route-id="@topic.Id" asp-route-page="@(paged.CurrentPage + 1)" aria-label="Następna">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
 
     <div class="form-card card border-0 rounded-4 shadow-lg mt-5" style="background-color: #1b1b22;">
         <div class="card-header p-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, rgba(70, 204, 94, 0.15) 0%, rgba(70, 204, 94, 0.05) 100%); border-bottom: 1px solid rgba(70, 204, 94, 0.3); border-radius: 16px 16px 0 0;">
@@ -65,12 +128,12 @@
         </div>
         <div class="card-body p-4">
             <form asp-action="CreatePost" method="post">
-                <input type="hidden" name="forumTopicId" value="@Model.Id"/>
+                <input type="hidden" name="forumTopicId" value="@topic.Id"/>
                 <div class="mb-4">
                     <textarea name="content" class="form-control form-control-lg bg-dark border-secondary text-light rounded-3" rows="4" placeholder="Napisz co myślisz..." required></textarea>
                 </div>
                 <div class="d-flex gap-2 justify-content-end">
-                    <a asp-action="Category" asp-route-id="@Model.ForumCategoryId"
+                    <a asp-action="Category" asp-route-id="@topic.ForumCategoryId"
                        class="btn btn-outline-secondary fw-bold rounded-pill px-4 py-2"
                        style="border-color: #DA292E; color: #DA292E; background-color: transparent; transition: all 0.2s ease-in-out;"
                        onmouseover="this.style.backgroundColor='#DA292E'; this.style.color='#ffffff';"
@@ -156,5 +219,36 @@
 
     .no-hover-card:hover {
         box-shadow: none !important;
+    }
+
+    .forum-pagination .page-link {
+        background-color: #1b1b22;
+        border: 1px solid rgba(70, 204, 94, 0.2);
+        color: #e9e9ee;
+        border-radius: 10px;
+        min-width: 42px;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .forum-pagination .page-link:hover {
+        background-color: rgba(70, 204, 94, 0.15);
+        border-color: #46CC5E;
+        color: #46CC5E;
+    }
+
+    .forum-pagination .page-item.active .page-link {
+        background-color: #46CC5E;
+        border-color: #46CC5E;
+        color: #17171C;
+        font-weight: 700;
+        box-shadow: 0 4px 14px rgba(70, 204, 94, 0.35);
+    }
+
+    .forum-pagination .page-item.disabled .page-link {
+        background-color: #17171c;
+        border-color: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.25);
+        pointer-events: none;
     }
 </style>

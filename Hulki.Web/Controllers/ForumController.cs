@@ -56,18 +56,31 @@ public class ForumController : Controller
     }
 
 
-    public async Task<IActionResult> Topic(Guid id)
+    private const int PostsPerPage = 10;
+
+    public async Task<IActionResult> Topic(Guid id, int page = 1)
     {
         var topic = await _context.ForumTopics
             .Include(t => t.AppUser)
             .Include(t => t.ForumCategory)
-            .Include(t => t.Posts)
-                .ThenInclude(p => p.AppUser)
             .FirstOrDefaultAsync(t => t.Id == id);
 
         if (topic == null) return NotFound();
 
-        return View(topic);
+        var postsQuery = _context.ForumPosts
+            .Include(p => p.AppUser)
+            .Where(p => p.ForumTopicId == id)
+            .OrderBy(p => p.CreatedAt);
+
+        var pagedPosts = PagedResult<ForumPost>.Create(postsQuery, page, PostsPerPage);
+
+        var viewModel = new ForumTopicViewModel
+        {
+            Topic = topic,
+            Posts = pagedPosts
+        };
+
+        return View(viewModel);
     }
 
 

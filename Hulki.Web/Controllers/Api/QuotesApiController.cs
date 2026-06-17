@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hulki.Web.Controllers.Api;
 
+/// <summary>
+/// Wystawia losowe cytaty motywacyjne (z tłumaczeniem, źródło: zenquotes.io).
+/// </summary>
 [ApiController]
 [Route("api/quotes")]
 [AllowAnonymous]
@@ -20,6 +23,7 @@ public class QuotesApiController : ControllerBase
         _quoteService = quoteService;
     }
 
+    /// <summary>Zwraca losowy cytat motywacyjny.</summary>
     [HttpGet("random")]
     [ProducesResponseType(typeof(QuoteDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<QuoteDto>> GetRandom(CancellationToken cancellationToken)

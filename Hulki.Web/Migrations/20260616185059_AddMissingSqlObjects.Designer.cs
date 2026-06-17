@@ -4,6 +4,7 @@ using Hulki.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hulki.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260616185059_AddMissingSqlObjects")]
+    partial class AddMissingSqlObjects
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -601,8 +604,7 @@ namespace Hulki.Web.Migrations
 
                     b.Property<string>("AppUserId")
                         .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -611,8 +613,6 @@ namespace Hulki.Web.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("MoodTypeId");
 
@@ -1018,30 +1018,6 @@ namespace Hulki.Web.Migrations
                     b.ToTable("TherapyGroups");
                 });
 
-            modelBuilder.Entity("Hulki.Web.Models.TherapyGroupDeletionLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DeletedGroupId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DeletedGroupName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TherapyGroupDeletionLogs");
-                });
-
             modelBuilder.Entity("Hulki.Web.Models.TherapyType", b =>
                 {
                     b.Property<int>("Id")
@@ -1442,19 +1418,11 @@ namespace Hulki.Web.Migrations
 
             modelBuilder.Entity("Hulki.Web.Models.MoodLog", b =>
                 {
-                    b.HasOne("Hulki.Web.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Hulki.Web.Models.MoodType", "MoodType")
                         .WithMany()
                         .HasForeignKey("MoodTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AppUser");
 
                     b.Navigation("MoodType");
                 });

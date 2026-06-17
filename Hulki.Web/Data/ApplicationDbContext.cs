@@ -9,6 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
 
+    // ── Istniejące DbSety (bez zmian) ──────────────────────────────────────
     public DbSet<TherapyType> TherapyTypes { get; set; }
     public DbSet<ReportStatus> ReportStatuses { get; set; }
     public DbSet<ItemRarity> ItemRarities { get; set; }
@@ -44,10 +45,15 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     public DbSet<UserBadge> UserBadges { get; set; }
     public DbSet<GoalMilestone> GoalMilestones { get; set; }
     public DbSet<TherapyGoal> TherapyGoals { get; set; }
+    public DbSet<TherapyGroupDeletionLog> TherapyGroupDeletionLogs { get; set; }
+
+    // ── NOWE: własna tabela użytkowników z ręcznym hashowaniem ─────────────
+    public DbSet<CustomUser> CustomUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
         builder.Entity<PatientGroup>().HasKey(pg => new { pg.AppUserId, pg.TherapyGroupId });
         builder.Entity<PatientInventory>().HasKey(pi => new { pi.AppUserId, pi.RewardItemId });
         builder
@@ -98,5 +104,10 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .WithOne(su => su.Survey)
             .HasForeignKey(su => su.SurveyId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // CustomUser – unikalny email
+        builder.Entity<CustomUser>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
     }
 }
