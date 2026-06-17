@@ -129,9 +129,10 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole("Admin"));
 
         var adminEmail = "admin@admin.com";
-        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        var admin = await userManager.FindByEmailAsync(adminEmail);
+        if (admin == null)
         {
-            var admin = new AppUser
+            admin = new AppUser
             {
                 UserName       = adminEmail,
                 Email          = adminEmail,
@@ -143,11 +144,38 @@ using (var scope = app.Services.CreateScope())
             if (createAdmin.Succeeded)
             {
                 await userManager.AddToRoleAsync(admin, "Admin");
-                if (!context.Wallets.Any(w => w.AppUserId == admin.Id))
+            }
+            else
+            {
+                admin = null; // tworzenie się nie powiodło - nic więcej do naprawy
+            }
+        }
+
+        if (admin != null)
+        {
+            if (!context.Wallets.Any(w => w.AppUserId == admin.Id))
+            {
+                context.Wallets.Add(new Wallet { AppUserId = admin.Id, Balance = 9999 });
+                await context.SaveChangesAsync();
+            }
+
+            // Logowanie w tej aplikacji weryfikuje hasło względem CustomUsers
+            // (AccountController.Login), nie względem AspNetUsers/Identity —
+            // bez tego wpisu konto admina istnieje, ale nigdy nie zaloguje się
+            // przez formularz logowania (zwraca "niepoprawny e-mail lub hasło").
+            // Sprawdzenie działa też dla kont admina utworzonych przed tą poprawką.
+            if (!await context.CustomUsers.AnyAsync(u => u.Email == adminEmail))
+            {
+                context.CustomUsers.Add(new CustomUser
                 {
-                    context.Wallets.Add(new Wallet { AppUserId = admin.Id, Balance = 9999 });
-                    await context.SaveChangesAsync();
-                }
+                    FirstName    = admin.FirstName,
+                    LastName     = admin.LastName,
+                    Email        = adminEmail,
+                    PasswordHash = CustomPasswordHasher.Hash("admin123"),
+                    IsTherapist  = false,
+                    AspNetUserId = admin.Id
+                });
+                await context.SaveChangesAsync();
             }
         }
 
