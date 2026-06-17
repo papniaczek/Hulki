@@ -36,6 +36,13 @@ public class AccountController : Controller
         string lastName
     )
     {
+        var existingUser = await _userManager.FindByEmailAsync(email);
+        if (existingUser != null)
+        {
+            ModelState.AddModelError(string.Empty, "Konto z tym adresem email już istnieje.");
+            return View();
+        }
+
         var user = new AppUser
         {
             UserName = email,
@@ -47,9 +54,11 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
-            var wallet = new Wallet { AppUserId = user.Id, Balance = 0 };
-            _context.Wallets.Add(wallet);
-            
+            if (!await _context.Wallets.AnyAsync(w => w.AppUserId == user.Id))
+            {
+                _context.Wallets.Add(new Wallet { AppUserId = user.Id, Balance = 0 });
+            }
+
             if (!await _context.CustomUsers.AnyAsync(u => u.Email == email))
             {
                 _context.CustomUsers.Add(new CustomUser

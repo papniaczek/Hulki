@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Rejestracja w Klinice";
+ViewData["Title"] = "Rejestracja w Klinice";
 }
 
 <style>
@@ -58,137 +58,138 @@
                             <div class="form-text" id="passwordHint"
                                  style="user-select: none; color: rgba(255,255,255,0.6);">Min. 6 znaków, duża litera,
                                 cyfra i znak specjalny.</div>
-                            </div>
-                            <button type="submit" class="btn btn-register w-100 fw-bold py-3 rounded-3 mt-2"
-                                    style="background: linear-gradient(135deg, #46CC5E 0%, #2eb34d 100%); color: #fff; border: none; transition: all 0.3s ease;">Zarejestruj
-                                się</button>
-                            </form>
                         </div>
-                    </div>
-                    <div class="text-center mt-4">
-                        <span class="text-muted small">Masz już konto? </span>
-                        <a asp-controller="Account" asp-action="Login" class="text-primary fw-bold text-decoration-none"
-                           style="font-size: 0.95rem; transition: all 0.2s ease;"
-                           onmouseover="this.style.textShadow='0 0 10px rgba(70, 204, 94, 0.5)';"
-                           onmouseout="this.style.textShadow='none';">Zaloguj się</a>
-                    </div>
+                        <button type="submit" class="btn btn-register w-100 fw-bold py-3 rounded-3 mt-2"
+                                style="background: linear-gradient(135deg, #46CC5E 0%, #2eb34d 100%); color: #fff; border: none; transition: all 0.3s ease;">Zarejestruj
+                            się</button>
+                    </form>
                 </div>
             </div>
+            <div class="text-center mt-4">
+                <span class="text-muted small">Masz już konto? </span>
+                <a asp-controller="Account" asp-action="Login" class="text-primary fw-bold text-decoration-none"
+                   style="font-size: 0.95rem; transition: all 0.2s ease;"
+                   onmouseover="this.style.textShadow='0 0 10px rgba(70, 204, 94, 0.5)';"
+                   onmouseout="this.style.textShadow='none';">Zaloguj się</a>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .register-card {
+        border: 1px solid rgba(70, 204, 94, 0.15);
+        transition: all 0.3s ease;
+    }
 
-            <style>
-                    .register-card {
-                        border: 1px solid rgba(70, 204, 94, 0.15);
-                        transition: all 0.3s ease;
-                    }
+    .register-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        background: rgba(70, 204, 94, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
 
-                    .register-icon-wrapper {
-                        width: 60px;
-                        height: 60px;
-                        border-radius: 16px;
-                        background: rgba(70, 204, 94, 0.1);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        transition: all 0.3s ease;
-                    }
+    .form-control:focus {
+        background-color: #1f1f27 !important;
+        border-color: #46CC5E !important;
+        color: #fff !important;
+        box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
+    }
 
-                    .form-control:focus {
-                        background-color: #1f1f27 !important;
-                        border-color: #46CC5E !important;
-                        color: #fff !important;
-                        box-shadow: 0 0 10px rgba(70, 204, 94, 0.2);
-                    }
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
 
-                    .form-control::placeholder {
-                        color: rgba(255, 255, 255, 0.5) !important;
-                    }
+    .btn-register:hover {
+        box-shadow: 0 0 20px rgba(70, 204, 94, 0.5);
+        transform: translateY(-2px);
+    }
+</style>
 
-                    .btn-register:hover {
-                        box-shadow: 0 0 20px rgba(70, 204, 94, 0.5);
-                        transform: translateY(-2px);
-                    }
-            </style>
+<script>
+    (function () {
+        const form = document.getElementById('registerForm');
 
-            <script>
-                    (function () {
-                        const form = document.getElementById('registerForm');
-
-                        const rules = {
-                            firstName: {
-                                validate: v => v.trim().length > 0
-                            },
-                            lastName: {
-                                validate: v => v.trim().length > 0
-                            },
-                            email: {
-                                validate: v => /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(v.trim())
-                            },
-                            password: {
-                                validate: v => v.length >= 6 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v),
-                                onValid: () => document.getElementById('passwordHint').style.display = '',
-                                onInvalid: () => document.getElementById('passwordHint').style.display = 'none'
-                            }
-                        };
-
-
-                        let emailTaken = false;
-                        const emailInput = document.getElementById('email');
-                        const emailFeedback = emailInput.nextElementSibling;
-
-                        async function checkEmailUniqueness() {
-                            const val = emailInput.value.trim();
-                            if (!rules.email.validate(val)) return;
-
-                            try {
-                                const res = await fetch(`/Account/CheckEmailExists?email=${encodeURIComponent(val)}`);
-                                const data = await res.json();
-                                emailTaken = data.exists;
-
-                                if (emailTaken) {
-                                    emailInput.classList.add('is-invalid');
-                                    emailInput.classList.remove('is-valid');
-                                    emailFeedback.textContent = 'Ten adres email jest już zarejestrowany.';
-                                } else {
-                                    emailFeedback.textContent = 'Podaj poprawny adres email (np. wujek@kujek.pl).';
-                                    validateField('email');
-                                }
-                            } catch (_) { }
-                        }
-
-                        function validateField(id) {
-                            const input = document.getElementById(id);
-                            const rule = rules[id];
-                            const isValid = rule.validate(input.value);
-
-                            const finalValid = id === 'email' ? (isValid && !emailTaken) : isValid;
-
-                            input.classList.toggle('is-invalid', !finalValid);
-                            input.classList.toggle('is-valid', finalValid);
-
-                            if (finalValid && rule.onValid) rule.onValid();
-                            if (!finalValid && rule.onInvalid) rule.onInvalid();
-
-                            return finalValid;
-                        }
+        const rules = {
+            firstName: {
+                validate: v => v.trim().length > 0
+            },
+            lastName: {
+                validate: v => v.trim().length > 0
+            },
+            email: {
+                validate: v => /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(v.trim())
+            },
+            password: {
+                validate: v => v.length >= 6 && /[A-Z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v),
+                onValid: () => document.getElementById('passwordHint').style.display = '',
+                onInvalid: () => document.getElementById('passwordHint').style.display = 'none'
+            }
+        };
 
 
-                        Object.keys(rules).forEach(id => {
-                            const input = document.getElementById(id);
-                            input.addEventListener('blur', () => validateField(id));
-                            input.addEventListener('input', () => {
-                                if (input.classList.contains('is-invalid') || input.classList.contains('is-valid')) {
-                                    if (id === 'email') emailTaken = false;
-                                    validateField(id);
-                                }
-                            });
-                        });
+        let emailTaken = false;
+        const emailInput = document.getElementById('email');
+        const emailFeedback = emailInput.nextElementSibling;
+
+        async function checkEmailUniqueness() {
+            const val = emailInput.value.trim();
+            if (!rules.email.validate(val)) return;
+
+            try {
+                const res = await fetch(`/Account/CheckEmailExists?email=${encodeURIComponent(val)}`);
+                const data = await res.json();
+                emailTaken = data.exists;
+
+                if (emailTaken) {
+                    emailInput.classList.add('is-invalid');
+                    emailInput.classList.remove('is-valid');
+                    emailFeedback.textContent = 'Ten adres email jest już zarejestrowany.';
+                } else {
+                    emailFeedback.textContent = 'Podaj poprawny adres email (np. wujek@kujek.pl).';
+                    validateField('email');
+                }
+            } catch (_) { }
+        }
+
+        function validateField(id) {
+            const input = document.getElementById(id);
+            const rule = rules[id];
+            const isValid = rule.validate(input.value);
+
+            const finalValid = id === 'email' ? (isValid && !emailTaken) : isValid;
+
+            input.classList.toggle('is-invalid', !finalValid);
+            input.classList.toggle('is-valid', finalValid);
+
+            if (finalValid && rule.onValid) rule.onValid();
+            if (!finalValid && rule.onInvalid) rule.onInvalid();
+
+            return finalValid;
+        }
 
 
-                        form.addEventListener('submit', async function (e) {
-                            e.preventDefault();
-                            await checkEmailUniqueness();
-                            const allValid = Object.keys(rules).map(id => validateField(id)).every(Boolean);
-                            if (allValid) form.submit();
-                        });
-                    })();
-            </script>
+        Object.keys(rules).forEach(id => {
+            const input = document.getElementById(id);
+            input.addEventListener('blur', () => validateField(id));
+            input.addEventListener('input', () => {
+                if (input.classList.contains('is-invalid') || input.classList.contains('is-valid')) {
+                    if (id === 'email') emailTaken = false;
+                    validateField(id);
+                }
+            });
+        });
+
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            await checkEmailUniqueness();
+            const allValid = Object.keys(rules).map(id => validateField(id)).every(Boolean);
+            if (allValid) form.submit();
+        });
+    })();
+</script>
+

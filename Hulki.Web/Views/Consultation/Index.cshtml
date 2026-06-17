@@ -32,7 +32,9 @@
 
             <div class="d-flex gap-3 flex-column flex-md-row align-items-md-center mt-3 mt-md-0">
                 <div class="consult-counter p-3 rounded-3 shadow-sm text-center">
-                    <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px; width: 120px"">Zaplanowane</div>
+                    <div class="small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 1px; width: 120px">
+                        Zaplanowane
+                    </div>
                     <div class=" fs-3 fw-bold text-primary">@upcoming.Count</div>
                 </div>
 
@@ -94,7 +96,8 @@
                             <div
                                 class="consult-card consult-card--upcoming rounded-4 p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                                 <div class="d-flex align-items-center gap-4">
-                                    <div class="consult-date-badge d-flex flex-column align-items-center justify-content-center">
+                                    <div
+                                        class="consult-date-badge d-flex flex-column align-items-center justify-content-center">
                                         <span class="month">@item.StartTime.ToString("MMM").ToUpper()</span>
                                         <span class="day">@item.StartTime.ToString("dd")</span>
                                     </div>
@@ -132,16 +135,16 @@
                                     @if (isTherapist)
                                     {
                                         <form asp-action="ChangeStatus" method="post" class="d-inline m-0">
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <input type="hidden" name="statusId" value="2" />
+                                            <input type="hidden" name="id" value="@item.Id"/>
+                                            <input type="hidden" name="statusId" value="2"/>
                                             <button type="submit" class="btn btn-ghost-success rounded-pill px-3 py-2"
                                                     title="Oznacz jako zakończoną">
                                                 <i class="bi bi-check-circle me-1"></i>Zakończ
                                             </button>
                                         </form>
                                         <form asp-action="ChangeStatus" method="post" class="d-inline m-0">
-                                            <input type="hidden" name="id" value="@item.Id" />
-                                            <input type="hidden" name="statusId" value="3" />
+                                            <input type="hidden" name="id" value="@item.Id"/>
+                                            <input type="hidden" name="statusId" value="3"/>
                                             <button type="submit" class="btn btn-ghost-danger rounded-pill px-3 py-2"
                                                     title="Odwołaj wizytę">
                                                 <i class="bi bi-x-circle me-1"></i>Odwołaj
@@ -257,7 +260,7 @@
         min-width: 110px;
     }
 
-    
+
     .consult-card {
         background-color: #1b1b22;
         border: 1px solid rgba(255, 255, 255, 0.04);
@@ -286,7 +289,7 @@
         transform: translateY(-1px);
     }
 
-    
+
     .consult-date-badge {
         min-width: 64px;
         min-height: 64px;
@@ -321,7 +324,7 @@
         color: #6c757d;
     }
 
-    
+
     .status-badge {
         font-size: 0.78rem;
         font-weight: 600;
@@ -346,7 +349,7 @@
         border: 1px solid rgba(218, 41, 46, 0.3);
     }
 
-    
+
     .btn-ghost-details {
         font-size: 0.82rem;
         font-weight: 600;
@@ -392,7 +395,7 @@
         box-shadow: 0 0 12px rgba(218, 41, 46, 0.35);
     }
 
-    
+
     .btn-custom-success {
         background-color: rgba(70, 204, 94, 0.10);
         color: #46CC5E;
@@ -406,7 +409,7 @@
         box-shadow: 0 0 15px rgba(70, 204, 94, 0.4);
     }
 
-    
+
     .empty-state {
         background: #1b1b22;
         border: 1px dashed rgba(70, 204, 94, 0.2);
