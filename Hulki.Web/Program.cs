@@ -15,7 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// ── Identity ─────────────────────────────────────────────────────────────────
+
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount  = false;
@@ -28,13 +28,10 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ── ZABEZPIECZONE COOKIES ─────────────────────────────────────────────────────
-// Dev:  SameAsRequest + Lax  → działa przez HTTP lokalnie
-// Prod: Always       + Strict → wymaga HTTPS, blokuje CSRF
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.Name         = "Hulki.Auth";
-    options.Cookie.HttpOnly     = true;   // JS nie może czytać cookie
+    options.Cookie.HttpOnly     = true;   
     options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
         ? CookieSecurePolicy.SameAsRequest
         : CookieSecurePolicy.Always;
@@ -48,7 +45,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath  = "/Account/Login";
 });
 
-// Antiforgery – ta sama logika dev/prod
+
 builder.Services.AddAntiforgery(options =>
 {
     options.Cookie.Name         = "Hulki.XSRF";
@@ -61,7 +58,6 @@ builder.Services.AddAntiforgery(options =>
         : SameSiteMode.Strict;
 });
 
-// ── Serwisy aplikacji ─────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -73,10 +69,9 @@ builder.Services.AddScoped<IBadgeService, BadgeService>();
 builder.Services.AddScoped<ISurveyService, SurveyService>();
 builder.Services.AddScoped<IPdfReportService, PdfReportService>();
 
-// ── Serwis SQL (procedury / funkcje / triggery) ───────────────────────────────
 builder.Services.AddScoped<SqlObjectsService>();
 
-// ── Swagger / OpenAPI ───────────────────────────────────────────────────────
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -113,7 +108,6 @@ builder.Services.AddScoped<IQuoteService, QuoteService>();
 
 var app = builder.Build();
 
-// ── Inicjalizacja danych startowych ──────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var services    = scope.ServiceProvider;
@@ -147,7 +141,7 @@ using (var scope = app.Services.CreateScope())
             }
             else
             {
-                admin = null; // tworzenie się nie powiodło - nic więcej do naprawy
+                admin = null; 
             }
         }
 
@@ -158,12 +152,7 @@ using (var scope = app.Services.CreateScope())
                 context.Wallets.Add(new Wallet { AppUserId = admin.Id, Balance = 9999 });
                 await context.SaveChangesAsync();
             }
-
-            // Logowanie w tej aplikacji weryfikuje hasło względem CustomUsers
-            // (AccountController.Login), nie względem AspNetUsers/Identity —
-            // bez tego wpisu konto admina istnieje, ale nigdy nie zaloguje się
-            // przez formularz logowania (zwraca "niepoprawny e-mail lub hasło").
-            // Sprawdzenie działa też dla kont admina utworzonych przed tą poprawką.
+            
             if (!await context.CustomUsers.AnyAsync(u => u.Email == adminEmail))
             {
                 context.CustomUsers.Add(new CustomUser
@@ -191,17 +180,16 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// ── Pipeline HTTP ─────────────────────────────────────────────────────────────
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
-
-    // Swagger – dostępny tylko w środowisku deweloperskim
+    
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Hulki API v1");
-        options.RoutePrefix = "swagger"; // -> /swagger
+        options.RoutePrefix = "swagger";
     });
 }
 else
