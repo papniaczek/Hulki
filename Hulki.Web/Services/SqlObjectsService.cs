@@ -20,12 +20,7 @@ public record UserStatsDto(
 
 public record GroupOperationResult(bool Success, string Message);
 
-// ── Serwis ────────────────────────────────────────────────────────────────────
 
-/// <summary>
-/// Wywołuje triggery, funkcje i procedury składowane bezpośrednio z C#
-/// przez ADO.NET / EF Core. Wstrzyknij przez DI jako Scoped.
-/// </summary>
 public class SqlObjectsService
 {
     private readonly ApplicationDbContext _db;
@@ -35,9 +30,9 @@ public class SqlObjectsService
         _db = db;
     }
 
-    // ── PROCEDURY ────────────────────────────────────────────────────────
+    // PROCEDURY
 
-    /// <summary>Wywołuje sp_GetUserStats i zwraca statystyki użytkownika.</summary>
+    // sp_GetUserStats
     public async Task<UserStatsDto?> GetUserStatsAsync(string userId)
     {
         var conn = _db.Database.GetDbConnection();
@@ -65,7 +60,7 @@ public class SqlObjectsService
         );
     }
 
-    /// <summary>Wywołuje sp_AddPatientToGroup i zwraca wynik operacji.</summary>
+    // sp_AddPatientToGroup
     public async Task<GroupOperationResult> AddPatientToGroupAsync(
         string userId, int groupId, bool isApproved = false)
     {
@@ -89,7 +84,7 @@ public class SqlObjectsService
         );
     }
 
-    /// <summary>Wywołuje sp_PurgeOldNotifications i zwraca liczbę usuniętych rekordów.</summary>
+    // sp_PurgeOldNotifications
     public async Task<int> PurgeOldNotificationsAsync(int olderThanDays = 90)
     {
         var conn = _db.Database.GetDbConnection();
@@ -104,7 +99,7 @@ public class SqlObjectsService
         return reader.GetInt32(0);
     }
 
-    /// <summary>Wywołuje sp_PurchaseRewardItem – zakup przedmiotu ze sklepu.</summary>
+    // sp_PurchaseRewardItem
     public async Task<GroupOperationResult> PurchaseRewardItemAsync(string userId, Guid rewardItemId)
     {
         var conn = _db.Database.GetDbConnection();
@@ -126,7 +121,7 @@ public class SqlObjectsService
         );
     }
 
-    /// <summary>Wywołuje sp_AwardBadge – przyznaje odznakę użytkownikowi.</summary>
+    // sp_AwardBadge
     public async Task<GroupOperationResult> AwardBadgeAsync(string userId, Guid badgeId)
     {
         var conn = _db.Database.GetDbConnection();
@@ -148,15 +143,9 @@ public class SqlObjectsService
         );
     }
 
-    // ── FUNKCJE ──────────────────────────────────────────────────────────
-    // Uwaga: funkcje skalarne wywołujemy przez surowy ADO.NET (ExecuteScalarAsync),
-    // nie przez SqlQueryRaw<T>().FirstOrDefaultAsync() – w EF Core 10 ta druga
-    // forma czasem gubi nazwę kolumny przy wewnętrznej kompozycji LINQ
-    // (błąd: "No column name was specified for column 1 of 's'"), mimo że
-    // SQL ma poprawny alias AS Value. ExecuteScalarAsync nie ma tego problemu,
-    // bo nie przechodzi przez warstwę LINQ-nad-SQL.
+    // FUNKCJE 
 
-    /// <summary>Wywołuje fn_GetFullName – zwraca imię i nazwisko użytkownika.</summary>
+    // fn_GetFullName
     public async Task<string> GetFullNameAsync(string userId)
     {
         var result = await ExecuteScalarFunctionAsync(
@@ -165,7 +154,7 @@ public class SqlObjectsService
         return result as string ?? "Nieznany użytkownik";
     }
 
-    /// <summary>Wywołuje fn_CountUserConsultations – zlicza konsultacje w statusie.</summary>
+    // fn_CountUserConsultations
     public async Task<int> CountUserConsultationsAsync(string userId, int statusId)
     {
         var result = await ExecuteScalarFunctionAsync(
@@ -174,7 +163,7 @@ public class SqlObjectsService
         return result is int i ? i : 0;
     }
 
-    /// <summary>Wywołuje fn_AverageWalletBalance – zwraca średnie saldo portfela.</summary>
+    // fn_AverageWalletBalance
     public async Task<decimal> GetAverageWalletBalanceAsync()
     {
         var result = await ExecuteScalarFunctionAsync(
@@ -182,7 +171,7 @@ public class SqlObjectsService
         return result is decimal d ? d : 0m;
     }
 
-    /// <summary>Wywołuje fn_GetTotalEarnedPoints – suma zdobytych punktów (dodatnich transakcji).</summary>
+    // fn_GetTotalEarnedPoints
     public async Task<int> GetTotalEarnedPointsAsync(string userId)
     {
         var result = await ExecuteScalarFunctionAsync(
@@ -191,7 +180,7 @@ public class SqlObjectsService
         return result is int i ? i : 0;
     }
 
-    /// <summary>Wywołuje fn_CountUserBadges – liczba zdobytych odznak.</summary>
+    // fn_CountUserBadges
     public async Task<int> CountUserBadgesAsync(string userId)
     {
         var result = await ExecuteScalarFunctionAsync(
@@ -200,12 +189,9 @@ public class SqlObjectsService
         return result is int i ? i : 0;
     }
 
-    // ── HELPER ───────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Wykonuje SELECT funkcji skalarnej przez ADO.NET i zwraca surową wartość
-    /// (lub null/DBNull jeśli funkcja zwróciła NULL).
-    /// </summary>
+    
+    // helper
     private async Task<object?> ExecuteScalarFunctionAsync(
         string sql, params (string Name, object? Value)[] parameters)
     {

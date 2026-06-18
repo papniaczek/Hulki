@@ -1,0 +1,79 @@
+-- A.1 — MoodLogs filtrowane po pacjencie, sortowane chronologicznie
+
+SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+DECLARE @testUserId NVARCHAR(450) = (SELECT TOP 1 AppUserId FROM MoodLogs);
+
+SELECT Id, AppUserId, Date, MoodTypeId
+FROM MoodLogs
+WHERE AppUserId = @testUserId
+ORDER BY Date DESC;
+
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+GO
+
+DBCC DROPCLEANBUFFERS;
+DBCC FREEPROCCACHE;
+GO
+
+-- A.2 — Posty w "gorącym" wątku forum, stronicowane i sortowane
+
+SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+DECLARE @hotTopicId UNIQUEIDENTIFIER = (
+    SELECT TOP 1 ForumTopicId
+    FROM ForumPosts
+    GROUP BY ForumTopicId
+    ORDER BY COUNT(*) DESC
+);
+
+SELECT Id, Content, CreatedAt, AppUserId
+FROM ForumPosts
+WHERE ForumTopicId = @hotTopicId
+ORDER BY CreatedAt
+OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;
+
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+GO
+
+DBCC DROPCLEANBUFFERS;
+DBCC FREEPROCCACHE;
+GO
+
+-- A.3 — Konsultacje pacjenta, sortowane chronologicznie
+
+SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+
+DECLARE @patientId NVARCHAR(450) = (SELECT TOP 1 PatientId FROM Consultations);
+
+SELECT Id, PatientId, TherapistId, StartTime, EndTime, StatusId
+FROM Consultations
+WHERE PatientId = @patientId
+ORDER BY StartTime DESC;
+
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+GO
+
+
+-------------------------------
+SELECT name, type_desc
+FROM sys.indexes
+WHERE name IN (
+    'IX_MoodLogs_AppUserId_Date',
+    'IX_ForumPosts_ForumTopicId_CreatedAt',
+    'IX_Consultations_PatientId_StartTime',
+    'IX_Consultations_TherapistId_StartTime',
+    'IX_DailyReports_AppUserId_CreatedAt'
+);
+GO
+
+DBCC DROPCLEANBUFFERS;
+DBCC FREEPROCCACHE;
+GO
+-------------------------------

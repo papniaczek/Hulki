@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hulki.Web.Controllers.Api;
 
-/// <summary>
-/// Wystawia listę przedmiotów dostępnych w sklepie nagród (RewardItems).
-/// </summary>
+// lista przedmiotów dostępnych w sklepie nagród
 [ApiController]
 [Route("api/shop")]
 [AllowAnonymous]
@@ -24,7 +22,7 @@ public class ShopApiController : ControllerBase
         _shopService = shopService;
     }
 
-    /// <summary>Zwraca wszystkie przedmioty dostępne w sklepie nagród.</summary>
+    // zwraca wszystkie przedmioty
     [HttpGet("items")]
     [ProducesResponseType(typeof(IReadOnlyList<ShopItemDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<ShopItemDto>>> GetItems(

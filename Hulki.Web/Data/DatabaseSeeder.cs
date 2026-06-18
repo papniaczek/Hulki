@@ -10,10 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hulki.Web.Data;
 
-/// <summary>
-/// Seeder danych testowych oparty na bibliotece Bogus (Faker).
-/// Wywołuj tylko w środowisku deweloperskim (IsDevelopment).
-/// </summary>
+// seeder danych do bazy (faker)
 public static class DatabaseSeeder
 {
     private const string DefaultPassword = "Test1234!";
@@ -33,7 +30,6 @@ public static class DatabaseSeeder
         var therapists = await SeedTherapistsAsync(db, userManager, 5);
         var patients   = await SeedPatientsAsync(db, userManager, 20);
 
-        // własna tabela Users z ręcznym hashowaniem
         await SeedCustomUsersAsync(db, therapists, patients);
 
         var groups = await SeedTherapyGroupsAsync(db, therapists);
@@ -47,7 +43,6 @@ public static class DatabaseSeeder
         Console.WriteLine("[DatabaseSeeder] Seeding zakończony.");
     }
 
-    // ──────────────────────────────────────────────────────────────────────
 
     private static async Task SeedLookupsAsync(ApplicationDbContext db)
     {
@@ -145,11 +140,8 @@ public static class DatabaseSeeder
         await db.SaveChangesAsync();
         return result;
     }
-
-    /// <summary>
-    /// Zapisuje użytkowników do własnej tabeli CustomUsers
-    /// z hasłami hashowanymi przez CustomPasswordHasher (PBKDF2-SHA256).
-    /// </summary>
+    
+    // zapisanie do CustomUsers
     private static async Task SeedCustomUsersAsync(
         ApplicationDbContext db,
         List<AppUser> therapists,
@@ -325,7 +317,7 @@ public static class DatabaseSeeder
             };
             db.ForumTopics.Add(topic);
 
-            for (int p = 0; p < faker.Random.Int(2, 8); p++)
+            for (int p = 0; p < faker.Random.Int(5, 10); p++)
                 db.ForumPosts.Add(new ForumPost
                 {
                     Id           = Guid.NewGuid(),
@@ -336,7 +328,6 @@ public static class DatabaseSeeder
                 });
         }
 
-        // ── "Gorący" wątek z ~150 postami – do testowania paginacji ─────────
         var hotTopic = new ForumTopic
         {
             Id              = Guid.NewGuid(),
@@ -348,13 +339,13 @@ public static class DatabaseSeeder
         };
         db.ForumTopics.Add(hotTopic);
 
-        int hotPostCount = faker.Random.Int(140, 160);
+        int hotPostCount = faker.Random.Int(500, 600);
         for (int p = 0; p < hotPostCount; p++)
             db.ForumPosts.Add(new ForumPost
             {
                 Id           = Guid.NewGuid(),
                 Content      = faker.Lorem.Paragraphs(1),
-                CreatedAt    = hotTopic.CreatedAt.AddHours(p), // narastająco -> zachowuje kolejność chronologiczną
+                CreatedAt    = hotTopic.CreatedAt.AddHours(p),
                 AppUserId    = faker.PickRandom(allUsers).Id,
                 ForumTopicId = hotTopic.Id
             });
@@ -394,8 +385,8 @@ public static class DatabaseSeeder
                     db.GoalMilestones.Add(new GoalMilestone
                     {
                         Id          = Guid.NewGuid(),
-                        GoalId      = goal.Id,          // poprawne pole z modelu
-                        Description = faker.Lorem.Sentence(4),  // poprawne pole z modelu
+                        GoalId      = goal.Id,
+                        Description = faker.Lorem.Sentence(4),
                         IsCompleted = faker.Random.Bool(0.3f)
                     });
             }

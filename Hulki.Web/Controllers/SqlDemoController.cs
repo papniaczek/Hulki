@@ -5,17 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hulki.Web.Controllers;
 
-/// <summary>
-/// Przykładowy kontroler demonstrujący wywoływanie procedur składowanych,
-/// funkcji SQL i triggerów z poziomu C# przez SqlObjectsService.
-/// 
-/// Trasy:
-///   GET  /SqlDemo/stats/{userId}         → sp_GetUserStats
-///   POST /SqlDemo/add-to-group           → sp_AddPatientToGroup
-///   POST /SqlDemo/purge-notifications    → sp_PurgeOldNotifications
-///   GET  /SqlDemo/fullname/{userId}      → fn_GetFullName
-///   GET  /SqlDemo/avg-balance            → fn_AverageWalletBalance
-/// </summary>
 [Authorize(Roles = "Admin")]
 public class SqlDemoController : Controller
 {
@@ -23,9 +12,9 @@ public class SqlDemoController : Controller
 
     public SqlDemoController(SqlObjectsService sql) => _sql = sql;
 
-    // ── PROCEDURY ────────────────────────────────────────────────────────
+    // PROCEDURY
 
-    /// <summary>Wywołuje sp_GetUserStats – statystyki użytkownika z bazy.</summary>
+    // sp_GetUserStats – statystyki użytkownika z bazy
     [HttpGet]
     public async Task<IActionResult> Stats(string userId)
     {
@@ -34,7 +23,7 @@ public class SqlDemoController : Controller
         return Json(stats);
     }
 
-    /// <summary>Wywołuje sp_AddPatientToGroup – dodaje pacjenta do grupy.</summary>
+    // sp_AddPatientToGroup – dodaje pacjenta do grupy
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddToGroup(string userId, int groupId)
@@ -43,7 +32,7 @@ public class SqlDemoController : Controller
         return Json(new { result.Success, result.Message });
     }
 
-    /// <summary>Wywołuje sp_PurgeOldNotifications – czyści stare powiadomienia.</summary>
+    // sp_PurgeOldNotifications – czyści stare powiadomienia
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PurgeNotifications(int days = 90)
@@ -52,7 +41,7 @@ public class SqlDemoController : Controller
         return Json(new { deleted, message = $"Usunięto {deleted} powiadomień starszych niż {days} dni." });
     }
 
-    /// <summary>Wywołuje sp_PurchaseRewardItem – zakup przedmiotu ze sklepu.</summary>
+    // sp_PurchaseRewardItem – zakup przedmiotu ze sklepu
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PurchaseItem(string userId, Guid rewardItemId)
@@ -61,7 +50,7 @@ public class SqlDemoController : Controller
         return Json(new { result.Success, result.Message });
     }
 
-    /// <summary>Wywołuje sp_AwardBadge – przyznaje odznakę użytkownikowi.</summary>
+    // sp_AwardBadge – przyznaje odznakę użytkownikowi
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AwardBadge(string userId, Guid badgeId)
@@ -70,9 +59,9 @@ public class SqlDemoController : Controller
         return Json(new { result.Success, result.Message });
     }
 
-    // ── FUNKCJE SQL ──────────────────────────────────────────────────────
+    // FUNKCJE
 
-    /// <summary>Wywołuje fn_GetFullName – imię i nazwisko z bazy.</summary>
+    // fn_GetFullName – imię i nazwisko z bazy
     [HttpGet]
     public async Task<IActionResult> FullName(string userId)
     {
@@ -80,7 +69,7 @@ public class SqlDemoController : Controller
         return Json(new { fullName = name });
     }
 
-    /// <summary>Wywołuje fn_AverageWalletBalance – średnie saldo portfela.</summary>
+    // fn_AverageWalletBalance – średnie saldo portfela
     [HttpGet]
     public async Task<IActionResult> AverageBalance()
     {
@@ -88,7 +77,7 @@ public class SqlDemoController : Controller
         return Json(new { averageBalance = avg });
     }
 
-    /// <summary>Wywołuje fn_GetTotalEarnedPoints – suma zdobytych punktów.</summary>
+    // fn_GetTotalEarnedPoints – suma zdobytych punktów
     [HttpGet]
     public async Task<IActionResult> TotalEarnedPoints(string userId)
     {
@@ -96,7 +85,7 @@ public class SqlDemoController : Controller
         return Json(new { totalEarnedPoints = total });
     }
 
-    /// <summary>Wywołuje fn_CountUserBadges – liczba zdobytych odznak.</summary>
+    // fn_CountUserBadges – liczba zdobytych odznak
     [HttpGet]
     public async Task<IActionResult> BadgeCount(string userId)
     {
@@ -104,25 +93,12 @@ public class SqlDemoController : Controller
         return Json(new { badgeCount = count });
     }
 
-    // ── TRIGGER – demonstracja pośrednia ─────────────────────────────────
-    // Triggery działają automatycznie w SQL Server. Przykłady działania:
-    //
-    // trg_AfterInsertAspNetUser        → AFTER INSERT na AspNetUsers,
-    //                                     tworzy portfel nowego użytkownika.
-    //
-    // trg_AfterConsultationStatusChange → AFTER UPDATE na Consultations,
-    //                                      tworzy powiadomienie gdy status → 2 (Zakończona).
-    //
-    // trg_AuditTherapyGroupDelete      → AFTER DELETE na TherapyGroups,
-    //                                     zapisuje log usunięcia do TherapyGroupDeletionLogs
-    //                                     (INSTEAD OF nie było możliwe – tabela ma wchodzące
-    //                                      kaskady FK z PatientGroups/GroupMessages/itd.).
-    //
-    // trg_AfterPointTransactionInsert  → AFTER INSERT na PointTransactions,
-    //                                     aktualizuje saldo portfela.
-    //
-    // trg_PreventNegativeWalletBalance → AFTER UPDATE na Wallets,
-    //                                     blokuje zejście salda portfela pod zero.
+    // TRIGGERY
+    // trg_AfterInsertAspNetUser - tworzy portfel nowego użytkownika.
+    // trg_AfterConsultationStatusChange - tworzy powiadomienie gdy status = Zakończona
+    // trg_AuditTherapyGroupDelete - zapisuje log usunięcia do TherapyGroupDeletionLogs
+    // trg_AfterPointTransactionInsert - aktualizuje saldo portfela
+    // trg_PreventNegativeWalletBalance - blokuje zejście salda portfela pod zero
     [HttpGet]
     public IActionResult TriggerInfo()
     {

@@ -5,11 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hulki.Web.Controllers.Api;
 
-/// <summary>
-/// Wystawia statystyki użytkownika i systemu jako REST API.
-/// Pod spodem każda metoda wywołuje procedurę składowaną lub funkcję SQL
-/// (zobacz SqlObjectsService oraz migrację AddCustomUsersAndSqlObjects / AddMoreSqlObjects).
-/// </summary>
+// wystawia statystyki uzytkownika
 [ApiController]
 [Route("api/stats")]
 [AllowAnonymous]
@@ -23,12 +19,7 @@ public class StatsApiController : ControllerBase
         _sql = sql;
     }
 
-    /// <summary>
-    /// Zwraca pełne statystyki użytkownika: liczba zakończonych konsultacji,
-    /// wpisów nastroju, raportów dziennych, zrealizowanych celów i saldo portfela.
-    /// Wywołuje procedurę składowaną dbo.sp_GetUserStats.
-    /// </summary>
-    /// <param name="userId">Identyfikator użytkownika (AspNetUsers.Id)</param>
+    // pelne statystyki
     [HttpGet("user/{userId}")]
     [ProducesResponseType(typeof(UserStatsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -39,10 +30,7 @@ public class StatsApiController : ControllerBase
         return Ok(stats);
     }
 
-    /// <summary>
-    /// Zwraca sumę punktów zdobytych przez użytkownika (dodatnie transakcje portfela).
-    /// Wywołuje funkcję dbo.fn_GetTotalEarnedPoints.
-    /// </summary>
+    // suma punktow uzytkownika
     /// <param name="userId">Identyfikator użytkownika (AspNetUsers.Id)</param>
     [HttpGet("user/{userId}/earned-points")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
@@ -52,10 +40,7 @@ public class StatsApiController : ControllerBase
         return Ok(total);
     }
 
-    /// <summary>
-    /// Zwraca liczbę odznak zdobytych przez użytkownika.
-    /// Wywołuje funkcję dbo.fn_CountUserBadges.
-    /// </summary>
+    // liczba odznak uzytkownika
     /// <param name="userId">Identyfikator użytkownika (AspNetUsers.Id)</param>
     [HttpGet("user/{userId}/badge-count")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
@@ -65,10 +50,7 @@ public class StatsApiController : ControllerBase
         return Ok(count);
     }
 
-    /// <summary>
-    /// Zwraca średnie saldo portfela wszystkich użytkowników w systemie.
-    /// Wywołuje funkcję dbo.fn_AverageWalletBalance.
-    /// </summary>
+    // srednie saldo wszystkich portfeli
     [HttpGet("wallets/average-balance")]
     [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
     public async Task<ActionResult<decimal>> GetAverageWalletBalance()

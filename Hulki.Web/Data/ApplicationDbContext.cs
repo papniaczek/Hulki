@@ -9,7 +9,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
 
-    // ── Istniejące DbSety (bez zmian) ──────────────────────────────────────
+    // DbSets
     public DbSet<TherapyType> TherapyTypes { get; set; }
     public DbSet<ReportStatus> ReportStatuses { get; set; }
     public DbSet<ItemRarity> ItemRarities { get; set; }
@@ -46,8 +46,6 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
     public DbSet<GoalMilestone> GoalMilestones { get; set; }
     public DbSet<TherapyGoal> TherapyGoals { get; set; }
     public DbSet<TherapyGroupDeletionLog> TherapyGroupDeletionLogs { get; set; }
-
-    // ── NOWE: własna tabela użytkowników z ręcznym hashowaniem ─────────────
     public DbSet<CustomUser> CustomUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -62,6 +60,8 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .WithOne(w => w.AppUser)
             .HasForeignKey<Wallet>(w => w.AppUserId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<Wallet>().ToTable(tb => tb.HasTrigger("trg_PreventNegativeWalletBalance"));
+        builder.Entity<PointTransaction>().ToTable(tb => tb.HasTrigger("trg_AfterPointTransactionInsert"));
         builder
             .Entity<DailyReport>()
             .HasOne(d => d.AppUser)
@@ -104,8 +104,6 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             .WithOne(su => su.Survey)
             .HasForeignKey(su => su.SurveyId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // CustomUser – unikalny email
         builder.Entity<CustomUser>()
             .HasIndex(u => u.Email)
             .IsUnique();

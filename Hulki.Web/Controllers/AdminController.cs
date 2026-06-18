@@ -190,12 +190,17 @@ public class AdminController : Controller
                 Balance = 0,
             };
             _context.Wallets.Add(wallet);
+            await _context.SaveChangesAsync();
         }
 
-        wallet.Balance += amount;
-        if (wallet.Balance < 0)
-            wallet.Balance = 0;
-
+        if (wallet.Balance + amount < 0)
+        {
+            TempData["ErrorMessage"] =
+                $"Nie można odjąć {Math.Abs(amount)} pkt — saldo pacjenta to tylko {wallet.Balance} pkt. " +
+                "Saldo nie może być ujemne (wymuszone przez trigger trg_PreventNegativeWalletBalance).";
+            return RedirectToAction(nameof(PatientDetails), new { id = userId });
+        }
+        
         _context.PointTransactions.Add(
             new PointTransaction
             {
@@ -210,14 +215,20 @@ public class AdminController : Controller
         );
 
         await _context.SaveChangesAsync();
+        
+        var updatedBalance = await _context.Wallets
+            .AsNoTracking()
+            .Where(w => w.Id == wallet.Id)
+            .Select(w => w.Balance)
+            .FirstOrDefaultAsync();
 
         await _notificationService.SendNotificationAsync(
             userId,
-            $"Twoje saldo punktów zostało zmienione o {amount}. Nowe saldo: {wallet.Balance}."
+            $"Twoje saldo punktów zostało zmienione o {amount}. Nowe saldo: {updatedBalance}."
         );
 
         TempData["SuccessMessage"] =
-            $"Saldo zmienione o {amount} pkt. Nowe saldo: {wallet.Balance}.";
+            $"Saldo zmienione o {amount} pkt. Nowe saldo: {updatedBalance}.";
 
         return RedirectToAction(nameof(PatientDetails), new { id = userId });
     }
