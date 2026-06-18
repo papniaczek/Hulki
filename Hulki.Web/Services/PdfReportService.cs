@@ -263,7 +263,7 @@ namespace Hulki.Web.Services
                                         .Row(row =>
                                         {
                                             row.RelativeItem()
-                                                .Text($"📅 {report.CreatedAt:dd MMMM yyyy, HH:mm}")
+                                                .Text($"{report.CreatedAt:dd MMMM yyyy, HH:mm}")
                                                 .Bold()
                                                 .FontSize(12);
                                         });
@@ -281,7 +281,7 @@ namespace Hulki.Web.Services
                                             .Item()
                                             .PaddingTop(5)
                                             .Text(
-                                                $"📎 Załączniki: {string.Join(", ", report.ReportAttachments.Select(a => a.FileName))}"
+                                                $"Załączniki: {string.Join(", ", report.ReportAttachments.Select(a => a.FileName))}"
                                             )
                                             .FontSize(9)
                                             .Italic()
@@ -327,15 +327,15 @@ namespace Hulki.Web.Services
                         .Padding(10)
                         .Column(stats =>
                         {
-                            stats.Item().Text("📊 Podsumowanie aktywności").FontSize(14).Bold();
+                            stats.Item().Text("Podsumowanie aktywności").FontSize(14).Bold();
                             stats
                                 .Item()
                                 .PaddingTop(5)
                                 .Row(row =>
                                 {
                                     row.RelativeItem()
-                                        .Text($"💰 Punkty: {user.Wallet?.Balance ?? 0}");
-                                    row.RelativeItem().Text($"📝 Raporty dzienne: {reportsCount}");
+                                        .Text($"Punkty: {user.Wallet?.Balance ?? 0}");
+                                    row.RelativeItem().Text($"Raporty dzienne: {reportsCount}");
                                 });
                             stats
                                 .Item()
@@ -344,12 +344,12 @@ namespace Hulki.Web.Services
                                 {
                                     row.RelativeItem()
                                         .Text(
-                                            $"🎯 Cele ukończone: {goals.Count(g => g.IsCompleted)}/{goals.Count}"
+                                            $"Cele ukończone: {goals.Count(g => g.IsCompleted)}/{goals.Count}"
                                         );
                                     row.RelativeItem()
-                                        .Text($"💬 Konsultacje: {consultationsCount}");
+                                        .Text($"Konsultacje: {consultationsCount}");
                                 });
-                            stats.Item().PaddingTop(3).Text($"🏆 Odznaki: {badges.Count}");
+                            stats.Item().PaddingTop(3).Text($"Odznaki: {badges.Count}");
                         });
 
                     column
@@ -357,7 +357,7 @@ namespace Hulki.Web.Services
                         .PaddingTop(10)
                         .Column(goalsSection =>
                         {
-                            goalsSection.Item().Text("🎯 Cele terapeutyczne").FontSize(14).Bold();
+                            goalsSection.Item().Text("Cele terapeutyczne").FontSize(14).Bold();
 
                             if (!goals.Any())
                             {
@@ -415,7 +415,7 @@ namespace Hulki.Web.Services
                         .PaddingTop(10)
                         .Column(badgesSection =>
                         {
-                            badgesSection.Item().Text("🏆 Zdobyte odznaki").FontSize(14).Bold();
+                            badgesSection.Item().Text("Zdobyte odznaki").FontSize(14).Bold();
 
                             if (!badges.Any())
                             {
@@ -485,7 +485,7 @@ namespace Hulki.Web.Services
                         .Padding(10)
                         .Column(info =>
                         {
-                            info.Item().Text("📋 Informacje podstawowe").FontSize(12).Bold();
+                            info.Item().Text("Informacje podstawowe").FontSize(12).Bold();
                             info.Item()
                                 .PaddingTop(5)
                                 .Text(
@@ -506,7 +506,7 @@ namespace Hulki.Web.Services
                             .PaddingTop(10)
                             .Column(topic =>
                             {
-                                topic.Item().Text("📝 Notatki z konsultacji").FontSize(12).Bold();
+                                topic.Item().Text("Notatki z konsultacji").FontSize(12).Bold();
                                 topic.Item().PaddingTop(5).Text(consultation.Notes);
                             });
                     }
@@ -518,7 +518,7 @@ namespace Hulki.Web.Services
                             .PaddingTop(10)
                             .Column(notes =>
                             {
-                                notes.Item().Text("📄 Zalecenia").FontSize(12).Bold();
+                                notes.Item().Text("Zalecenia").FontSize(12).Bold();
                                 notes
                                     .Item()
                                     .PaddingTop(5)
